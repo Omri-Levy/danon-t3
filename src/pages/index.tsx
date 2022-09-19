@@ -313,7 +313,7 @@ const Home: NextPage = () => {
 			/>
 			<main className='container pt-[7vh] min-h-screen p-2 mx-auto'>
 				<TopBar
-					onResetOrderAmount={onResetOrderAmount}
+					onResetOrderAmount={() => onResetOrderAmount()}
 					onDeleteSelectedProducts={
 						onDeleteSelectedProductsSubmit
 					}

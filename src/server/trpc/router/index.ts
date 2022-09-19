@@ -1,4 +1,3 @@
-// src/server/trpc/router/index.ts
 import { t } from '../utils';
 import { productsRouter } from './products';
 import { suppliersRouter } from './suppliers';
