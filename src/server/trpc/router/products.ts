@@ -4,7 +4,7 @@ import { idSchema, idsSchema } from '../../../../prisma/zod/ids';
 import { z } from 'zod';
 
 export const productsRouter = t.router({
-	getProducts: t.procedure.query(() => {
+	getAll: t.procedure.query(() => {
 		return prisma?.product.findMany({
 			include: {
 				supplier: {
@@ -15,12 +15,12 @@ export const productsRouter = t.router({
 			},
 		});
 	}),
-	getProductById: t.procedure.input(idSchema).query(({ input }) => {
+	getById: t.procedure.input(idSchema).query(({ input }) => {
 		return prisma?.product.findUnique({
 			where: { id: input.id },
 		});
 	}),
-	createProduct: t.procedure
+	create: t.procedure
 		.input(
 			ProductModel.pick({
 				sku: true,
@@ -54,7 +54,7 @@ export const productsRouter = t.router({
 				},
 			});
 		}),
-	updateProduct: t.procedure
+	updateById: t.procedure
 		.input(ProductModel.partial().merge(idSchema))
 		.mutation(({ input }) => {
 			return prisma?.product.update({
@@ -62,7 +62,7 @@ export const productsRouter = t.router({
 				data: input,
 			});
 		}),
-	deleteSelectedProducts: t.procedure
+	deleteByIds: t.procedure
 		.input(idsSchema)
 		.mutation(({ input }) => {
 			return prisma?.product.deleteMany({

@@ -2,7 +2,7 @@ import { DefaultCell } from '../components/atoms/DefaultCell/DefaultCell';
 import 'jspdf-autotable';
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import {
 	ColumnDef,
 	getCoreRowModel,
@@ -14,8 +14,6 @@ import {
 } from '@tanstack/table-core';
 import { useReactTable } from '@tanstack/react-table';
 import { locale } from '../translations';
-import { Product } from '@prisma/client';
-import { trpc } from '../utils/trpc';
 import { UnitColumn } from '../components/atoms/UnitColumn/UnitColumn';
 import { IndeterminateCheckbox } from '../components/atoms/IndeterminateCheckbox/IndeterminateCheckbox';
 import { useToggle } from '../hooks/useToggle/useToggle';
@@ -30,6 +28,8 @@ import { CreateSupplierModal } from '../components/organisms/CreateSupplierModal
 import { Pagination } from '../components/organisms/Pagination/Pagination';
 import { ReactTable } from '../components/molecules/ReactTable/ReactTable';
 import { ProductModel } from '../../prisma/zod';
+import { createProductsApi } from '../api/products-api';
+import { InferQueryOutput } from '../utils/trpc';
 
 const Home: NextPage = () => {
 	const [sorting, setSorting] = useState<SortingState>([
@@ -66,21 +66,17 @@ const Home: NextPage = () => {
 		toggleOnIsCreatingSupplier,
 		toggleOffIsCreatingSupplier,
 	] = useToggle();
-	const {
-		data: products,
-		isLoading,
-		refetch,
-	} = trpc.proxy.products.getProducts.useQuery();
-	const { mutateAsync: updateProductMutateAsync } =
-		trpc.proxy.products.updateProduct.useMutation();
-	const { mutateAsync: deleteSelectedProductsAsyncMutation } =
-		trpc.proxy.products.deleteSelectedProducts.useMutation();
-	const { mutateAsync: resetOrderAmountAsyncMutation } =
-		trpc.proxy.products.resetOrderAmount.useMutation();
-	const orderAtleastOne = !!products?.find(
-		(p) => p.orderAmount > 0,
-	);
-	const columns: Array<ColumnDef<Product>> = [
+	const productsApi = createProductsApi();
+	const { products, isLoading, refetch } = productsApi.getAll();
+	const { onUpdateById } = productsApi.updateById();
+	const { onDeleteByIds } = productsApi.deleteByIds();
+	const { onResetOrderAmount } = productsApi.resetOrderAmount();
+	const isValidToOrder = productsApi.isValidToOrder();
+	const columns: Array<
+		ColumnDef<
+			Exclude<InferQueryOutput<'products.getById'>, undefined>
+		>
+	> = [
 		{
 			id: 'select',
 			header: ({ table }) => (
@@ -106,7 +102,9 @@ const Home: NextPage = () => {
 		{
 			accessorKey: 'rowIndex',
 			header: '',
-			cell: ({ cell }) => <strong>{cell.getValue()}</strong>,
+			cell: ({ cell }) => (
+				<strong>{cell.getValue() as number}</strong>
+			),
 		},
 		{
 			accessorKey: 'stock',
@@ -138,15 +136,27 @@ const Home: NextPage = () => {
 			header: locale.he.supplier,
 		},
 	];
-	const defaultColumn: Partial<ColumnDef<Product>> = {
+	const defaultColumn: Partial<
+		ColumnDef<
+			Exclude<InferQueryOutput<'products.getById'>, undefined>
+		>
+	> = {
 		cell: DefaultCell,
 	};
-	const onGlobalFilter = (e) => setGlobalFilter(e.target.value);
-	const updateData = async (rowIndex, columnId, value) => {
+	const onGlobalFilter = (e: ChangeEvent<HTMLInputElement>) =>
+		setGlobalFilter(e.target.value);
+	const updateData = async (
+		rowIndex: number,
+		columnId: string,
+		value: any,
+	) => {
 		// Skip page index reset until after next rerender
 		skipAutoResetPageIndex();
 
 		const prevProduct = products?.[rowIndex];
+
+		if (!prevProduct) return;
+
 		const valueAsNumber = Number(value);
 		const parsedValue = [
 			'orderAmount',
@@ -163,7 +173,7 @@ const Home: NextPage = () => {
 
 		// Make sure it is always possible to return to a package size of 1.
 		if (isPackageSize && !prevProduct?.packageSize) {
-			await updateProductMutateAsync({
+			await onUpdateById({
 				orderAmount: 0,
 				[columnId]: parsedValue,
 				id: prevProduct?.id,
@@ -174,7 +184,7 @@ const Home: NextPage = () => {
 		}
 
 		if (isPackageSize && parsedValue === 1) {
-			await updateProductMutateAsync({
+			await onUpdateById({
 				[columnId]: parsedValue,
 				id: prevProduct?.id,
 			});
@@ -207,7 +217,7 @@ const Home: NextPage = () => {
 			return;
 		}
 
-		await updateProductMutateAsync({
+		await onUpdateById({
 			[columnId]: parsedValue,
 			id: prevProduct?.id,
 		});
@@ -216,7 +226,7 @@ const Home: NextPage = () => {
 	};
 	const table = useReactTable({
 		columns,
-		data: products,
+		data: products ?? [],
 		getCoreRowModel: getCoreRowModel(),
 		defaultColumn,
 		onSortingChange: setSorting,
@@ -254,15 +264,11 @@ const Home: NextPage = () => {
 
 		if (!productsToDelete?.length) return;
 
-		await deleteSelectedProductsAsyncMutation({
+		await onDeleteByIds({
 			ids: productsToDelete,
 		});
 		await refetch();
 		setRowSelection({});
-	};
-	const onResetOrderAmount = async () => {
-		await resetOrderAmountAsyncMutation();
-		await refetch();
 	};
 
 	useEffect(() => {
@@ -327,7 +333,7 @@ const Home: NextPage = () => {
 					}
 					toggleOnIsPrinting={toggleOnIsPrinting}
 					toggleOnIsSendingOrder={toggleOnIsSendingOrder}
-					orderAtleastOne={orderAtleastOne}
+					orderAtleastOne={isValidToOrder}
 					productsCount={table
 						.getPreFilteredRowModel()
 						?.rows.length?.toString()}
