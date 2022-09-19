@@ -6,17 +6,15 @@ import {
 } from '../../../../prisma/zod';
 
 export const suppliersRouter = t.router({
-	getSuppliers: t.procedure.query(() => {
+	getAll: t.procedure.query(() => {
 		return prisma?.supplier.findMany();
 	}),
-	getSupplierById: t.procedure
-		.input(idSchema)
-		.query(({ input }) => {
-			return prisma?.supplier.findUnique({
-				where: { id: input.id },
-			});
-		}),
-	createSupplier: t.procedure
+	getById: t.procedure.input(idSchema).query(({ input }) => {
+		return prisma?.supplier.findUnique({
+			where: { id: input.id },
+		});
+	}),
+	create: t.procedure
 		.input(
 			SupplierModel.pick({
 				email: true,
@@ -26,7 +24,7 @@ export const suppliersRouter = t.router({
 		.mutation(({ input }) => {
 			return prisma?.supplier.create({ data: input });
 		}),
-	updateSupplier: t.procedure
+	updateById: t.procedure
 		.input(SupplierModel.partial().merge(idSchema))
 		.mutation(({ input }) => {
 			return prisma?.supplier.update({
@@ -34,7 +32,7 @@ export const suppliersRouter = t.router({
 				data: input,
 			});
 		}),
-	deleteSelectedSuppliers: t.procedure
+	deleteByIds: t.procedure
 		.input(idsSchema)
 		.mutation(({ input }) => {
 			return prisma?.supplier.deleteMany({

@@ -9,8 +9,7 @@ import { Modal } from '../../molecules/Modal/Modal';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { SupplierModel } from '../../../../prisma/zod';
-import { Supplier } from '@prisma/client';
-import { trpc } from '../../../utils/trpc';
+import { InferMutationInput, trpc } from '../../../utils/trpc';
 import {
 	Document,
 	Image,
@@ -105,7 +104,7 @@ export const SendOrderModal = ({ isOpen, onClose }) => {
 	const { mutateAsync: sendOrderAsyncMutation } =
 		trpc.proxy.orders.sendOrder.useMutation();
 	const onSendOrderSubmit: SubmitHandler<
-		Pick<Supplier, 'name'> & { pdf: string }
+		InferMutationInput<'orders.sendOrder'>
 	> = async (data) => {
 		if (!blob) return;
 

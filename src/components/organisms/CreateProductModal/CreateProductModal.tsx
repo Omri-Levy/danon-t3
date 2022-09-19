@@ -12,7 +12,7 @@ import { useRef } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ProductModel, SupplierModel } from '../../../../prisma/zod';
 import { createProductsApi } from '../../../api/products-api';
-import { z } from 'zod';
+import { InferMutationInput } from '../../../utils/trpc';
 
 export const CreateProductModal = ({ isOpen, onClose }) => {
 	const productsApi = createProductsApi();
@@ -42,15 +42,7 @@ export const CreateProductModal = ({ isOpen, onClose }) => {
 	const { onCreate } = productsApi.create();
 	const skuInputRef = useRef<HTMLInputElement>(null);
 	const onCreateProductSubmit: SubmitHandler<
-		Pick<
-			z.infer<typeof ProductModel>,
-			| 'sku'
-			| 'name'
-			| 'packageSize'
-			| 'unit'
-			| 'orderAmount'
-			| 'stock'
-		> & { supplier: string }
+		InferMutationInput<'products.create'>
 	> = async (data) => {
 		await onCreate(data);
 		skuInputRef.current?.focus();
