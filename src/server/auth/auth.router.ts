@@ -1,4 +1,4 @@
-import { t } from '../server/trpc/utils';
+import { t } from '../trpc/utils';
 
 export const authRouter = t.router({
 	getSession: t.procedure.query(({ ctx }) => {
