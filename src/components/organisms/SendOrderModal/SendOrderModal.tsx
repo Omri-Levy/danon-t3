@@ -9,7 +9,7 @@ import { Modal } from '../../molecules/Modal/Modal';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { SupplierModel } from '../../../../prisma/zod';
-import { InferMutationInput, trpc } from '../../../utils/trpc';
+import { InferMutationInput } from '../../../utils/trpc';
 import {
 	Document,
 	Image,
@@ -21,6 +21,7 @@ import {
 } from '@react-pdf/renderer';
 import { ReactPdfTable } from '../PrintModal/PrintModal';
 import { createProductsApi } from '../../../api/products-api';
+import { createOrdersApi } from '../../../api/orders-api';
 
 const OrderDocument = ({ products }) => {
 	const styles = StyleSheet.create({
@@ -97,14 +98,14 @@ const OrderDocument = ({ products }) => {
 
 export const SendOrderModal = ({ isOpen, onClose }) => {
 	const productsApi = createProductsApi();
+	const ordersApi = createOrdersApi();
 	const { products } = productsApi.getAllForOrder();
 	const [{ blob }] = usePDF({
 		document: <OrderDocument products={products} />,
 	});
-	const { mutateAsync: sendOrderAsyncMutation } =
-		trpc.proxy.orders.sendOrder.useMutation();
+	const { onSend } = ordersApi.send();
 	const onSendOrderSubmit: SubmitHandler<
-		InferMutationInput<'orders.sendOrder'>
+		InferMutationInput<'orders.send'>
 	> = async (data) => {
 		if (!blob) return;
 
@@ -115,7 +116,7 @@ export const SendOrderModal = ({ isOpen, onClose }) => {
 			async (e) => {
 				const result = e.target?.result ?? null;
 
-				await sendOrderAsyncMutation({
+				await onSend({
 					...data,
 					pdf: result,
 				});
