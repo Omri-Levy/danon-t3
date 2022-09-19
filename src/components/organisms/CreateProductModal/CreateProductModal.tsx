@@ -7,13 +7,15 @@ import {
 } from 'react-hook-form';
 import { FormInput } from '../../molecules/FormInput/FormInput';
 import { FormSelect } from '../../molecules/FormSelect/FormSelect';
-import { Product, Unit } from '@prisma/client';
+import { Unit } from '@prisma/client';
 import { useRef } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ProductModel, SupplierModel } from '../../../../prisma/zod';
-import { trpc } from '../../../utils/trpc';
+import { createProductsApi } from '../../../api/products-api';
+import { z } from 'zod';
 
 export const CreateProductModal = ({ isOpen, onClose }) => {
+	const productsApi = createProductsApi();
 	const createProductMethods = useForm({
 		mode: 'all',
 		criteriaMode: 'all',
@@ -37,17 +39,11 @@ export const CreateProductModal = ({ isOpen, onClose }) => {
 			stock: 0,
 		},
 	});
-	const trpcUtils = trpc.useContext();
-	const { mutateAsync: createProductAsyncMutation } =
-		trpc.proxy.products.createProduct.useMutation({
-			onSettled: () => {
-				trpcUtils.invalidateQueries('products.getProducts');
-			},
-		});
+	const { onCreate } = productsApi.create();
 	const skuInputRef = useRef<HTMLInputElement>(null);
 	const onCreateProductSubmit: SubmitHandler<
 		Pick<
-			Product,
+			z.infer<typeof ProductModel>,
 			| 'sku'
 			| 'name'
 			| 'packageSize'
@@ -56,7 +52,7 @@ export const CreateProductModal = ({ isOpen, onClose }) => {
 			| 'stock'
 		> & { supplier: string }
 	> = async (data) => {
-		await createProductAsyncMutation(data);
+		await onCreate(data);
 		skuInputRef.current?.focus();
 	};
 

@@ -12,8 +12,8 @@ import {
 } from '@react-pdf/renderer';
 import { locale } from '../../../translations';
 import { Modal } from '../../molecules/Modal/Modal';
-import { trpc } from '../../../utils/trpc';
 import { FunctionComponent } from 'react';
+import { createProductsApi } from '../../../api/products-api';
 
 export const ReactPdfTable: FunctionComponent<{
 	headers: Array<{
@@ -91,8 +91,8 @@ export const ReactPdfTable: FunctionComponent<{
 };
 
 export const PrintModal = ({ isOpen, onClose }) => {
-	const { data: products } =
-		trpc.proxy.products.getProducts.useQuery();
+	const productsApi = createProductsApi();
+	const { products } = productsApi.getAll();
 	const styles = StyleSheet.create({
 		page: {
 			position: 'relative',

@@ -21,11 +21,9 @@ import {
 	usePDF,
 } from '@react-pdf/renderer';
 import { ReactPdfTable } from '../PrintModal/PrintModal';
+import { createProductsApi } from '../../../api/products-api';
 
-const OrderDocument = ({ data }) => {
-	const products = data?.filter(
-		(product) => product?.orderAmount > 0,
-	);
+const OrderDocument = ({ products }) => {
 	const styles = StyleSheet.create({
 		page: {
 			position: 'relative',
@@ -99,9 +97,10 @@ const OrderDocument = ({ data }) => {
 };
 
 export const SendOrderModal = ({ isOpen, onClose }) => {
-	const { data } = trpc.proxy.products.getProducts.useQuery();
+	const productsApi = createProductsApi();
+	const { products } = productsApi.getAllForOrder();
 	const [{ blob }] = usePDF({
-		document: <OrderDocument data={data} />,
+		document: <OrderDocument products={products} />,
 	});
 	const { mutateAsync: sendOrderAsyncMutation } =
 		trpc.proxy.orders.sendOrder.useMutation();
@@ -173,7 +172,7 @@ export const SendOrderModal = ({ isOpen, onClose }) => {
 					marginBottom: '10px',
 				}}
 			>
-				<OrderDocument data={data} />
+				<OrderDocument products={products} />
 			</PDFViewer>
 			<FormProvider {...sendOrderMethods}>
 				<form
