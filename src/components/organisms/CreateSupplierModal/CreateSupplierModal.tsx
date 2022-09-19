@@ -8,17 +8,15 @@ import {
 import { FormInput } from '../../molecules/FormInput/FormInput';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { SupplierModel } from '../../../../prisma/zod';
-import { Supplier } from '@prisma/client';
-import { trpc } from '../../../utils/trpc';
+import { InferMutationInput } from '../../../utils/trpc';
+import { createSuppliersApi } from '../../../api/suppliers-api';
 
 export const CreateSupplierModal = ({ isOpen, onClose }) => {
-	const { mutateAsync: createSupplierAsyncMutation } =
-		trpc.proxy.suppliers.createSupplier.useMutation();
+	const suppliersApi = createSuppliersApi();
+	const { onCreate } = suppliersApi.create();
 	const onCreateSupplierSubmit: SubmitHandler<
-		Pick<Supplier, 'name' | 'email'>
-	> = async (data) => {
-		await createSupplierAsyncMutation(data);
-	};
+		InferMutationInput<'suppliers.create'>
+	> = async (data) => onCreate(data);
 	const createSupplierMethods = useForm({
 		mode: 'all',
 		criteriaMode: 'all',

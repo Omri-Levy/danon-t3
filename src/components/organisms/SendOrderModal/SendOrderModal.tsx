@@ -9,8 +9,7 @@ import { Modal } from '../../molecules/Modal/Modal';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { SupplierModel } from '../../../../prisma/zod';
-import { Supplier } from '@prisma/client';
-import { trpc } from '../../../utils/trpc';
+import { InferMutationInput } from '../../../utils/trpc';
 import {
 	Document,
 	Image,
@@ -21,11 +20,10 @@ import {
 	usePDF,
 } from '@react-pdf/renderer';
 import { ReactPdfTable } from '../PrintModal/PrintModal';
+import { createProductsApi } from '../../../api/products-api';
+import { createOrdersApi } from '../../../api/orders-api';
 
-const OrderDocument = ({ data }) => {
-	const products = data?.filter(
-		(product) => product?.orderAmount > 0,
-	);
+const OrderDocument = ({ products }) => {
 	const styles = StyleSheet.create({
 		page: {
 			position: 'relative',
@@ -99,14 +97,15 @@ const OrderDocument = ({ data }) => {
 };
 
 export const SendOrderModal = ({ isOpen, onClose }) => {
-	const { data } = trpc.proxy.products.getProducts.useQuery();
+	const productsApi = createProductsApi();
+	const ordersApi = createOrdersApi();
+	const { products } = productsApi.getAllForOrder();
 	const [{ blob }] = usePDF({
-		document: <OrderDocument data={data} />,
+		document: <OrderDocument products={products} />,
 	});
-	const { mutateAsync: sendOrderAsyncMutation } =
-		trpc.proxy.orders.sendOrder.useMutation();
+	const { onSend } = ordersApi.send();
 	const onSendOrderSubmit: SubmitHandler<
-		Pick<Supplier, 'name'> & { pdf: string }
+		InferMutationInput<'orders.send'>
 	> = async (data) => {
 		if (!blob) return;
 
@@ -117,7 +116,7 @@ export const SendOrderModal = ({ isOpen, onClose }) => {
 			async (e) => {
 				const result = e.target?.result ?? null;
 
-				await sendOrderAsyncMutation({
+				await onSend({
 					...data,
 					pdf: result,
 				});
@@ -173,7 +172,7 @@ export const SendOrderModal = ({ isOpen, onClose }) => {
 					marginBottom: '10px',
 				}}
 			>
-				<OrderDocument data={data} />
+				<OrderDocument products={products} />
 			</PDFViewer>
 			<FormProvider {...sendOrderMethods}>
 				<form
