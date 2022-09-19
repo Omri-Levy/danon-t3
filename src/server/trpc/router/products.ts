@@ -55,7 +55,14 @@ export const productsRouter = t.router({
 			});
 		}),
 	updateById: t.procedure
-		.input(ProductModel.partial().merge(idSchema))
+		.input(
+			ProductModel.partial().merge(
+				z.object({
+					sku: ProductModel.shape.sku,
+					supplierId: ProductModel.shape.supplierId,
+				}),
+			),
+		)
 		.mutation(({ input }) => {
 			return prisma?.product.update({
 				where: { id: input.id },
