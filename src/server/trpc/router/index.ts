@@ -3,7 +3,7 @@ import { t } from '../utils';
 import { productsRouter } from './products';
 import { suppliersRouter } from './suppliers';
 import { ordersRouter } from './orders';
-import { authRouter } from './auth';
+import { authRouter } from '../../../auth/auth';
 
 export const appRouter = t.router({
 	products: productsRouter,
