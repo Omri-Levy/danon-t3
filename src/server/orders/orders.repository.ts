@@ -5,11 +5,11 @@ import { TOrderIdSchema, TOrderIdsSchema } from './types';
 class OrdersRepository {
 	private _repository = prisma?.order;
 
-	findMany() {
+	async findMany() {
 		return this._repository?.findMany();
 	}
 
-	findById({ id }: TOrderIdSchema) {
+	async findById({ id }: TOrderIdSchema) {
 		return this._repository?.findUnique({
 			where: {
 				id,
@@ -17,7 +17,7 @@ class OrdersRepository {
 		});
 	}
 
-	create({
+	async create({
 		supplierId,
 		data,
 	}: TSupplierIdForeignSchema & {
@@ -35,7 +35,7 @@ class OrdersRepository {
 		});
 	}
 
-	updateById({
+	async updateById({
 		id,
 		data,
 	}: TOrderIdSchema & {
@@ -49,7 +49,7 @@ class OrdersRepository {
 		});
 	}
 
-	deleteManyByIds({ ids }: TOrderIdsSchema) {
+	async deleteManyByIds({ ids }: TOrderIdsSchema) {
 		return this._repository?.deleteMany({
 			where: {
 				id: {

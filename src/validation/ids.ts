@@ -1,13 +1,5 @@
 import { z } from 'zod';
-import { ProductModel, SupplierModel } from '../../prisma/zod';
-
-export const productIdSchema = ProductModel.pick({
-	id: true,
-});
-
-export const productIdsSchema = z.object({
-	ids: z.array(productIdSchema.shape.id),
-});
+import { SupplierModel } from '../../prisma/zod';
 
 export const supplierIdSchema = SupplierModel.pick({
 	id: true,

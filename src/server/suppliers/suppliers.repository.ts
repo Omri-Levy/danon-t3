@@ -4,11 +4,11 @@ import { TSupplierIdSchema, TSupplierIdsSchema } from '../../types';
 class SuppliersRepository {
 	private _repository = prisma?.supplier;
 
-	findMany() {
+	async findMany() {
 		return this._repository?.findMany();
 	}
 
-	findById({ id }: TSupplierIdSchema) {
+	async findById({ id }: TSupplierIdSchema) {
 		return this._repository?.findUnique({
 			where: {
 				id,
@@ -16,7 +16,7 @@ class SuppliersRepository {
 		});
 	}
 
-	findByName({ name }: Pick<Supplier, 'name'>) {
+	async findByName({ name }: Pick<Supplier, 'name'>) {
 		return this._repository?.findFirst({
 			where: {
 				name,
@@ -24,13 +24,13 @@ class SuppliersRepository {
 		});
 	}
 
-	create(data: Prisma.SupplierCreateInput) {
+	async create(data: Prisma.SupplierCreateInput) {
 		return this._repository?.create({
 			data,
 		});
 	}
 
-	updateById({
+	async updateById({
 		id,
 		data,
 	}: Pick<Supplier, 'id'> & {
@@ -44,7 +44,7 @@ class SuppliersRepository {
 		});
 	}
 
-	deleteManyByIds({ ids }: TSupplierIdsSchema) {
+	async deleteManyByIds({ ids }: TSupplierIdsSchema) {
 		return this._repository?.deleteMany({
 			where: {
 				id: {
@@ -52,6 +52,19 @@ class SuppliersRepository {
 				},
 			},
 		});
+	}
+
+	async findSupplierIdByName({ name }: Pick<Supplier, 'name'>) {
+		const supplier = await this._repository?.findFirst({
+			where: {
+				name,
+			},
+			select: {
+				id: true,
+			},
+		});
+
+		return supplier?.id;
 	}
 }
 

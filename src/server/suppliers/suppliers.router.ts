@@ -1,4 +1,4 @@
-import { t } from '../trpc/utils';
+import { authedProcedure, t } from '../trpc/utils';
 import {
 	supplierIdSchema,
 	supplierIdsSchema,
@@ -7,15 +7,15 @@ import {
 import { suppliersRepository } from './suppliers.repository';
 
 export const suppliersRouter = t.router({
-	getAll: t.procedure.query(() => {
+	getAll: authedProcedure.query(() => {
 		return suppliersRepository.findMany();
 	}),
-	getById: t.procedure
+	getById: authedProcedure
 		.input(supplierIdSchema)
 		.query(({ input }) => {
 			return suppliersRepository.findById(input);
 		}),
-	create: t.procedure
+	create: authedProcedure
 		.input(
 			SupplierModel.pick({
 				email: true,
@@ -25,7 +25,7 @@ export const suppliersRouter = t.router({
 		.mutation(({ input }) => {
 			return suppliersRepository.create(input);
 		}),
-	updateById: t.procedure
+	updateById: authedProcedure
 		.input(SupplierModel.partial().merge(supplierIdSchema))
 		.mutation(({ input }) => {
 			const { id, ...data } = input;
@@ -35,7 +35,7 @@ export const suppliersRouter = t.router({
 				data,
 			});
 		}),
-	deleteByIds: t.procedure
+	deleteByIds: authedProcedure
 		.input(supplierIdsSchema)
 		.mutation(({ input }) => {
 			return suppliersRepository.deleteManyByIds(input);

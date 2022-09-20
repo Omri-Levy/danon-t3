@@ -1,67 +1,37 @@
-import { t } from '../trpc/utils';
+import { authedProcedure, t } from '../trpc/utils';
+import { productsService } from './products.service';
 import {
+	createProductSchema,
 	productIdSchema,
 	productIdsSchema,
-	ProductModel,
-	SupplierModel,
-} from '../../validation';
-import { z } from 'zod';
-import { productsRepository } from './products.repository';
-import { suppliersRepository } from '../suppliers/suppliers.repository';
+	updateProductSchema,
+} from './validation';
 
 export const productsRouter = t.router({
-	getAll: t.procedure.query(() => {
-		return productsRepository.findMany();
+	getAll: authedProcedure.query(() => {
+		return productsService.getAll();
 	}),
-	getById: t.procedure.input(productIdSchema).query(({ input }) => {
-		return productsRepository.findById(input);
-	}),
-	create: t.procedure
-		.input(
-			ProductModel.pick({
-				sku: true,
-				name: true,
-				unit: true,
-				packageSize: true,
-				orderAmount: true,
-				stock: true,
-			}).merge(
-				z.object({
-					supplier: SupplierModel.shape.name,
-				}),
-			),
-		)
+	getById: authedProcedure
+		.input(productIdSchema)
+		.query(({ input }) => {
+			return productsService.getById(input);
+		}),
+	create: authedProcedure
+		.input(createProductSchema)
 		.mutation(async ({ input }) => {
-			const { supplier: name } = input;
-			const supplier = await suppliersRepository.findByName({
-				name,
-			});
-
-			if (!supplier) {
-				throw new Error('Supplier not found');
-			}
-
-			return productsRepository.create({
-				...input,
-				supplierId: supplier.id,
-			});
+			return productsService.create(input);
 		}),
-	updateById: t.procedure
-		.input(ProductModel.partial().merge(productIdSchema))
+	updateById: authedProcedure
+		.input(updateProductSchema)
 		.mutation(({ input }) => {
-			const { id, ...data } = input;
-
-			return productsRepository.updateById({
-				id,
-				data,
-			});
+			return productsService.updateById(input);
 		}),
-	deleteByIds: t.procedure
+	deleteByIds: authedProcedure
 		.input(productIdsSchema)
 		.mutation(({ input }) => {
-			return productsRepository.deleteManyByIds(input);
+			return productsService.deleteByIds(input);
 		}),
-	resetOrderAmount: t.procedure.mutation(() => {
-		return productsRepository.resetOrderAmount();
+	resetOrderAmount: authedProcedure.mutation(() => {
+		return productsService.resetOrderAmount();
 	}),
 });

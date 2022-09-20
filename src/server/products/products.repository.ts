@@ -1,14 +1,11 @@
 import { Prisma } from '@prisma/client';
-import {
-	TProductIdSchema,
-	TProductIdsSchema,
-	TSupplierIdForeignSchema,
-} from '../../types';
+import { TSupplierIdForeignSchema } from '../../types';
+import { TProductIdSchema, TProductIdsSchema } from './types';
 
 class ProductsRepository {
 	private _repository = prisma?.product;
 
-	findMany() {
+	async findMany() {
 		return this._repository?.findMany({
 			include: {
 				supplier: {
@@ -20,7 +17,7 @@ class ProductsRepository {
 		});
 	}
 
-	findById({ id }: TProductIdSchema) {
+	async findById({ id }: TProductIdSchema) {
 		return this._repository?.findUnique({
 			where: {
 				id,
@@ -28,15 +25,15 @@ class ProductsRepository {
 		});
 	}
 
-	create(
-		data: TSupplierIdForeignSchema &
-			Prisma.ProductCreateWithoutSupplierInput,
-	) {
-		const { supplierId, ...rest } = data;
-
+	async create({
+		supplierId,
+		data,
+	}: TSupplierIdForeignSchema & {
+		data: Prisma.ProductCreateWithoutSupplierInput;
+	}) {
 		return this._repository?.create({
 			data: {
-				...rest,
+				...data,
 				supplier: {
 					connect: {
 						id: supplierId,
@@ -46,7 +43,7 @@ class ProductsRepository {
 		});
 	}
 
-	updateById({
+	async updateById({
 		id,
 		data,
 	}: TProductIdSchema & {
@@ -60,7 +57,7 @@ class ProductsRepository {
 		});
 	}
 
-	deleteManyByIds({ ids }: TProductIdsSchema) {
+	async deleteManyByIds({ ids }: TProductIdsSchema) {
 		return this._repository?.deleteMany({
 			where: {
 				id: {
@@ -70,7 +67,7 @@ class ProductsRepository {
 		});
 	}
 
-	resetOrderAmount() {
+	async resetOrderAmount() {
 		return this._repository?.updateMany({
 			data: {
 				orderAmount: 0,

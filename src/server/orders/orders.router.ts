@@ -1,4 +1,4 @@
-import { t } from '../trpc/utils';
+import { authedProcedure, t } from '../trpc/utils';
 import { ordersService } from './orders.service';
 import {
 	createOrderSchema,
@@ -9,28 +9,30 @@ import {
 } from './validation';
 
 export const ordersRouter = t.router({
-	getAll: t.procedure.query(() => {
+	getAll: authedProcedure.query(() => {
 		return ordersService.getAll();
 	}),
-	getById: t.procedure.input(orderIdSchema).query(({ input }) => {
-		return ordersService.getById(input);
-	}),
-	create: t.procedure
+	getById: authedProcedure
+		.input(orderIdSchema)
+		.query(({ input }) => {
+			return ordersService.getById(input);
+		}),
+	create: authedProcedure
 		.input(createOrderSchema)
 		.mutation(({ input }) => {
 			return ordersService.create(input);
 		}),
-	updateById: t.procedure
+	updateById: authedProcedure
 		.input(updateOrderSchema)
 		.mutation(({ input }) => {
 			return ordersService.updateById(input);
 		}),
-	deleteByIds: t.procedure
+	deleteByIds: authedProcedure
 		.input(orderIdsSchema)
 		.mutation(({ input }) => {
 			return ordersService.deleteByIds(input);
 		}),
-	send: t.procedure
+	send: authedProcedure
 		.input(sendOrderSchema)
 		.mutation(async ({ input }) => {
 			return ordersService.send(input);
