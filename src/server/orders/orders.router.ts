@@ -8,33 +8,39 @@ import { z } from 'zod';
 import { t } from '../trpc/utils';
 import { sendEmail } from '../email/send-email';
 import { getLocaleDateString } from '../../utils/get-locale-date-string/get-locale-date-string';
+import { ordersRepository } from './orders.repository';
 
 export const ordersRouter = t.router({
 	getAll: t.procedure.query(() => {
-		return prisma?.order.findMany();
+		return ordersRepository.getAll();
 	}),
 	getById: t.procedure.input(idSchema).query(({ input }) => {
-		return prisma?.order.findUnique({
-			where: { id: input.id },
-		});
+		return ordersRepository.getById(input);
 	}),
-	create: t.procedure.input(OrderModel).mutation(({ input }) => {
-		return prisma?.order.create({ data: input });
-	}),
+	create: t.procedure
+		.input(
+			OrderModel.omit({
+				id: true,
+				orderNumber: true,
+				createdAt: true,
+				updatedAt: true,
+			}),
+		)
+		.mutation(({ input }) => {
+			return ordersRepository.create(input);
+		}),
 	updateById: t.procedure
 		.input(OrderModel.partial().merge(idSchema))
 		.mutation(({ input }) => {
-			return prisma?.order.update({
-				where: { id: input.id },
+			return ordersRepository.updateById({
+				id: input.id,
 				data: input,
 			});
 		}),
 	deleteByIds: t.procedure
 		.input(idsSchema)
 		.mutation(({ input }) => {
-			return prisma?.order.deleteMany({
-				where: { id: { in: input.ids } },
-			});
+			return ordersRepository.deleteByIds(input);
 		}),
 	send: t.procedure
 		.input(
