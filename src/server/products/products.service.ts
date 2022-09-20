@@ -12,19 +12,18 @@ class ProductsService {
 	private _repository = productsRepository;
 
 	async getAll() {
-		return this._repository?.findMany();
+		return this._repository.findMany();
 	}
 
 	async getById(input: TProductIdSchema) {
-		return this._repository?.findById(input);
+		return this._repository.findById(input);
 	}
 
 	async create(input: TCreateProductSchema) {
 		const { supplier: name, ...data } = input;
-		const supplierId =
-			await suppliersRepository.findSupplierIdByName({
-				name,
-			});
+		const supplierId = await suppliersRepository.findIdByName({
+			name,
+		});
 
 		if (!supplierId) {
 			throw new TRPCError({
@@ -42,18 +41,18 @@ class ProductsService {
 	async updateById(input: TUpdateProductSchema) {
 		const { id, ...data } = input;
 
-		return this._repository?.updateById({
+		return this._repository.updateById({
 			id,
 			data,
 		});
 	}
 
 	async deleteByIds(input: TProductIdsSchema) {
-		return this._repository?.deleteManyByIds(input);
+		return this._repository.deleteManyByIds(input);
 	}
 
 	async resetOrderAmount() {
-		return this._repository?.resetOrderAmount();
+		return this._repository.resetOrderAmount();
 	}
 }
 

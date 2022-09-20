@@ -2,42 +2,35 @@ import { authedProcedure, t } from '../trpc/utils';
 import {
 	supplierIdSchema,
 	supplierIdsSchema,
-	SupplierModel,
 } from '../../validation';
-import { suppliersRepository } from './suppliers.repository';
+import { suppliersService } from './suppliers.service';
+import {
+	createSupplierSchema,
+	updateSupplierSchema,
+} from './validation';
 
 export const suppliersRouter = t.router({
 	getAll: authedProcedure.query(() => {
-		return suppliersRepository.findMany();
+		return suppliersService.getAll();
 	}),
 	getById: authedProcedure
 		.input(supplierIdSchema)
 		.query(({ input }) => {
-			return suppliersRepository.findById(input);
+			return suppliersService.getById(input);
 		}),
 	create: authedProcedure
-		.input(
-			SupplierModel.pick({
-				email: true,
-				name: true,
-			}),
-		)
+		.input(createSupplierSchema)
 		.mutation(({ input }) => {
-			return suppliersRepository.create(input);
+			return suppliersService.create(input);
 		}),
 	updateById: authedProcedure
-		.input(SupplierModel.partial().merge(supplierIdSchema))
+		.input(updateSupplierSchema)
 		.mutation(({ input }) => {
-			const { id, ...data } = input;
-
-			return suppliersRepository.updateById({
-				id,
-				data,
-			});
+			return suppliersService.updateById(input);
 		}),
 	deleteByIds: authedProcedure
 		.input(supplierIdsSchema)
 		.mutation(({ input }) => {
-			return suppliersRepository.deleteManyByIds(input);
+			return suppliersService.deleteByIds(input);
 		}),
 });

@@ -54,7 +54,7 @@ class SuppliersRepository {
 		});
 	}
 
-	async findSupplierIdByName({ name }: Pick<Supplier, 'name'>) {
+	async findIdByName({ name }: Pick<Supplier, 'name'>) {
 		const supplier = await this._repository?.findFirst({
 			where: {
 				name,

@@ -15,17 +15,17 @@ class OrdersService {
 	private _repository = ordersRepository;
 
 	async getAll() {
-		return this._repository?.findMany();
+		return this._repository.findMany();
 	}
 
 	async getById(input: TOrderIdSchema) {
-		return this._repository?.findById(input);
+		return this._repository.findById(input);
 	}
 
 	async create(input: TCreateOrderSchema) {
 		const { supplierId, ...data } = input;
 
-		return this._repository?.create({
+		return this._repository.create({
 			supplierId,
 			data,
 		});
@@ -34,14 +34,14 @@ class OrdersService {
 	async updateById(input: TUpdateOrderSchema) {
 		const { id, ...data } = input;
 
-		return this._repository?.updateById({
+		return this._repository.updateById({
 			id,
 			data,
 		});
 	}
 
 	async deleteByIds(input: TOrderIdsSchema) {
-		return this._repository?.deleteManyByIds(input);
+		return this._repository.deleteManyByIds(input);
 	}
 
 	async send(input: TSendOrderSchema) {

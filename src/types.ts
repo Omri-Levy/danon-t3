@@ -4,13 +4,8 @@ import {
 	inferProcedureOutput,
 	inferSubscriptionOutput,
 } from '@trpc/server/dist';
-import { z } from 'zod';
-import {
-	supplierIdForeignSchema,
-	supplierIdSchema,
-	supplierIdsSchema,
-} from './validation';
-import { Supplier } from '@prisma/client';
+import { FunctionComponent } from 'react';
+import { WithChildren } from './interfaces';
 
 /**
  * Enum containing all api query paths
@@ -72,10 +67,6 @@ export type InferSubscriptionInput<TRouteKey extends TSubscription> =
 		AppRouter['_def']['subscriptions'][TRouteKey]
 	>;
 
-export type TSupplierIdSchema = z.infer<typeof supplierIdSchema>;
-export type TSupplierIdsSchema = z.infer<typeof supplierIdsSchema>;
-export type TSupplierIdForeignSchema = z.infer<
-	typeof supplierIdForeignSchema
+export type ComponentWithChildren<P = {}> = FunctionComponent<
+	P & WithChildren
 >;
-export type TSupplierId = Supplier['id'];
-export type TSupplierIds = Array<TSupplierId>;
