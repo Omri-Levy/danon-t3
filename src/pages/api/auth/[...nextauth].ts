@@ -4,6 +4,7 @@ import NextAuth, { type NextAuthOptions } from 'next-auth';
 // Prisma adapter for NextAuth, optional and can be removed
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { prisma } from '../../../server/db/client';
+import { env } from 'src/env/server.mjs';
 
 export const authOptions: NextAuthOptions = {
 	// Include user.id on session
@@ -15,15 +16,15 @@ export const authOptions: NextAuthOptions = {
 			return session;
 		},
 		signIn({ profile }) {
-			return profile.email === process.env.EMAIL;
+			return profile.email === env.EMAIL;
 		},
 	},
 	// Configure one or more authentication providers
 	adapter: PrismaAdapter(prisma),
 	providers: [
 		GoogleProvider({
-			clientId: process.env.CLIENT_ID!,
-			clientSecret: process.env.CLIENT_SECRET!,
+			clientId: env.CLIENT_ID,
+			clientSecret: env.CLIENT_SECRET,
 		}),
 	],
 };

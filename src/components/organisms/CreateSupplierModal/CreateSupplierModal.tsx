@@ -7,9 +7,9 @@ import {
 } from 'react-hook-form';
 import { FormInput } from '../../molecules/FormInput/FormInput';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { SupplierModel } from '../../../../prisma/zod';
-import { InferMutationInput } from '../../../utils/trpc';
+import { SupplierModel } from '../../../validation';
 import { createSuppliersApi } from '../../../api/suppliers-api';
+import { InferMutationInput } from '../../../types';
 
 export const CreateSupplierModal = ({ isOpen, onClose }) => {
 	const suppliersApi = createSuppliersApi();

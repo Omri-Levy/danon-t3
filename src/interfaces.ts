@@ -1,5 +1,5 @@
-import { ReactElement } from 'react';
+import { ReactNode } from 'react';
 
 export interface WithChildren {
-	children: ReactElement | null;
+	children: ReactNode | ReactNode[];
 }

@@ -2,8 +2,11 @@ import { createTransport } from 'nodemailer';
 import { getOauthToken } from './get-oauth-token';
 import Mail from 'nodemailer/lib/mailer';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
+import { env } from 'src/env/server.mjs';
 
-export const sendEmail = async (data: Mail.Options) => {
+export const sendEmail = async (
+	data: Mail.Options,
+): Promise<SMTPTransport.SentMessageInfo> => {
 	const accessToken = await getOauthToken();
 	const transporter = createTransport({
 		// eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -11,20 +14,19 @@ export const sendEmail = async (data: Mail.Options) => {
 		service: 'gmail',
 		auth: {
 			type: 'OAuth2',
-			user: process.env.EMAIL,
+			user: env.EMAIL,
 			accessToken,
-			clientId: process.env.CLIENT_ID,
-			clientSecret: process.env.CLIENT_SECRET,
-			refreshToken: process.env.REFRESH_TOKEN,
+			clientId: env.CLIENT_ID,
+			clientSecret: env.CLIENT_SECRET,
+			refreshToken: env.REFRESH_TOKEN,
 		},
 	});
-	let result: SMTPTransport.SentMessageInfo | undefined;
 
-	transporter.sendMail(data, (err, info) => {
-		if (err) throw err;
+	return new Promise((resolve, reject) =>
+		transporter.sendMail(data, (err, info) => {
+			if (err) reject(err);
 
-		result = info;
-	});
-
-	return result;
+			resolve(info);
+		}),
+	);
 };

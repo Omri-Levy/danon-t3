@@ -1,5 +1,5 @@
 import { TRPCContextState } from '@trpc/react/dist/internals/context';
-import { AppRouter } from '../server/trpc/router';
+import { AppRouter } from '../server';
 import { NextPageContext } from 'next';
 import { trpc } from '../utils/trpc';
 

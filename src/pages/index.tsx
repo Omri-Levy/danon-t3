@@ -27,9 +27,9 @@ import { SendOrderModal } from '../components/organisms/SendOrderModal/SendOrder
 import { CreateSupplierModal } from '../components/organisms/CreateSupplierModal/CreateSupplierModal';
 import { Pagination } from '../components/organisms/Pagination/Pagination';
 import { ReactTable } from '../components/molecules/ReactTable/ReactTable';
-import { ProductModel } from '../../prisma/zod';
+import { ProductModel } from '../validation';
 import { createProductsApi } from '../api/products-api';
-import { InferQueryOutput } from '../utils/trpc';
+import { InferQueryOutput } from '../types';
 
 const Home: NextPage = () => {
 	const [sorting, setSorting] = useState<SortingState>([
@@ -313,7 +313,7 @@ const Home: NextPage = () => {
 			/>
 			<main className='container pt-[7vh] min-h-screen p-2 mx-auto'>
 				<TopBar
-					onResetOrderAmount={onResetOrderAmount}
+					onResetOrderAmount={() => onResetOrderAmount()}
 					onDeleteSelectedProducts={
 						onDeleteSelectedProductsSubmit
 					}

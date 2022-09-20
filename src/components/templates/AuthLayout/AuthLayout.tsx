@@ -1,10 +1,8 @@
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { FunctionComponent } from 'react';
+import { ComponentWithChildren } from '../../../types';
 
-export const AuthLayout: FunctionComponent<{
-	children: any;
-}> = ({ children }) => {
+export const AuthLayout: ComponentWithChildren = ({ children }) => {
 	const { data: session, status } = useSession();
 	const { replace } = useRouter();
 
@@ -12,5 +10,11 @@ export const AuthLayout: FunctionComponent<{
 		return null;
 	}
 
-	return session ? children : replace('/api/auth/signin');
+	if (!session) {
+		replace('/api/auth/signin');
+
+		return null;
+	}
+
+	return <>{children}</>;
 };

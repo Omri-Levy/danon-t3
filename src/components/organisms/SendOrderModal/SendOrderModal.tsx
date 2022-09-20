@@ -8,8 +8,7 @@ import { FormInput } from '../../molecules/FormInput/FormInput';
 import { Modal } from '../../molecules/Modal/Modal';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { SupplierModel } from '../../../../prisma/zod';
-import { InferMutationInput } from '../../../utils/trpc';
+import { SupplierModel } from '../../../validation';
 import {
 	Document,
 	Image,
@@ -22,6 +21,7 @@ import {
 import { ReactPdfTable } from '../PrintModal/PrintModal';
 import { createProductsApi } from '../../../api/products-api';
 import { createOrdersApi } from '../../../api/orders-api';
+import { InferMutationInput } from '../../../types';
 
 const OrderDocument = ({ products }) => {
 	const styles = StyleSheet.create({
