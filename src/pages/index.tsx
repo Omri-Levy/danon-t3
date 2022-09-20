@@ -29,7 +29,7 @@ import { Pagination } from '../components/organisms/Pagination/Pagination';
 import { ReactTable } from '../components/molecules/ReactTable/ReactTable';
 import { ProductModel } from '../../prisma/zod';
 import { createProductsApi } from '../api/products-api';
-import { InferQueryOutput } from '../utils/trpc';
+import { InferQueryOutput } from '../types';
 
 const Home: NextPage = () => {
 	const [sorting, setSorting] = useState<SortingState>([

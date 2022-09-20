@@ -12,7 +12,7 @@ import { useRef } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ProductModel, SupplierModel } from '../../../../prisma/zod';
 import { createProductsApi } from '../../../api/products-api';
-import { InferMutationInput } from '../../../utils/trpc';
+import { InferMutationInput } from '../../../types';
 
 export const CreateProductModal = ({ isOpen, onClose }) => {
 	const productsApi = createProductsApi();

@@ -1,4 +1,8 @@
-import { idSchema, idsSchema } from '../../../prisma/zod';
+import {
+	idSchema,
+	idsSchema,
+	SupplierModel,
+} from '../../../prisma/zod';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 
@@ -11,6 +15,18 @@ class SuppliersRepository {
 		return prisma?.supplier.findUnique({
 			where: {
 				id,
+			},
+		});
+	}
+
+	getByName({
+		name,
+	}: {
+		name: z.infer<typeof SupplierModel.shape.name>;
+	}) {
+		return prisma?.supplier.findFirst({
+			where: {
+				name,
 			},
 		});
 	}
