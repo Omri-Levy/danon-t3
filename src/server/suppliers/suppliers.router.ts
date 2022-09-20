@@ -1,18 +1,17 @@
-import { t } from '../utils';
+import { t } from '../trpc/utils';
 import {
 	idSchema,
 	idsSchema,
 	SupplierModel,
-} from '../../../../prisma/zod';
+} from '../../../prisma/zod';
+import { suppliersRepository } from './suppliers.repository';
 
 export const suppliersRouter = t.router({
 	getAll: t.procedure.query(() => {
-		return prisma?.supplier.findMany();
+		return suppliersRepository.getAll();
 	}),
 	getById: t.procedure.input(idSchema).query(({ input }) => {
-		return prisma?.supplier.findUnique({
-			where: { id: input.id },
-		});
+		return suppliersRepository.getById(input);
 	}),
 	create: t.procedure
 		.input(
@@ -22,21 +21,21 @@ export const suppliersRouter = t.router({
 			}),
 		)
 		.mutation(({ input }) => {
-			return prisma?.supplier.create({ data: input });
+			return suppliersRepository.create(input);
 		}),
 	updateById: t.procedure
 		.input(SupplierModel.partial().merge(idSchema))
 		.mutation(({ input }) => {
-			return prisma?.supplier.update({
-				where: { id: input.id },
-				data: input,
+			const { id, ...data } = input;
+
+			return suppliersRepository.updateById({
+				id,
+				data,
 			});
 		}),
 	deleteByIds: t.procedure
 		.input(idsSchema)
 		.mutation(({ input }) => {
-			return prisma?.supplier.deleteMany({
-				where: { id: { in: input.ids } },
-			});
+			return suppliersRepository.deleteByIds(input);
 		}),
 });

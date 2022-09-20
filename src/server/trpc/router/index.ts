@@ -1,8 +1,8 @@
 import { t } from '../utils';
 import { productsRouter } from './products';
-import { suppliersRouter } from './suppliers';
 import { ordersRouter } from '../../orders/orders.router';
 import { authRouter } from '../../auth/auth.router';
+import { suppliersRouter } from '../../suppliers/suppliers.router';
 
 export const appRouter = t.router({
 	products: productsRouter,

@@ -32,9 +32,11 @@ export const ordersRouter = t.router({
 	updateById: t.procedure
 		.input(OrderModel.partial().merge(idSchema))
 		.mutation(({ input }) => {
+			const { id, ...data } = input;
+
 			return ordersRepository.updateById({
-				id: input.id,
-				data: input,
+				id,
+				data,
 			});
 		}),
 	deleteByIds: t.procedure
