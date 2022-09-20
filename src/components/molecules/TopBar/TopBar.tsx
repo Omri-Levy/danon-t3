@@ -7,8 +7,6 @@ export const TopBar = ({
 	toggleOnIsSendingOrder,
 	toggleOnIsPrinting,
 	orderAtleastOne,
-	setToast,
-	refetch,
 	productsLength,
 	rowSelectionLength,
 	globalFilter,
@@ -43,26 +41,6 @@ export const TopBar = ({
 					}}
 				>
 					{locale.he.print}
-				</button>
-				<button
-					className={'btn '}
-					onClick={async () => {
-						try {
-							await refetch();
-
-							setToast({
-								message: `Reload: success`,
-								type: 'success',
-							});
-						} catch (err) {
-							setToast({
-								message: `Reload: failed`,
-								type: 'error',
-							});
-						}
-					}}
-				>
-					{locale.he.reload}
 				</button>
 				<div
 					className={

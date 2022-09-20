@@ -323,8 +323,6 @@ const Home: NextPage = () => {
 					rowSelectionLength={
 						Object.keys(rowSelection)?.length
 					}
-					refetch={refetch}
-					setToast={setToast}
 					toggleOnIsCreatingProduct={
 						toggleOnIsCreatingProduct
 					}
