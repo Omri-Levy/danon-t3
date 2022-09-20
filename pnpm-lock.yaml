@@ -9,6 +9,7 @@ specifiers:
   '@playwright/test': ^1.25.0
   '@prisma/client': ^4.1.0
   '@react-pdf/renderer': ^3.0.0
+  '@react-pdf/types': ^2.1.0
   '@tanstack/match-sorter-utils': ^8.1.1
   '@tanstack/react-table': ^8.5.11
   '@tanstack/table-core': ^8.5.11
@@ -93,6 +94,7 @@ devDependencies:
   '@commitlint/config-conventional': 17.1.0
   '@commitlint/cz-commitlint': 17.1.2_yes7iyjckc3rubj3ixzwc3ince
   '@playwright/test': 1.25.2
+  '@react-pdf/types': 2.1.0
   '@testing-library/jest-dom': 5.16.5
   '@testing-library/react': 13.4.0_biqbaboplfbrettd7655fr4n2y
   '@types/lodash': 4.14.185
@@ -1317,7 +1319,6 @@ packages:
 
   /@react-pdf/types/2.1.0:
     resolution: {integrity: sha512-PmmcPFlehRmLEE7p5bhapNya1NS3lV77dRNs9YEf1wNVbKsf10cF4yXDq813cNwm2YYIhCIgaU98O5GBBxMZaQ==}
-    dev: false
 
   /@react-pdf/yoga/3.0.0:
     resolution: {integrity: sha512-vGgvriAIH1Tk1RO6xtQeHc3iPM1pAz+Vz1WZ9wRlsXsuBAk7ZhtbHxrf9F7O3sFPORcMryihdtqpBeq2ZzMtNQ==}

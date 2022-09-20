@@ -14,7 +14,11 @@ export const DefaultCell = ({
 	// When the input is blurred, we'll call our table meta's updateData function
 	const updateValue = async () => {
 		try {
-			table.options.meta?.updateData(index, id, value);
+			table.options.meta?.updateData(
+				index,
+				id,
+				normalizeSpace(value),
+			);
 		} catch (err) {
 			if (err instanceof ZodError) {
 				const [{ message }] = err.errors;
@@ -34,7 +38,7 @@ export const DefaultCell = ({
 		}
 	};
 	const resetValue = () => setValue(initialValue);
-	const onChange = (e) => setValue(normalizeSpace(e.target.value));
+	const onChange = (e) => setValue(e.target.value);
 	const onKeyDown = async (e) => {
 		if (e.key === 'Enter') {
 			updateValue();

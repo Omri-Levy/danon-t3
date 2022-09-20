@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import {
+import ReactPDF, {
 	Document,
 	Font,
 	Image,
@@ -12,83 +12,8 @@ import {
 } from '@react-pdf/renderer';
 import { locale } from '../../../translations';
 import { Modal } from '../../molecules/Modal/Modal';
-import { FunctionComponent } from 'react';
 import { createProductsApi } from '../../../api/products-api';
-
-export const ReactPdfTable: FunctionComponent<{
-	headers: Array<{
-		accessorKey: string;
-		header: string;
-	}>;
-	data: Array<any>;
-}> = ({ headers, data }) => {
-	const styles = StyleSheet.create({
-		table: {
-			flexWrap: 'wrap',
-		},
-		tr: {
-			flexDirection: 'row',
-		},
-		thead: {
-			flexDirection: 'row',
-		},
-		td: {
-			border: '1px solid black',
-			padding: '5px',
-		},
-		th: {
-			textAlign: 'center',
-			border: '1px solid black',
-			padding: '5px',
-			fontWeight: 'bold',
-		},
-	});
-
-	return (
-		<View style={styles.table}>
-			<View style={styles.thead}>
-				{headers?.map(({ header, accessorKey }, index) => (
-					<Text
-						key={`${accessorKey ?? index}-th`}
-						style={{
-							...styles.th,
-							width: `${100 / headers.length}%`,
-						}}
-					>
-						{header}
-					</Text>
-				))}
-			</View>
-			{data?.map((item, index) => (
-				<View
-					key={`${item?.id ?? index}-tr`}
-					style={styles.tr}
-				>
-					{headers?.map(({ accessorKey }) => {
-						const keys = accessorKey.split('.');
-						let value = item;
-
-						keys.forEach((key) => {
-							value = value[key];
-						});
-
-						return (
-							<Text
-								key={`${accessorKey ?? index}-td`}
-								style={{
-									...styles.td,
-									width: `${100 / headers.length}%`,
-								}}
-							>
-								{value}
-							</Text>
-						);
-					})}
-				</View>
-			))}
-		</View>
-	);
-};
+import { ReactPdfTable } from '../../molecules/ReactPdfTable/ReactPdfTable';
 
 export const PrintModal = ({ isOpen, onClose }) => {
 	const productsApi = createProductsApi();
@@ -118,26 +43,44 @@ export const PrintModal = ({ isOpen, onClose }) => {
 		{
 			accessorKey: 'stock',
 			header: locale.he.stock,
+			styles: {
+				width: '70px',
+			},
 		},
 		{
 			accessorKey: 'packageSize',
 			header: locale.he.packageSize,
+			styles: {
+				width: '70px',
+			},
 		},
 		{
 			accessorKey: 'unit',
 			header: locale.he.unit,
+			styles: {
+				width: '70px',
+			},
 		},
 		{
 			accessorKey: 'name',
 			header: locale.he.productName,
+			styles: {
+				width: '220px',
+			},
 		},
 		{
 			accessorKey: 'sku',
 			header: locale.he.sku,
+			styles: {
+				width: '70px',
+			},
 		},
 		{
 			accessorKey: 'supplier.name',
 			header: locale.he.supplier,
+			styles: {
+				width: '70px',
+			},
 		},
 	];
 

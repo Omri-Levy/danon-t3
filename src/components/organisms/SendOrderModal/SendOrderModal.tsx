@@ -18,10 +18,10 @@ import {
 	Text,
 	usePDF,
 } from '@react-pdf/renderer';
-import { ReactPdfTable } from '../PrintModal/PrintModal';
 import { createProductsApi } from '../../../api/products-api';
 import { createOrdersApi } from '../../../api/orders-api';
 import { InferMutationInput } from '../../../types';
+import { ReactPdfTable } from '../../molecules/ReactPdfTable/ReactPdfTable';
 
 const OrderDocument = ({ products }) => {
 	const styles = StyleSheet.create({
