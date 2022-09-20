@@ -27,7 +27,7 @@ import { SendOrderModal } from '../components/organisms/SendOrderModal/SendOrder
 import { CreateSupplierModal } from '../components/organisms/CreateSupplierModal/CreateSupplierModal';
 import { Pagination } from '../components/organisms/Pagination/Pagination';
 import { ReactTable } from '../components/molecules/ReactTable/ReactTable';
-import { ProductModel } from '../../prisma/zod';
+import { ProductModel } from '../validation';
 import { createProductsApi } from '../api/products-api';
 import { InferQueryOutput } from '../types';
 

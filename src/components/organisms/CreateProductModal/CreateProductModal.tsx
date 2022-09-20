@@ -10,7 +10,7 @@ import { FormSelect } from '../../molecules/FormSelect/FormSelect';
 import { Unit } from '@prisma/client';
 import { useRef } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ProductModel, SupplierModel } from '../../../../prisma/zod';
+import { ProductModel, SupplierModel } from '../../../validation';
 import { createProductsApi } from '../../../api/products-api';
 import { InferMutationInput } from '../../../types';
 

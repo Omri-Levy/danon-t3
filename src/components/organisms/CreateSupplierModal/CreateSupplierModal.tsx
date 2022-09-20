@@ -7,7 +7,7 @@ import {
 } from 'react-hook-form';
 import { FormInput } from '../../molecules/FormInput/FormInput';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { SupplierModel } from '../../../../prisma/zod';
+import { SupplierModel } from '../../../validation';
 import { createSuppliersApi } from '../../../api/suppliers-api';
 import { InferMutationInput } from '../../../types';
 

@@ -1,30 +1,23 @@
-import {
-	idSchema,
-	idsSchema,
-	SupplierModel,
-} from '../../../prisma/zod';
-import { Prisma } from '@prisma/client';
-import { z } from 'zod';
+import { Prisma, Supplier } from '@prisma/client';
+import { TSupplierIdSchema, TSupplierIdsSchema } from '../../types';
 
 class SuppliersRepository {
-	getAll() {
-		return prisma?.supplier.findMany();
+	private _repository = prisma?.supplier;
+
+	findMany() {
+		return this._repository?.findMany();
 	}
 
-	getById({ id }: z.infer<typeof idSchema>) {
-		return prisma?.supplier.findUnique({
+	findById({ id }: TSupplierIdSchema) {
+		return this._repository?.findUnique({
 			where: {
 				id,
 			},
 		});
 	}
 
-	getByName({
-		name,
-	}: {
-		name: z.infer<typeof SupplierModel.shape.name>;
-	}) {
-		return prisma?.supplier.findFirst({
+	findByName({ name }: Pick<Supplier, 'name'>) {
+		return this._repository?.findFirst({
 			where: {
 				name,
 			},
@@ -32,7 +25,7 @@ class SuppliersRepository {
 	}
 
 	create(data: Prisma.SupplierCreateInput) {
-		return prisma?.supplier.create({
+		return this._repository?.create({
 			data,
 		});
 	}
@@ -40,10 +33,10 @@ class SuppliersRepository {
 	updateById({
 		id,
 		data,
-	}: z.infer<typeof idSchema> & {
+	}: Pick<Supplier, 'id'> & {
 		data: Prisma.SupplierUpdateInput;
 	}) {
-		return prisma?.supplier.update({
+		return this._repository?.update({
 			where: {
 				id,
 			},
@@ -51,8 +44,8 @@ class SuppliersRepository {
 		});
 	}
 
-	deleteByIds({ ids }: z.infer<typeof idsSchema>) {
-		return prisma?.supplier.deleteMany({
+	deleteManyByIds({ ids }: TSupplierIdsSchema) {
+		return this._repository?.deleteMany({
 			where: {
 				id: {
 					in: ids,

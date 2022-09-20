@@ -1,18 +1,20 @@
 import { t } from '../trpc/utils';
 import {
-	idSchema,
-	idsSchema,
+	supplierIdSchema,
+	supplierIdsSchema,
 	SupplierModel,
-} from '../../../prisma/zod';
+} from '../../validation';
 import { suppliersRepository } from './suppliers.repository';
 
 export const suppliersRouter = t.router({
 	getAll: t.procedure.query(() => {
-		return suppliersRepository.getAll();
+		return suppliersRepository.findMany();
 	}),
-	getById: t.procedure.input(idSchema).query(({ input }) => {
-		return suppliersRepository.getById(input);
-	}),
+	getById: t.procedure
+		.input(supplierIdSchema)
+		.query(({ input }) => {
+			return suppliersRepository.findById(input);
+		}),
 	create: t.procedure
 		.input(
 			SupplierModel.pick({
@@ -24,7 +26,7 @@ export const suppliersRouter = t.router({
 			return suppliersRepository.create(input);
 		}),
 	updateById: t.procedure
-		.input(SupplierModel.partial().merge(idSchema))
+		.input(SupplierModel.partial().merge(supplierIdSchema))
 		.mutation(({ input }) => {
 			const { id, ...data } = input;
 
@@ -34,8 +36,8 @@ export const suppliersRouter = t.router({
 			});
 		}),
 	deleteByIds: t.procedure
-		.input(idsSchema)
+		.input(supplierIdsSchema)
 		.mutation(({ input }) => {
-			return suppliersRepository.deleteByIds(input);
+			return suppliersRepository.deleteManyByIds(input);
 		}),
 });

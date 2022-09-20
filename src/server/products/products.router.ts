@@ -1,16 +1,20 @@
 import { t } from '../trpc/utils';
-import { ProductModel, SupplierModel } from '../../../prisma/zod';
-import { idSchema, idsSchema } from '../../../prisma/zod/ids';
+import {
+	productIdSchema,
+	productIdsSchema,
+	ProductModel,
+	SupplierModel,
+} from '../../validation';
 import { z } from 'zod';
 import { productsRepository } from './products.repository';
 import { suppliersRepository } from '../suppliers/suppliers.repository';
 
 export const productsRouter = t.router({
 	getAll: t.procedure.query(() => {
-		return productsRepository.getAll();
+		return productsRepository.findMany();
 	}),
-	getById: t.procedure.input(idSchema).query(({ input }) => {
-		return productsRepository.getById(input);
+	getById: t.procedure.input(productIdSchema).query(({ input }) => {
+		return productsRepository.findById(input);
 	}),
 	create: t.procedure
 		.input(
@@ -29,7 +33,7 @@ export const productsRouter = t.router({
 		)
 		.mutation(async ({ input }) => {
 			const { supplier: name } = input;
-			const supplier = await suppliersRepository.getByName({
+			const supplier = await suppliersRepository.findByName({
 				name,
 			});
 
@@ -43,7 +47,7 @@ export const productsRouter = t.router({
 			});
 		}),
 	updateById: t.procedure
-		.input(ProductModel.partial().merge(idSchema))
+		.input(ProductModel.partial().merge(productIdSchema))
 		.mutation(({ input }) => {
 			const { id, ...data } = input;
 
@@ -53,9 +57,9 @@ export const productsRouter = t.router({
 			});
 		}),
 	deleteByIds: t.procedure
-		.input(idsSchema)
+		.input(productIdsSchema)
 		.mutation(({ input }) => {
-			return productsRepository.deleteByIds(input);
+			return productsRepository.deleteManyByIds(input);
 		}),
 	resetOrderAmount: t.procedure.mutation(() => {
 		return productsRepository.resetOrderAmount();
