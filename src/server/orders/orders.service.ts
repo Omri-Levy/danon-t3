@@ -10,6 +10,7 @@ import { sendEmail } from '../email/send-email';
 import { getLocaleDateString } from '../../utils/get-locale-date-string/get-locale-date-string';
 import { productsRepository } from '../products/products.repository';
 import { TRPCError } from '@trpc/server';
+import { locale } from '../../translations';
 
 class OrdersService {
 	private _repository = ordersRepository;
@@ -96,10 +97,8 @@ class OrdersService {
 		const info = await sendEmail({
 			from: process.env.EMAIL,
 			to: supplier.email,
-			subject: `Hello ${
-				supplier.name
-			}, please accept this order. #${'orderNumber'}`,
-			text: `Order PDF attached.`,
+			subject: locale.he.mailGreeting(supplier.name, 0),
+			text: locale.he.orderPdf,
 			attachments: [
 				{
 					filename: `order-${getLocaleDateString()}-#${'orderNumber'}.pdf`,

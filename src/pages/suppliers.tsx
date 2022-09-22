@@ -138,7 +138,7 @@ const Suppliers: NextPage = () => {
 									>
 										<div>
 											<div>
-												Name:{' '}
+												{locale.he.name}:{' '}
 												<EditableInput
 													type={`name`}
 													initialValue={
@@ -167,7 +167,7 @@ const Suppliers: NextPage = () => {
 												/>
 											</div>
 											<div>
-												Email:{' '}
+												{locale.he.email}:{' '}
 												<EditableInput
 													initialValue={
 														email

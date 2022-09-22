@@ -1,7 +1,12 @@
 import { Unit } from '@prisma/client';
 
+// Amza שלום, נא קבלו הזמנתו #0
+
 export const locale = {
 	he: {
+		mailGreeting: (supplier: string, order: number) =>
+			`${supplier} שלום, נא קבלו הזמנתנו. #${order}`,
+		orderPdf: `מסמך הזמנה הוצמד`,
 		validation: {
 			supplier: {
 				email: {
@@ -90,6 +95,9 @@ export const locale = {
 		},
 	},
 	en: {
+		mailGreeting: (supplier: string, order: number) =>
+			`Hello ${supplier}, please accept our order. #${order}`,
+		orderPdf: `Order PDF attached.`,
 		validation: {
 			supplier: {
 				email: {

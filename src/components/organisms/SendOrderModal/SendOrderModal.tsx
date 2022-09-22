@@ -5,14 +5,13 @@ import {
 	useForm,
 } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import {
+import ReactPDF, {
 	Document,
 	Image,
 	Page,
 	PDFViewer,
 	StyleSheet,
 	Text,
-	usePDF,
 } from '@react-pdf/renderer';
 import { createProductsApi } from '../../../api/products-api';
 import { createOrdersApi } from '../../../api/orders-api';
@@ -22,6 +21,7 @@ import { sendOrderSchema } from '../../../server/orders/validation';
 import { useCallback, useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import clsx from 'clsx';
+import pdf = ReactPDF.pdf;
 
 const OrderDocument = ({ products }) => {
 	const styles = StyleSheet.create({
@@ -97,22 +97,22 @@ const OrderDocument = ({ products }) => {
 };
 
 export const SendOrderModal = ({ disabled, isOpen, onOpen }) => {
-	const productsApi = createProductsApi();
 	const ordersApi = createOrdersApi();
+	const productsApi = createProductsApi();
 	const { products } = productsApi.getAllForOrder();
-	const [{ blob }] = usePDF({
-		document: <OrderDocument products={products} />,
-	});
 	const { onSend, isSuccess, isLoading } = ordersApi.send();
 	const onSendOrderSubmit: SubmitHandler<
 		InferMutationInput<'orders.send'>
 	> = useCallback(async () => {
-		if (!blob || !products?.length) return;
+		if (!products?.length) return;
 
+		const blob = await pdf(
+			<OrderDocument products={products} />,
+		).toBlob();
 		const reader = new FileReader();
 		reader.readAsDataURL(blob);
 		reader.addEventListener(
-			'load',
+			'loadend',
 			async (e) => {
 				const result = e.target?.result ?? null;
 
@@ -122,7 +122,7 @@ export const SendOrderModal = ({ disabled, isOpen, onOpen }) => {
 			},
 			false,
 		);
-	}, [blob, onSend, products?.length]);
+	}, [onSend, products?.length]);
 	const sendOrderMethods = useForm({
 		mode: 'all',
 		criteriaMode: 'all',
@@ -201,6 +201,7 @@ export const SendOrderModal = ({ disabled, isOpen, onOpen }) => {
 											`btn mt-2 mr-auto`,
 											{ loading: isLoading },
 										])}
+										disabled={isLoading}
 										type={`submit`}
 									>
 										{locale.he.send}

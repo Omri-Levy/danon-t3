@@ -1,5 +1,4 @@
 import { normalizeSpace } from '../../../utils/normalize-space/normalize-space';
-import { ZodError } from 'zod';
 import { EditableInput } from '../EditableInput/EditableInput';
 import { toast } from 'react-hot-toast';
 import { locale } from '../../../translations';
@@ -21,15 +20,6 @@ export const DefaultCell = ({
 				normalizeSpace(value),
 			);
 		} catch (err) {
-			if (err instanceof ZodError) {
-				const [firstIssue] = err.errors;
-				const { message } = firstIssue ?? {};
-
-				toast.error(`${locale.he.actions.error} ${message}`);
-
-				return;
-			}
-
 			toast.error(
 				`${locale.he.actions.error} ${locale.he.actions.product.update}`,
 			);

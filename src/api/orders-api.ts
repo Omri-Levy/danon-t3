@@ -89,30 +89,10 @@ class OrdersApi extends TrpcApi {
 			trpc.proxy.orders.send.useMutation({
 				onMutate: async () => {
 					await this.ctx.cancelQuery(['products.getAll']);
-					const previousData = this.ctx.getQueryData([
-						'products.getAll',
-					]);
-
-					this.ctx.setQueryData(
-						['products.getAll'],
-						(prevData: any) =>
-							prevData?.map((data: any) => ({
-								...data,
-								orderAmount: 0,
-							})),
-					);
-
-					return { previousData };
 				},
-				onError: (err, variables, context) => {
-					if (!context?.previousData) return;
-
+				onError: () => {
 					toast.error(
 						`${locale.he.actions.error} ${locale.he.actions.order.send}`,
-					);
-					this.ctx.setQueryData(
-						['products.getAll'],
-						context.previousData,
 					);
 				},
 				onSuccess: () => {

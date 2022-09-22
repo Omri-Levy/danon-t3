@@ -11,21 +11,22 @@ export const ReactPdfTable: FunctionComponent<{
 	data: Array<any>;
 }> = ({ headers, data }) => {
 	const styles = StyleSheet.create({
-		table: {},
+		table: {
+			border: `1px solid black`,
+		},
 		tr: {
 			flexDirection: 'row',
 		},
 		thead: {
 			flexDirection: 'row',
+			borderBottom: `1px solid black`,
 		},
 		td: {
-			border: '1px solid black',
 			padding: '5px',
 			justifyContent: 'center',
 		},
 		th: {
 			textAlign: 'center',
-			border: '1px solid black',
 			padding: '5px',
 			fontWeight: 'bold',
 		},
@@ -44,6 +45,10 @@ export const ReactPdfTable: FunctionComponent<{
 							style={{
 								...styles.th,
 								width: `${100 / headers.length}%`,
+								borderRight:
+									index === headers.length - 1
+										? 'none'
+										: '1px solid black',
 								...stylesProp,
 							}}
 						>
@@ -55,10 +60,19 @@ export const ReactPdfTable: FunctionComponent<{
 			{data?.map((item, index) => (
 				<View
 					key={`${item?.id ?? index}-tr`}
-					style={styles.tr}
+					style={{
+						...styles.tr,
+						borderBottom:
+							index === data.length - 1
+								? 'none'
+								: '1px solid black',
+					}}
 				>
 					{headers?.map(
-						({ accessorKey, styles: stylesProp }) => {
+						(
+							{ accessorKey, styles: stylesProp },
+							index,
+						) => {
 							const keys = accessorKey.split('.');
 							let value = item;
 
@@ -74,6 +88,11 @@ export const ReactPdfTable: FunctionComponent<{
 										width: `${
 											100 / headers.length
 										}%`,
+										borderRight:
+											index ===
+											headers.length - 1
+												? 'none'
+												: '1px solid black',
 										...stylesProp,
 									}}
 								>

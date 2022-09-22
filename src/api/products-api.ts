@@ -22,7 +22,7 @@ class ProductsApi extends TrpcApi {
 
 	getAllForOrder() {
 		const { data, ...query } =
-			trpc.proxy.products.getAll.useQuery(undefined, {
+			trpc.proxy.products.getAll?.useQuery(undefined, {
 				select: (products) =>
 					products?.filter(this.validOrder),
 			});
