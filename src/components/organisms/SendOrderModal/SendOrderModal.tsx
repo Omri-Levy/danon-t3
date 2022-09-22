@@ -106,7 +106,7 @@ export const SendOrderModal = ({ isOpen, onClose }) => {
 	const onSendOrderSubmit: SubmitHandler<
 		InferMutationInput<'orders.send'>
 	> = useCallback(async () => {
-		if (!blob) return;
+		if (!blob || !products?.length) return;
 
 		const reader = new FileReader();
 		reader.readAsDataURL(blob);
@@ -128,7 +128,7 @@ export const SendOrderModal = ({ isOpen, onClose }) => {
 			},
 			false,
 		);
-	}, [blob, onClose, onSend]);
+	}, [blob, onClose, onSend, products?.length]);
 	const sendOrderMethods = useForm({
 		mode: 'all',
 		criteriaMode: 'all',
