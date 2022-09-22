@@ -1,5 +1,7 @@
 export const locale = {
 	he: {
+		signIn: 'התחברות',
+		signOut: 'התנתקות',
 		to: 'ל',
 		sku: 'מק"ט',
 		productName: 'שם מוצר',
@@ -21,8 +23,12 @@ export const locale = {
 		createProduct: 'יצירת מוצר',
 		createSupplier: 'יצירת ספק',
 		supplier: 'ספק',
+		suppliers: 'ספקים',
+		products: 'מוצרים',
 	},
 	en: {
+		signIn: 'Sign in',
+		signOut: 'Sign out',
 		to: 'To',
 		sku: 'Sku',
 		productName: 'Product Name',
@@ -45,5 +51,7 @@ export const locale = {
 		createProduct: 'Create Product',
 		createSupplier: 'Create Supplier',
 		supplier: 'Supplier',
+		suppliers: 'Suppliers',
+		products: 'Products',
 	},
 };

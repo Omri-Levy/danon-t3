@@ -69,7 +69,7 @@ model Product {
     orderAmount Decimal @db.Decimal(4,2)
     /// @zod.max(1000, { message: "Stock amount must be lower or equal to 1000" })
     stock Decimal @db.Decimal(4,2)
-    supplier Supplier @relation(fields: [supplierId], references: [id])
+    supplier Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
     supplierId String
     order Order? @relation(fields: [orderId], references: [id])
     orderId String?

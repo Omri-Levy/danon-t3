@@ -1,19 +1,31 @@
-import { Prisma } from '@prisma/client';
-import { TSupplierIdForeignSchema } from '../../types';
+import { Prisma, Supplier } from '@prisma/client';
+import { TSupplierIdForeignSchema } from '../suppliers/types';
 import { TProductIdSchema, TProductIdsSchema } from './types';
+import { suppliersRepository } from '../suppliers/suppliers.repository';
 
 class ProductsRepository {
 	private _repository = prisma?.product;
 
-	async findMany() {
+	async findMany({
+		where,
+		include,
+	}: {
+		where?: Prisma.ProductWhereInput;
+		include?: Prisma.ProductInclude;
+	} = {}) {
 		return this._repository?.findMany({
+			orderBy: {
+				name: 'asc',
+			},
 			include: {
 				supplier: {
 					select: {
 						name: true,
 					},
 				},
+				...include,
 			},
+			where,
 		});
 	}
 
@@ -47,13 +59,32 @@ class ProductsRepository {
 		id,
 		data,
 	}: TProductIdSchema & {
-		data: Prisma.ProductUpdateInput;
+		data: Prisma.ProductUpdateInput & {
+			supplier?: Supplier['name'];
+		};
 	}) {
+		const { supplier, ...rest } = data;
+		const supplierId = supplier
+			? await suppliersRepository.findIdByName({
+					name: supplier,
+			  })
+			: undefined;
+
 		return this._repository?.update({
 			where: {
 				id,
 			},
-			data,
+			data: {
+				...rest,
+				supplier:
+					supplier && supplierId
+						? {
+								connect: {
+									id: supplierId,
+								},
+						  }
+						: undefined,
+			},
 		});
 	}
 

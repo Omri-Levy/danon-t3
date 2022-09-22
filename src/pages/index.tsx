@@ -9,12 +9,13 @@ import {
 	getFilteredRowModel,
 	getPaginationRowModel,
 	getSortedRowModel,
+	RowData,
 	RowSelectionState,
 	SortingState,
 } from '@tanstack/table-core';
 import { useReactTable } from '@tanstack/react-table';
 import { locale } from '../translations';
-import { UnitColumn } from '../components/atoms/UnitColumn/UnitColumn';
+import { SelectColumn } from '../components/atoms/SelectColumn/SelectColumn';
 import { IndeterminateCheckbox } from '../components/atoms/IndeterminateCheckbox/IndeterminateCheckbox';
 import { useToggle } from '../hooks/useToggle/useToggle';
 import { useSkipper } from '../hooks/useSkipper/useSkipper';
@@ -24,14 +25,27 @@ import { Toast } from '../components/molecules/Toast/Toast';
 import { PrintModal } from '../components/organisms/PrintModal/PrintModal';
 import { TopBar } from '../components/molecules/TopBar/TopBar';
 import { SendOrderModal } from '../components/organisms/SendOrderModal/SendOrderModal';
-import { CreateSupplierModal } from '../components/organisms/CreateSupplierModal/CreateSupplierModal';
 import { Pagination } from '../components/organisms/Pagination/Pagination';
 import { ReactTable } from '../components/molecules/ReactTable/ReactTable';
-import { ProductModel } from '../validation';
 import { createProductsApi } from '../api/products-api';
 import { InferQueryOutput } from '../types';
+import { createProductSchema } from '../server/products/validation';
+import { Unit } from '@prisma/client';
+import { createSuppliersApi } from '../api/suppliers-api';
+
+declare module '@tanstack/react-table' {
+	interface TableMeta<TData extends RowData> {
+		updateData: (
+			rowIndex: number,
+			columnId: string,
+			value: unknown,
+		) => void;
+	}
+}
 
 const Home: NextPage = () => {
+	const suppliersApi = createSuppliersApi();
+	const { supplierNames } = suppliersApi.getAllSupplierNames();
 	const [sorting, setSorting] = useState<SortingState>([
 		{ id: 'name', desc: false },
 	]);
@@ -60,16 +74,13 @@ const Home: NextPage = () => {
 		toggleOnIsCreatingProduct,
 		toggleOffIsCreatingProduct,
 	] = useToggle();
-	const [
-		isCreatingSupplier,
-		,
-		toggleOnIsCreatingSupplier,
-		toggleOffIsCreatingSupplier,
-	] = useToggle();
 	const productsApi = createProductsApi();
-	const { products, isLoading, refetch } = productsApi.getAll();
+	const { products, isLoading } = productsApi.getAll();
 	const { onUpdateById } = productsApi.updateById();
-	const { onDeleteByIds } = productsApi.deleteByIds();
+	const { onDeleteByIds } =
+		productsApi.deleteByIds<Record<PropertyKey, boolean>>(
+			setRowSelection,
+		);
 	const { onResetOrderAmount } = productsApi.resetOrderAmount();
 	const isValidToOrder = productsApi.isValidToOrder();
 	const columns: Array<
@@ -80,14 +91,17 @@ const Home: NextPage = () => {
 		{
 			id: 'select',
 			header: ({ table }) => (
-				<IndeterminateCheckbox
-					{...{
-						checked: table.getIsAllRowsSelected(),
-						indeterminate: table.getIsSomeRowsSelected(),
-						onChange:
-							table.getToggleAllRowsSelectedHandler(),
-					}}
-				/>
+				<div className={`bg-base-100 flex rounded p-px`}>
+					<IndeterminateCheckbox
+						{...{
+							checked: table.getIsAllRowsSelected(),
+							indeterminate:
+								table.getIsSomeRowsSelected(),
+							onChange:
+								table.getToggleAllRowsSelectedHandler(),
+						}}
+					/>
+				</div>
 			),
 			cell: ({ row }) => (
 				<IndeterminateCheckbox
@@ -121,7 +135,12 @@ const Home: NextPage = () => {
 		{
 			accessorKey: 'unit',
 			header: locale.he.unit,
-			cell: UnitColumn,
+			cell: (props) => (
+				<SelectColumn
+					options={Object.values(Unit)}
+					{...props}
+				/>
+			),
 		},
 		{
 			accessorKey: 'name',
@@ -134,6 +153,12 @@ const Home: NextPage = () => {
 		{
 			accessorKey: 'supplier.name',
 			header: locale.he.supplier,
+			cell: (props) => (
+				<SelectColumn
+					options={supplierNames ?? []}
+					{...props}
+				/>
+			),
 		},
 	];
 	const defaultColumn: Partial<
@@ -157,38 +182,38 @@ const Home: NextPage = () => {
 
 		if (!prevProduct) return;
 
+		const column =
+			columnId === 'supplier_name' ? 'supplier' : columnId;
 		const valueAsNumber = Number(value);
 		const parsedValue = [
 			'orderAmount',
 			'packageSize',
 			'stock',
-		].includes(columnId)
+		].includes(column)
 			? valueAsNumber
 			: value;
-		const isPackageSize = columnId === 'packageSize';
+		const isPackageSize = column === 'packageSize';
 
-		ProductModel.pick({ [columnId]: true }).parse({
-			[columnId]: parsedValue,
+		createProductSchema.pick({ [column]: true }).parse({
+			[column]: parsedValue,
 		});
 
 		// Make sure it is always possible to return to a package size of 1.
 		if (isPackageSize && !prevProduct?.packageSize) {
 			await onUpdateById({
 				orderAmount: 0,
-				[columnId]: parsedValue,
+				[column]: parsedValue,
 				id: prevProduct?.id,
 			});
-			await refetch();
 
 			return;
 		}
 
 		if (isPackageSize && parsedValue === 1) {
 			await onUpdateById({
-				[columnId]: parsedValue,
+				[column]: parsedValue,
 				id: prevProduct?.id,
 			});
-			await refetch();
 
 			return;
 		}
@@ -201,7 +226,7 @@ const Home: NextPage = () => {
 		const isOrderAmountOrPackageSize = [
 			'orderAmount',
 			'packageSize',
-		].includes(columnId);
+		].includes(column);
 		const shouldSkip =
 			isOrderAmountOrPackageSize &&
 			!isDivisible &&
@@ -218,11 +243,9 @@ const Home: NextPage = () => {
 		}
 
 		await onUpdateById({
-			[columnId]: parsedValue,
+			[column]: parsedValue,
 			id: prevProduct?.id,
 		});
-
-		await refetch();
 	};
 	const table = useReactTable({
 		columns,
@@ -267,9 +290,12 @@ const Home: NextPage = () => {
 		await onDeleteByIds({
 			ids: productsToDelete,
 		});
-		await refetch();
-		setRowSelection({});
 	};
+	const { products: productsToOrder } =
+		productsApi.getAllForOrder();
+	const moreThanOneSupplier =
+		new Set(productsToOrder?.map(({ supplierId }) => supplierId))
+			.size > 1;
 
 	useEffect(() => {
 		if (!toast?.message) return;
@@ -303,16 +329,13 @@ const Home: NextPage = () => {
 				isOpen={isPrinting}
 				onClose={toggleOffIsPrinting}
 			/>
-			<CreateSupplierModal
-				isOpen={isCreatingSupplier}
-				onClose={toggleOffIsCreatingSupplier}
-			/>
 			<CreateProductModal
 				isOpen={isCreatingProduct}
 				onClose={toggleOffIsCreatingProduct}
 			/>
 			<main className='container pt-[7vh] min-h-screen p-2 mx-auto'>
 				<TopBar
+					moreThanOneSupplier={moreThanOneSupplier}
 					onResetOrderAmount={() => onResetOrderAmount()}
 					onDeleteSelectedProducts={
 						onDeleteSelectedProductsSubmit
@@ -325,9 +348,6 @@ const Home: NextPage = () => {
 					}
 					toggleOnIsCreatingProduct={
 						toggleOnIsCreatingProduct
-					}
-					toggleOnIsCreatingSupplier={
-						toggleOnIsCreatingSupplier
 					}
 					toggleOnIsPrinting={toggleOnIsPrinting}
 					toggleOnIsSendingOrder={toggleOnIsSendingOrder}

@@ -1,5 +1,10 @@
 import { trpc } from '../utils/trpc';
 import { TrpcApi } from './trpc-api';
+import {
+	optimisticCreate,
+	optimisticDelete,
+	optimisticUpdate,
+} from './optimistic-updates';
 
 class OrdersApi extends TrpcApi {
 	getAll() {
@@ -25,7 +30,9 @@ class OrdersApi extends TrpcApi {
 
 	create() {
 		const { mutateAsync, ...mutation } =
-			trpc.proxy.orders.create.useMutation();
+			trpc.proxy.orders.create.useMutation(
+				optimisticCreate(this.ctx, ['orders.getAll']),
+			);
 
 		return {
 			onCreate: mutateAsync,
@@ -35,7 +42,9 @@ class OrdersApi extends TrpcApi {
 
 	updateById() {
 		const { mutateAsync, ...mutation } =
-			trpc.proxy.orders.updateById.useMutation();
+			trpc.proxy.orders.updateById.useMutation(
+				optimisticUpdate(this.ctx, ['orders.getAll']),
+			);
 
 		return {
 			onUpdateById: mutateAsync,
@@ -43,9 +52,17 @@ class OrdersApi extends TrpcApi {
 		};
 	}
 
-	deleteByIds() {
+	deleteByIds<
+		TIds extends Array<string> | Record<PropertyKey, boolean>,
+	>(setSelectedIds: (ids: TIds) => void) {
 		const { mutateAsync, ...mutation } =
-			trpc.proxy.orders.deleteByIds.useMutation();
+			trpc.proxy.orders.deleteByIds.useMutation(
+				optimisticDelete(
+					this.ctx,
+					['orders.getAll'],
+					setSelectedIds,
+				),
+			);
 
 		return {
 			onDeleteByIds: mutateAsync,
@@ -55,7 +72,36 @@ class OrdersApi extends TrpcApi {
 
 	send() {
 		const { mutateAsync, ...mutation } =
-			trpc.proxy.orders.send.useMutation();
+			trpc.proxy.orders.send.useMutation({
+				onMutate: async () => {
+					await this.ctx.cancelQuery(['orders.getAll']);
+					const previousData = this.ctx.getQueryData([
+						'orders.getAll',
+					]);
+
+					this.ctx.setQueryData(
+						['orders.getAll'],
+						(prevData: any) =>
+							prevData?.map((data: any) => ({
+								...data,
+								orderAmount: 0,
+							})),
+					);
+
+					return { previousData };
+				},
+				onError: (err, variables, context) => {
+					if (!context?.previousData) return;
+
+					this.ctx.setQueryData(
+						['orders.getAll'],
+						context.previousData,
+					);
+				},
+				onSettled: () => {
+					this.ctx.invalidateQueries(['orders.getAll']);
+				},
+			});
 
 		return {
 			onSend: mutateAsync,

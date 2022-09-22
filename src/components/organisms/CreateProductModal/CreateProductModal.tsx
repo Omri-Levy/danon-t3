@@ -10,25 +10,19 @@ import { FormSelect } from '../../molecules/FormSelect/FormSelect';
 import { Unit } from '@prisma/client';
 import { useRef } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { ProductModel, SupplierModel } from '../../../validation';
 import { createProductsApi } from '../../../api/products-api';
 import { InferMutationInput } from '../../../types';
+import { createProductSchema } from '../../../server/products/validation';
+import { createSuppliersApi } from '../../../api/suppliers-api';
 
 export const CreateProductModal = ({ isOpen, onClose }) => {
 	const productsApi = createProductsApi();
+	const suppliersApi = createSuppliersApi();
+	const { supplierNames } = suppliersApi.getAllSupplierNames();
 	const createProductMethods = useForm({
 		mode: 'all',
 		criteriaMode: 'all',
-		resolver: zodResolver(
-			ProductModel.pick({
-				sku: true,
-				name: true,
-				unit: true,
-				packageSize: true,
-				orderAmount: true,
-				stock: true,
-			}).setKey('supplier', SupplierModel.shape.name),
-		),
+		resolver: zodResolver(createProductSchema),
 		defaultValues: {
 			supplier: '',
 			sku: '',
@@ -63,7 +57,8 @@ export const CreateProductModal = ({ isOpen, onClose }) => {
 						(errors) => console.error(errors),
 					)}
 				>
-					<FormInput
+					<FormSelect
+						options={supplierNames ?? []}
 						label={locale.he.supplier}
 						name='supplier'
 					/>

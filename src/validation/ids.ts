@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { SupplierModel } from '../../prisma/zod';
+import { supplierSchema } from '../../prisma/zod';
 
-export const supplierIdSchema = SupplierModel.pick({
+export const supplierIdSchema = supplierSchema.pick({
 	id: true,
 });
 
