@@ -12,6 +12,8 @@ import Link from 'next/link';
 import { EditableInput } from '../components/atoms/EditableInput/EditableInput';
 import clsx from 'clsx';
 import { trpc } from '../utils/trpc';
+import { toast } from 'react-hot-toast';
+import { formatErrors } from '../env/client.mjs';
 
 const Suppliers: NextPage = () => {
 	const suppliersApi = createSuppliersApi();
@@ -173,15 +175,39 @@ const Suppliers: NextPage = () => {
 													onEdit={async (
 														value,
 													) => {
+														const result =
+															updateSupplierSchema
+																.pick(
+																	{
+																		email: true,
+																	},
+																)
+																.safeParse(
+																	{
+																		email: value,
+																	},
+																);
+
+														if (
+															!result.success
+														) {
+															const error =
+																formatErrors(
+																	result.error.format(),
+																);
+
+															toast.error(
+																`${locale.he.actions.error} ${error}`,
+															);
+
+															return;
+														}
+
 														const {
-															email,
-														} = updateSupplierSchema
-															.pick({
-																email: true,
-															})
-															.parse({
-																email: value,
-															});
+															data: {
+																email,
+															},
+														} = result;
 
 														await onUpdateById(
 															{

@@ -24,11 +24,12 @@ import { Pagination } from '../components/organisms/Pagination/Pagination';
 import { ReactTable } from '../components/molecules/ReactTable/ReactTable';
 import { createProductsApi } from '../api/products-api';
 import { InferQueryOutput } from '../types';
-import { createProductSchema } from '../server/products/validation';
+import { updateProductSchema } from '../server/products/validation';
 import { Unit } from '@prisma/client';
 import { createSuppliersApi } from '../api/suppliers-api';
 import { toast } from 'react-hot-toast';
 import { trpc } from '../utils/trpc';
+import { formatErrors } from '../env/client.mjs';
 
 declare module '@tanstack/react-table' {
 	interface TableMeta<TData extends RowData> {
@@ -176,9 +177,19 @@ const Home: NextPage = () => {
 			: value;
 		const isPackageSize = column === 'packageSize';
 
-		createProductSchema.pick({ [column]: true }).parse({
-			[column]: parsedValue,
-		});
+		const result = updateProductSchema
+			.pick({ [column]: true })
+			.safeParse({
+				[column]: parsedValue,
+			});
+
+		if (!result.success) {
+			const error = formatErrors(result.error.format());
+
+			toast.error(`${locale.he.actions.error} ${error}`);
+
+			return;
+		}
 
 		// Make sure it is always possible to return to a package size of 1.
 		if (isPackageSize && !prevProduct?.packageSize) {

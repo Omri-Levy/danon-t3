@@ -1,5 +1,36 @@
 export const locale = {
 	he: {
+		validation: {
+			supplier: {
+				email: {
+					max: 'אימייל חייב לכלול עד 320 תו(וים)',
+					invalid: 'אימייל חייב להיות כתובת אימייל תקינה',
+				},
+				name: {
+					min: 'שם ספק חייב לכלול לפחות 1 תו(וים)',
+					max: 'שם ספק חייב לכלול עד 120 תו(וים)',
+				},
+			},
+			product: {
+				sku: {
+					min: 'מק"ט חייב לכלול לפחות 1 תו(וים)',
+					max: 'מק"ט חייב לכלול עד 10 תו(וים)',
+				},
+				name: {
+					min: 'שם מוצר חייב לכלול לפחות 1 תו(וים)',
+					max: 'שם מוצר חייב לכלול עד 120 תו(וים)',
+				},
+				packageSize: {
+					max: 'גודל חבילה חייב להיות קטן יותר או שווה ל1000',
+				},
+				orderAmount: {
+					max: 'כמות להזמנה חייבת להיות קטנה יותר או שווה ל1000',
+				},
+				stock: {
+					max: 'מלאי חייב להיות קטן יותר או שווה ל1000',
+				},
+			},
+		},
 		signIn: 'התחברות',
 		signInWithOutlook: 'התחברות עם Outlook',
 		signOut: 'התנתקות',
@@ -49,6 +80,37 @@ export const locale = {
 		},
 	},
 	en: {
+		validation: {
+			supplier: {
+				email: {
+					max: 'Email must contain at most 320 character(s)',
+					invalid: 'Email must be a valid email address',
+				},
+				name: {
+					min: 'Supplier name must contain at least 1 character(s)',
+					max: 'Supplier name must contain at most 120 character(s)',
+				},
+			},
+			product: {
+				sku: {
+					min: 'SKU must contain at least 1 character(s)',
+					max: 'SKU must contain at most 10 character(s)',
+				},
+				name: {
+					min: 'Product name must contain at least 1 character(s)',
+					max: 'Product name must contain at most 120 character(s)',
+				},
+				packageSize: {
+					max: 'Package size must be less than or equal to 1000',
+				},
+				orderAmount: {
+					max: 'Order amount must be less than or equal to 1000',
+				},
+				stock: {
+					max: 'Stock must be less than or equal to 1000',
+				},
+			},
+		},
 		signIn: 'Sign in',
 		signInWithOutlook: 'Sign in with Outlook',
 		signOut: 'Sign out',

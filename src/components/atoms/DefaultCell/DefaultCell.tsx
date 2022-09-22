@@ -1,6 +1,8 @@
 import { normalizeSpace } from '../../../utils/normalize-space/normalize-space';
 import { ZodError } from 'zod';
 import { EditableInput } from '../EditableInput/EditableInput';
+import { toast } from 'react-hot-toast';
+import { locale } from '../../../translations';
 
 export const DefaultCell = ({
 	getValue,
@@ -20,21 +22,17 @@ export const DefaultCell = ({
 			);
 		} catch (err) {
 			if (err instanceof ZodError) {
-				// const [firstIssue] = err.errors;
-				// const { message } = firstIssue ?? {};
+				const [firstIssue] = err.errors;
+				const { message } = firstIssue ?? {};
 
-				// setToast({
-				// 	message,
-				// 	type: 'error',
-				// });
+				toast.error(`${locale.he.actions.error} ${message}`);
 
 				return;
 			}
 
-			// setToast({
-			// 	message: `עדכון מוצר: נכשל`,
-			// 	type: 'error',
-			// });
+			toast.error(
+				`${locale.he.actions.error} ${locale.he.actions.product.update}`,
+			);
 		}
 	};
 
