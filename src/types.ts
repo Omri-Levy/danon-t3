@@ -70,3 +70,5 @@ export type InferSubscriptionInput<TRouteKey extends TSubscription> =
 export type ComponentWithChildren<P = {}> = FunctionComponent<
 	P & WithChildren
 >;
+
+export type AnyArray = Array<any>;

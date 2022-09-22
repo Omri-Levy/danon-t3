@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import {
 	createSupplierSchema,
+	supplierIdForeignSchema,
 	supplierIdSchema,
 	supplierIdsSchema,
 	updateSupplierSchema,
@@ -16,4 +17,7 @@ export type TCreateSupplierSchema = z.infer<
 >;
 export type TUpdateSupplierSchema = z.infer<
 	typeof updateSupplierSchema
+>;
+export type TSupplierIdForeignSchema = z.infer<
+	typeof supplierIdForeignSchema
 >;

@@ -1,11 +1,20 @@
 import { Prisma, Supplier } from '@prisma/client';
-import { TSupplierIdSchema, TSupplierIdsSchema } from '../../types';
+import { TSupplierIdSchema, TSupplierIdsSchema } from './types';
 
 class SuppliersRepository {
 	private _repository = prisma?.supplier;
 
-	async findMany() {
-		return this._repository?.findMany();
+	async findMany({
+		where,
+		include,
+	}: {
+		where?: Prisma.SupplierWhereInput;
+		include?: Prisma.SupplierInclude;
+	} = {}) {
+		return this._repository?.findMany({
+			where,
+			include,
+		});
 	}
 
 	async findById({ id }: TSupplierIdSchema) {

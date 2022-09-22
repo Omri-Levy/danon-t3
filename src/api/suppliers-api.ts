@@ -1,5 +1,10 @@
 import { trpc } from '../utils/trpc';
 import { TrpcApi } from './trpc-api';
+import {
+	optimisticCreate,
+	optimisticDelete,
+	optimisticUpdate,
+} from './optimistic-updates';
 
 class SuppliersApi extends TrpcApi {
 	getAll() {
@@ -8,6 +13,19 @@ class SuppliersApi extends TrpcApi {
 
 		return {
 			suppliers: data,
+			...query,
+		};
+	}
+
+	getAllSupplierNames() {
+		const { data, ...query } =
+			trpc.proxy.suppliers.getAll.useQuery(undefined, {
+				select: (suppliers) =>
+					suppliers?.map(({ name }) => name),
+			});
+
+		return {
+			supplierNames: data,
 			...query,
 		};
 	}
@@ -24,7 +42,9 @@ class SuppliersApi extends TrpcApi {
 
 	create() {
 		const { mutateAsync, ...mutation } =
-			trpc.proxy.suppliers.create.useMutation();
+			trpc.proxy.suppliers.create.useMutation(
+				optimisticCreate(this.ctx, ['suppliers.getAll']),
+			);
 
 		return {
 			onCreate: mutateAsync,
@@ -34,7 +54,9 @@ class SuppliersApi extends TrpcApi {
 
 	updateById() {
 		const { mutateAsync, ...mutation } =
-			trpc.proxy.suppliers.updateById.useMutation();
+			trpc.proxy.suppliers.updateById.useMutation(
+				optimisticUpdate(this.ctx, ['suppliers.getAll']),
+			);
 
 		return {
 			onUpdateById: mutateAsync,
@@ -42,9 +64,17 @@ class SuppliersApi extends TrpcApi {
 		};
 	}
 
-	deleteByIds() {
+	deleteByIds<
+		TIds extends Array<string> | Record<PropertyKey, boolean>,
+	>(setSelectedIds: (ids: TIds) => void) {
 		const { mutateAsync, ...mutation } =
-			trpc.proxy.suppliers.deleteByIds.useMutation();
+			trpc.proxy.suppliers.deleteByIds.useMutation(
+				optimisticDelete(
+					this.ctx,
+					['suppliers.getAll'],
+					setSelectedIds,
+				),
+			);
 
 		return {
 			onDeleteByIds: mutateAsync,

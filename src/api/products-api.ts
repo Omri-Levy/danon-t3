@@ -1,6 +1,11 @@
 import { trpc } from '../utils/trpc';
 import { TrpcApi } from './trpc-api';
 import { Product } from '@prisma/client';
+import {
+	optimisticCreate,
+	optimisticDelete,
+	optimisticUpdate,
+} from './optimistic-updates';
 
 class ProductsApi extends TrpcApi {
 	getAll() {
@@ -38,7 +43,9 @@ class ProductsApi extends TrpcApi {
 
 	create() {
 		const { mutateAsync, ...mutation } =
-			trpc.proxy.products.create.useMutation();
+			trpc.proxy.products.create.useMutation(
+				optimisticCreate(this.ctx, ['products.getAll']),
+			);
 
 		return {
 			onCreate: mutateAsync,
@@ -48,7 +55,9 @@ class ProductsApi extends TrpcApi {
 
 	updateById() {
 		const { mutateAsync, ...mutation } =
-			trpc.proxy.products.updateById.useMutation();
+			trpc.proxy.products.updateById.useMutation(
+				optimisticUpdate(this.ctx, ['products.getAll']),
+			);
 
 		return {
 			onUpdateById: mutateAsync,
@@ -56,9 +65,17 @@ class ProductsApi extends TrpcApi {
 		};
 	}
 
-	deleteByIds() {
+	deleteByIds<
+		TIds extends Array<string> | Record<PropertyKey, boolean>,
+	>(setSelectedIds: (ids: TIds) => void) {
 		const { mutateAsync, ...mutation } =
-			trpc.proxy.products.deleteByIds.useMutation();
+			trpc.proxy.products.deleteByIds.useMutation(
+				optimisticDelete(
+					this.ctx,
+					['products.getAll'],
+					setSelectedIds,
+				),
+			);
 
 		return {
 			onDeleteByIds: mutateAsync,
@@ -68,7 +85,36 @@ class ProductsApi extends TrpcApi {
 
 	resetOrderAmount() {
 		const { mutateAsync, ...mutation } =
-			trpc.proxy.products.resetOrderAmount.useMutation();
+			trpc.proxy.products.resetOrderAmount.useMutation({
+				onMutate: async () => {
+					await this.ctx.cancelQuery(['products.getAll']);
+					const previousData = this.ctx.getQueryData([
+						'products.getAll',
+					]);
+
+					this.ctx.setQueryData(
+						['products.getAll'],
+						(prevData: any) =>
+							prevData?.map((data: any) => ({
+								...data,
+								orderAmount: 0,
+							})),
+					);
+
+					return { previousData };
+				},
+				onError: (err, variables, context) => {
+					if (!context?.previousData) return;
+
+					this.ctx.setQueryData(
+						['products.getAll'],
+						context.previousData,
+					);
+				},
+				onSettled: () => {
+					this.ctx.invalidateQueries(['products.getAll']);
+				},
+			});
 
 		return {
 			onResetOrderAmount: mutateAsync,

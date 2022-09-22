@@ -4,11 +4,8 @@ import {
 	SubmitHandler,
 	useForm,
 } from 'react-hook-form';
-import { FormInput } from '../../molecules/FormInput/FormInput';
 import { Modal } from '../../molecules/Modal/Modal';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { SupplierModel } from '../../../validation';
 import {
 	Document,
 	Image,
@@ -22,6 +19,8 @@ import { createProductsApi } from '../../../api/products-api';
 import { createOrdersApi } from '../../../api/orders-api';
 import { InferMutationInput } from '../../../types';
 import { ReactPdfTable } from '../../molecules/ReactPdfTable/ReactPdfTable';
+import { sendOrderSchema } from '../../../server/orders/validation';
+import { useCallback } from 'react';
 
 const OrderDocument = ({ products }) => {
 	const styles = StyleSheet.create({
@@ -106,7 +105,7 @@ export const SendOrderModal = ({ isOpen, onClose }) => {
 	const { onSend } = ordersApi.send();
 	const onSendOrderSubmit: SubmitHandler<
 		InferMutationInput<'orders.send'>
-	> = async (data) => {
+	> = useCallback(async () => {
 		if (!blob) return;
 
 		const reader = new FileReader();
@@ -117,7 +116,6 @@ export const SendOrderModal = ({ isOpen, onClose }) => {
 				const result = e.target?.result ?? null;
 
 				await onSend({
-					...data,
 					pdf: result,
 				});
 
@@ -130,23 +128,12 @@ export const SendOrderModal = ({ isOpen, onClose }) => {
 			},
 			false,
 		);
-	};
+	}, [blob, onClose, onSend]);
 	const sendOrderMethods = useForm({
 		mode: 'all',
 		criteriaMode: 'all',
-		resolver: zodResolver(
-			z
-				.object({
-					pdf: z.string(),
-				})
-				.merge(
-					SupplierModel.pick({
-						name: true,
-					}),
-				),
-		),
+		resolver: zodResolver(sendOrderSchema),
 		defaultValues: {
-			name: '',
 			pdf: '',
 		},
 	});
@@ -182,7 +169,6 @@ export const SendOrderModal = ({ isOpen, onClose }) => {
 						(errors) => console.error(errors),
 					)}
 				>
-					<FormInput label={locale.he.name} name='name' />
 					<button
 						className={'btn mt-2 mr-auto'}
 						type={`submit`}

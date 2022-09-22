@@ -1,12 +1,16 @@
-import { useEffect, useState } from 'react';
-import { Unit } from '@prisma/client';
+import { useRef, useState } from 'react';
+import { CellContext, RowData } from '@tanstack/table-core';
 
-export const UnitColumn = ({
+export const SelectColumn = <TRowData extends RowData, TValue>({
+	options,
 	getValue,
 	row: { index },
 	column: { id },
 	table,
+}: CellContext<TRowData | null, TValue> & {
+	options: Array<string>;
 }) => {
+	const ref = useRef<HTMLSelectElement>(null);
 	const initialValue = getValue();
 	// We need to keep and update the state of the cell normally
 	const [value, setValue] = useState(initialValue);
@@ -19,35 +23,31 @@ export const UnitColumn = ({
 	const onKeyDown = async (e) => {
 		if (e.key === 'Enter') {
 			updateValue();
-			e.target.blur();
+			ref.current?.blur();
 		}
 
 		if (e.key === 'Escape') {
 			resetValue();
-			e.target.blur();
+			ref.current?.blur();
 		}
 	};
 
-	// If the initialValue is changed external, sync it up with our state
-	useEffect(() => {
-		setValue(initialValue);
-	}, [initialValue]);
-
 	return (
 		<select
+			ref={ref}
 			value={value as string}
 			className='select bg-transparent w-full '
 			onChange={onChange}
 			onKeyDown={onKeyDown}
 			onBlur={resetValue}
 		>
-			{Object.values(Unit).map((unit) => (
+			{options.map((option) => (
 				<option
-					key={unit}
-					value={unit}
-					disabled={value === unit}
+					key={option}
+					value={option}
+					disabled={value === option}
 				>
-					{unit}
+					{option}
 				</option>
 			))}
 		</select>

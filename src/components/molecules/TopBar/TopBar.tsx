@@ -2,11 +2,11 @@ import { locale } from '../../../translations';
 import Link from 'next/link';
 
 export const TopBar = ({
-	toggleOnIsCreatingSupplier,
 	toggleOnIsCreatingProduct,
 	toggleOnIsSendingOrder,
 	toggleOnIsPrinting,
 	orderAtleastOne,
+	moreThanOneSupplier,
 	productsLength,
 	rowSelectionLength,
 	globalFilter,
@@ -26,14 +26,9 @@ export const TopBar = ({
 				>
 					{locale.he.createProduct}
 				</button>
-				<button
-					className={'btn'}
-					onClick={() => {
-						toggleOnIsCreatingSupplier();
-					}}
-				>
-					{locale.he.createSupplier}
-				</button>
+				<Link href={'/suppliers'} passHref>
+					<a className={'btn'}>{locale.he.suppliers}</a>
+				</Link>
 				<button
 					className={'btn'}
 					onClick={() => {
@@ -44,12 +39,20 @@ export const TopBar = ({
 				</button>
 				<div
 					className={
-						!orderAtleastOne ? `tooltip` : `inline`
+						!orderAtleastOne || moreThanOneSupplier
+							? `tooltip`
+							: `inline`
 					}
-					data-tip={`לא ניתן לבצע הזמנה ללא מוצרים עם כמות הזמנה מעל ל0`}
+					data-tip={
+						moreThanOneSupplier
+							? `לא ניתן לבצע הזמנה עם יותר מספק אחד עם כמות הזמנה מעל ל0`
+							: `לא ניתן לבצע הזמנה ללא מוצרים עם כמות הזמנה מעל ל0`
+					}
 				>
 					<button
-						disabled={!orderAtleastOne}
+						disabled={
+							!orderAtleastOne || moreThanOneSupplier
+						}
 						className={'btn '}
 						onClick={toggleOnIsSendingOrder}
 					>
@@ -122,7 +125,7 @@ export const TopBar = ({
 					</div>
 				</div>
 				<Link href={`/api/auth/signout`}>
-					<a className={`btn`}>Sign out</a>
+					<a className={`btn`}>{locale.he.signOut}</a>
 				</Link>
 			</div>
 		</div>
