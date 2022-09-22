@@ -1,4 +1,4 @@
-import GoogleProvider from 'next-auth/providers/google';
+import AzureADProvider from 'next-auth/providers/azure-ad';
 import NextAuth, { type NextAuthOptions } from 'next-auth';
 
 // Prisma adapter for NextAuth, optional and can be removed
@@ -21,10 +21,15 @@ export const authOptions: NextAuthOptions = {
 	},
 	// Configure one or more authentication providers
 	adapter: PrismaAdapter(prisma),
+	pages: {
+		signIn: '/auth/sign-in',
+		signOut: '/auth/sign-out',
+	},
 	providers: [
-		GoogleProvider({
-			clientId: env.CLIENT_ID,
-			clientSecret: env.CLIENT_SECRET,
+		AzureADProvider({
+			clientId: env.AZURE_AD_CLIENT_ID,
+			clientSecret: env.AZURE_AD_CLIENT_SECRET,
+			tenantId: env.AZURE_AD_TENANT_ID,
 		}),
 	],
 };

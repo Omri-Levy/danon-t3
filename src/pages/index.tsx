@@ -1,8 +1,7 @@
 import { DefaultCell } from '../components/atoms/DefaultCell/DefaultCell';
-import 'jspdf-autotable';
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { ChangeEvent, useEffect, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import {
 	ColumnDef,
 	getCoreRowModel,
@@ -17,14 +16,10 @@ import { useReactTable } from '@tanstack/react-table';
 import { locale } from '../translations';
 import { SelectColumn } from '../components/atoms/SelectColumn/SelectColumn';
 import { IndeterminateCheckbox } from '../components/atoms/IndeterminateCheckbox/IndeterminateCheckbox';
-import { useToggle } from '../hooks/useToggle/useToggle';
+import { useToggle } from 'react-use';
 import { useSkipper } from '../hooks/useSkipper/useSkipper';
 import { fuzzyFilter } from '../utils/fuzzy-filter/fuzzy-filter';
-import { CreateProductModal } from '../components/organisms/CreateProductModal/CreateProductModal';
-import { Toast } from '../components/molecules/Toast/Toast';
-import { PrintModal } from '../components/organisms/PrintModal/PrintModal';
 import { TopBar } from '../components/molecules/TopBar/TopBar';
-import { SendOrderModal } from '../components/organisms/SendOrderModal/SendOrderModal';
 import { Pagination } from '../components/organisms/Pagination/Pagination';
 import { ReactTable } from '../components/molecules/ReactTable/ReactTable';
 import { createProductsApi } from '../api/products-api';
@@ -32,6 +27,8 @@ import { InferQueryOutput } from '../types';
 import { createProductSchema } from '../server/products/validation';
 import { Unit } from '@prisma/client';
 import { createSuppliersApi } from '../api/suppliers-api';
+import { toast } from 'react-hot-toast';
+import { trpc } from '../utils/trpc';
 
 declare module '@tanstack/react-table' {
 	interface TableMeta<TData extends RowData> {
@@ -52,28 +49,11 @@ const Home: NextPage = () => {
 	const [rowSelection, setRowSelection] =
 		useState<RowSelectionState>({});
 	const [globalFilter, setGlobalFilter] = useState('');
-	const [toast, setToast] = useState<{
-		message: string;
-		type: 'success' | 'error' | 'warning' | 'info';
-	}>({
-		message: '',
-		type: 'success',
-	});
 	const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
-	const [
-		isSendingOrder,
-		,
-		toggleOnIsSendingOrder,
-		toggleOffIsSendingOrder,
-	] = useToggle();
-	const [isPrinting, , toggleOnIsPrinting, toggleOffIsPrinting] =
-		useToggle();
-	const [
-		isCreatingProduct,
-		,
-		toggleOnIsCreatingProduct,
-		toggleOffIsCreatingProduct,
-	] = useToggle();
+	const [isSendingOrder, toggleIsSendingOrder] = useToggle(false);
+	const [isPrinting, toggleIsPrinting] = useToggle(false);
+	const [isCreatingProduct, toggleIsCreatingProduct] =
+		useToggle(false);
 	const productsApi = createProductsApi();
 	const { products, isLoading } = productsApi.getAll();
 	const { onUpdateById } = productsApi.updateById();
@@ -91,7 +71,9 @@ const Home: NextPage = () => {
 		{
 			id: 'select',
 			header: ({ table }) => (
-				<div className={`bg-base-100 flex rounded p-px`}>
+				<div
+					className={`bg-base-100 rounded p-px inline-flex`}
+				>
 					<IndeterminateCheckbox
 						{...{
 							checked: table.getIsAllRowsSelected(),
@@ -234,10 +216,7 @@ const Home: NextPage = () => {
 			!isException;
 
 		if (shouldSkip) {
-			setToast({
-				message: locale.he.mustBeDivisibleBy,
-				type: 'error',
-			});
+			toast.error(locale.he.mustBeDivisibleBy);
 
 			return;
 		}
@@ -296,17 +275,7 @@ const Home: NextPage = () => {
 	const moreThanOneSupplier =
 		new Set(productsToOrder?.map(({ supplierId }) => supplierId))
 			.size > 1;
-
-	useEffect(() => {
-		if (!toast?.message) return;
-
-		setTimeout(() => {
-			setToast({
-				message: '',
-				type: 'success',
-			});
-		}, 2000);
-	}, [toast?.message]);
+	const isMutating = trpc.useContext().queryClient.isMutating();
 
 	if (isLoading) return null;
 
@@ -320,20 +289,23 @@ const Home: NextPage = () => {
 				/>
 				<link rel='icon' href='/favicon.ico' />
 			</Head>
-			<Toast message={toast?.message} type={toast?.type} />
-			<SendOrderModal
-				isOpen={isSendingOrder}
-				onClose={toggleOffIsSendingOrder}
-			/>
-			<PrintModal
-				isOpen={isPrinting}
-				onClose={toggleOffIsPrinting}
-			/>
-			<CreateProductModal
-				isOpen={isCreatingProduct}
-				onClose={toggleOffIsCreatingProduct}
-			/>
-			<main className='container pt-[7vh] min-h-screen p-2 mx-auto'>
+			<main className='container pt-[7vh] min-h-screen p-2 mx-auto relative'>
+				{!!isMutating && (
+					<svg
+						xmlns='http://www.w3.org/2000/svg'
+						fill='none'
+						viewBox='0 0 24 24'
+						strokeWidth={1.5}
+						stroke='currentColor'
+						className='w-6 h-6 animate-spin absolute bottom-5 left-5'
+					>
+						<path
+							strokeLinecap='round'
+							strokeLinejoin='round'
+							d='M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99'
+						/>
+					</svg>
+				)}
 				<TopBar
 					moreThanOneSupplier={moreThanOneSupplier}
 					onResetOrderAmount={() => onResetOrderAmount()}
@@ -346,11 +318,12 @@ const Home: NextPage = () => {
 					rowSelectionLength={
 						Object.keys(rowSelection)?.length
 					}
-					toggleOnIsCreatingProduct={
-						toggleOnIsCreatingProduct
-					}
-					toggleOnIsPrinting={toggleOnIsPrinting}
-					toggleOnIsSendingOrder={toggleOnIsSendingOrder}
+					toggleIsCreatingProduct={toggleIsCreatingProduct}
+					isCreatingProduct={isCreatingProduct}
+					isPrinting={isPrinting}
+					isSendingOrder={isSendingOrder}
+					toggleIsPrinting={toggleIsPrinting}
+					toggleIsSendingOrder={toggleIsSendingOrder}
 					orderAtleastOne={isValidToOrder}
 					productsCount={table
 						.getPreFilteredRowModel()

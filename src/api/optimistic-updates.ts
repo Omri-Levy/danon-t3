@@ -4,6 +4,8 @@ import { TRPCContextState } from '@trpc/react/dist/internals/context';
 import { AppRouter } from '../server';
 import { NextPageContext } from 'next';
 import { IOptimisticUpdate } from './interfaces';
+import toast from 'react-hot-toast';
+import { locale } from '../translations';
 
 export const optimisticUpdates = <
 	TOptions extends UseTRPCMutationOptions<any, any, any, any>,
@@ -11,6 +13,8 @@ export const optimisticUpdates = <
 >(
 	ctx: TRPCContextState<AppRouter, NextPageContext>,
 	queryKey: [TKey, InferQueryInput<TKey>] | [TKey],
+	resource: 'product' | 'supplier' | 'order',
+	action: 'create' | 'update' | 'delete',
 	onError?: <
 		TData extends Parameters<
 			Exclude<TOptions['onError'], undefined>
@@ -19,9 +23,17 @@ export const optimisticUpdates = <
 		prevData: TData,
 	) => void,
 ): Omit<IOptimisticUpdate<TOptions>, 'onMutate'> => ({
+	onSuccess: () => {
+		toast.success(
+			`${locale.he.actions.success} ${locale.he.actions[resource][action]}`,
+		);
+	},
 	onError: (err, newData, context) => {
 		if (!context?.previousData) return;
 
+		toast.error(
+			`${locale.he.actions.error} ${locale.he.actions[resource][action]}`,
+		);
 		ctx.setQueryData(queryKey, context.previousData);
 		onError?.(newData);
 	},
@@ -35,6 +47,9 @@ export const optimisticCreate = <
 >(
 	ctx: TRPCContextState<AppRouter, NextPageContext>,
 	queryKey: [TKey, InferQueryInput<TKey>] | [TKey],
+	resource: 'product' | 'supplier',
+	// | 'order'
+	action: 'create' | 'update' | 'delete',
 ): IOptimisticUpdate<TOptions> => ({
 	onMutate: async (newData) => {
 		await ctx.cancelQuery(queryKey);
@@ -47,7 +62,7 @@ export const optimisticCreate = <
 
 		return { previousData };
 	},
-	...optimisticUpdates(ctx, queryKey),
+	...optimisticUpdates(ctx, queryKey, resource, action),
 });
 export const optimisticUpdate = <
 	TOptions extends UseTRPCMutationOptions<any, any, any, any>,
@@ -55,6 +70,8 @@ export const optimisticUpdate = <
 >(
 	ctx: TRPCContextState<AppRouter, NextPageContext>,
 	queryKey: [TKey, InferQueryInput<TKey>] | [TKey],
+	resource: 'product' | 'supplier' | 'order',
+	action: 'create' | 'update' | 'delete',
 ): IOptimisticUpdate<TOptions> => ({
 	onMutate: async (updatedData) => {
 		await ctx.cancelQuery(queryKey);
@@ -73,7 +90,7 @@ export const optimisticUpdate = <
 
 		return { previousData };
 	},
-	...optimisticUpdates(ctx, queryKey),
+	...optimisticUpdates(ctx, queryKey, resource, action),
 });
 export const optimisticDelete = <
 	TIds extends Array<string> | Record<PropertyKey, boolean>,
@@ -82,7 +99,9 @@ export const optimisticDelete = <
 >(
 	ctx: TRPCContextState<AppRouter, NextPageContext>,
 	queryKey: [TKey, InferQueryInput<TKey>] | [TKey],
-	setSelectedIds: (ids: TIds) => void,
+	resource: 'product' | 'supplier' | 'order',
+	action: 'create' | 'update' | 'delete',
+	setSelectedIds?: (ids: TIds) => void,
 ): IOptimisticUpdate<TOptions> => ({
 	onMutate: async ({ ids }) => {
 		await ctx.cancelQuery(queryKey);
@@ -91,9 +110,11 @@ export const optimisticDelete = <
 			prevData?.filter((data: any) => !ids.includes(data.id)),
 		);
 
-		setSelectedIds(!Array.isArray(ids) ? {} : ([] as any));
+		setSelectedIds?.(!Array.isArray(ids) ? {} : ([] as any));
 
 		return { previousData };
 	},
-	...optimisticUpdates(ctx, queryKey, (ids) => setSelectedIds(ids)),
+	...optimisticUpdates(ctx, queryKey, resource, action, (ids) =>
+		setSelectedIds?.(ids),
+	),
 });

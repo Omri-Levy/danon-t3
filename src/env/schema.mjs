@@ -12,6 +12,11 @@ export const serverSchema = z.object({
 	NEXTAUTH_URL: z.string().url(),
 	EMAIL: z.string().email(),
 	PASS: z.string(),
+	AZURE_AD_CLIENT_ID: z.string(),
+	AZURE_AD_CLIENT_SECRET: z.string(),
+	AZURE_AD_TENANT_ID: z.string(),
+
+
 });
 
 /**

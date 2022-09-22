@@ -14,6 +14,7 @@ export const accountSchema = z.object({
   scope: z.string().nullish(),
   id_token: z.string().nullish(),
   session_state: z.string().nullish(),
+  ext_expires_in: z.number().int(),
   createdAt: z.date(),
   updatedAt: z.date(),
 })

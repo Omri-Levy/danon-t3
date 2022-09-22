@@ -4,7 +4,6 @@ import {
 	SubmitHandler,
 	useForm,
 } from 'react-hook-form';
-import { Modal } from '../../molecules/Modal/Modal';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
 	Document,
@@ -20,7 +19,9 @@ import { createOrdersApi } from '../../../api/orders-api';
 import { InferMutationInput } from '../../../types';
 import { ReactPdfTable } from '../../molecules/ReactPdfTable/ReactPdfTable';
 import { sendOrderSchema } from '../../../server/orders/validation';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
+import * as Dialog from '@radix-ui/react-dialog';
+import clsx from 'clsx';
 
 const OrderDocument = ({ products }) => {
 	const styles = StyleSheet.create({
@@ -95,14 +96,14 @@ const OrderDocument = ({ products }) => {
 	);
 };
 
-export const SendOrderModal = ({ isOpen, onClose }) => {
+export const SendOrderModal = ({ disabled, isOpen, onOpen }) => {
 	const productsApi = createProductsApi();
 	const ordersApi = createOrdersApi();
 	const { products } = productsApi.getAllForOrder();
 	const [{ blob }] = usePDF({
 		document: <OrderDocument products={products} />,
 	});
-	const { onSend } = ordersApi.send();
+	const { onSend, isSuccess, isLoading } = ordersApi.send();
 	const onSendOrderSubmit: SubmitHandler<
 		InferMutationInput<'orders.send'>
 	> = useCallback(async () => {
@@ -118,17 +119,10 @@ export const SendOrderModal = ({ isOpen, onClose }) => {
 				await onSend({
 					pdf: result,
 				});
-
-				// setToast({
-				// 	message: `Sending order: success`,
-				// 	type: 'success',
-				// });
-
-				onClose();
 			},
 			false,
 		);
-	}, [blob, onClose, onSend, products?.length]);
+	}, [blob, onSend, products?.length]);
 	const sendOrderMethods = useForm({
 		mode: 'all',
 		criteriaMode: 'all',
@@ -137,46 +131,86 @@ export const SendOrderModal = ({ isOpen, onClose }) => {
 			pdf: '',
 		},
 	});
-	// const blacklist = ['select', 'stock'];
-	// const orderColumns = useReactTableToAutoTable(table, blacklist);
-	// const orderBody = table
-	// 	.getSortedRowModel()
-	// 	.rows.filter(
-	// 		(r) =>
-	// 			!isBlacklisted(r.id, blacklist) &&
-	// 			Number(r.getValue('orderAmount')) > 0,
-	// 	)
-	// 	.map((r, index) => addRowIndex(r.original, index));
+
+	useEffect(() => {
+		if (!isSuccess) return;
+
+		onOpen(false);
+	}, [isSuccess]);
 
 	return (
-		<Modal isOpen={isOpen} onClose={onClose}>
-			<h2 className={'text-3xl font-bold mb-2 text-center'}>
+		<Dialog.Root open={isOpen} onOpenChange={onOpen}>
+			<Dialog.Trigger className={'btn'} disabled={disabled}>
 				{locale.he.order}
-			</h2>
-			<PDFViewer
-				height={`100%`}
-				style={{
-					marginBottom: '10px',
-				}}
-			>
-				<OrderDocument products={products} />
-			</PDFViewer>
-			<FormProvider {...sendOrderMethods}>
-				<form
-					noValidate
-					onSubmit={sendOrderMethods.handleSubmit(
-						onSendOrderSubmit,
-						(errors) => console.error(errors),
-					)}
-				>
-					<button
-						className={'btn mt-2 mr-auto'}
-						type={`submit`}
+			</Dialog.Trigger>
+			<Dialog.Portal>
+				<Dialog.Overlay>
+					<div
+						className={clsx([
+							`modal`,
+							{
+								[`modal-open`]: isOpen,
+							},
+						])}
 					>
-						{locale.he.send}
-					</button>
-				</form>
-			</FormProvider>
-		</Modal>
+						<Dialog.Content
+							className={`modal-box w-6/12 max-w-none h-full max-h-none`}
+						>
+							<div className={`flex justify-end`}>
+								<Dialog.Close>
+									<svg
+										xmlns='http://www.w3.org/2000/svg'
+										viewBox='0 0 24 24'
+										fill='currentColor'
+										className='w-6 h-6'
+									>
+										<path
+											fillRule='evenodd'
+											d='M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z'
+											clipRule='evenodd'
+										/>
+									</svg>
+								</Dialog.Close>
+							</div>
+							<Dialog.Title
+								dir={`rtl`}
+								className={`font-bold text-center`}
+							>
+								{locale.he.print}
+							</Dialog.Title>
+							<PDFViewer
+								height={`86%`}
+								width={`100%`}
+								style={{
+									marginBottom: '10px',
+								}}
+							>
+								<OrderDocument products={products} />
+							</PDFViewer>
+							<FormProvider {...sendOrderMethods}>
+								<form
+									noValidate
+									onSubmit={sendOrderMethods.handleSubmit(
+										onSendOrderSubmit,
+										(errors) =>
+											console.error(errors),
+									)}
+								>
+									<button
+										className={clsx([
+											`btn mt-2 mr-auto`,
+											{ loading: isLoading },
+										])}
+										type={`submit`}
+									>
+										{locale.he.send}
+									</button>
+								</form>
+							</FormProvider>
+						</Dialog.Content>
+					</div>
+				</Dialog.Overlay>
+			</Dialog.Portal>
+		</Dialog.Root>
 	);
 };

@@ -6,6 +6,8 @@ import {
 	optimisticDelete,
 	optimisticUpdate,
 } from './optimistic-updates';
+import toast from 'react-hot-toast';
+import { locale } from '../translations';
 
 class ProductsApi extends TrpcApi {
 	getAll() {
@@ -44,7 +46,12 @@ class ProductsApi extends TrpcApi {
 	create() {
 		const { mutateAsync, ...mutation } =
 			trpc.proxy.products.create.useMutation(
-				optimisticCreate(this.ctx, ['products.getAll']),
+				optimisticCreate(
+					this.ctx,
+					['products.getAll'],
+					'product',
+					'create',
+				),
 			);
 
 		return {
@@ -56,7 +63,12 @@ class ProductsApi extends TrpcApi {
 	updateById() {
 		const { mutateAsync, ...mutation } =
 			trpc.proxy.products.updateById.useMutation(
-				optimisticUpdate(this.ctx, ['products.getAll']),
+				optimisticUpdate(
+					this.ctx,
+					['products.getAll'],
+					'product',
+					'update',
+				),
 			);
 
 		return {
@@ -67,12 +79,14 @@ class ProductsApi extends TrpcApi {
 
 	deleteByIds<
 		TIds extends Array<string> | Record<PropertyKey, boolean>,
-	>(setSelectedIds: (ids: TIds) => void) {
+	>(setSelectedIds?: (ids: TIds) => void) {
 		const { mutateAsync, ...mutation } =
 			trpc.proxy.products.deleteByIds.useMutation(
 				optimisticDelete(
 					this.ctx,
 					['products.getAll'],
+					'product',
+					'delete',
 					setSelectedIds,
 				),
 			);
@@ -106,6 +120,9 @@ class ProductsApi extends TrpcApi {
 				onError: (err, variables, context) => {
 					if (!context?.previousData) return;
 
+					toast.error(
+						`${locale.he.actions.error} ${locale.he.actions.product.resetOrderAmount}`,
+					);
 					this.ctx.setQueryData(
 						['products.getAll'],
 						context.previousData,
@@ -113,6 +130,11 @@ class ProductsApi extends TrpcApi {
 				},
 				onSettled: () => {
 					this.ctx.invalidateQueries(['products.getAll']);
+				},
+				onSuccess: () => {
+					toast.success(
+						`${locale.he.actions.success} ${locale.he.actions.product.resetOrderAmount}`,
+					);
 				},
 			});
 

@@ -11,10 +11,11 @@ import { InferMutationInput } from '../../../types';
 import * as Dialog from '@radix-ui/react-dialog';
 import clsx from 'clsx';
 import { createSupplierSchema } from '../../../server/suppliers/validation';
+import { useCallback, useEffect } from 'react';
 
 export const CreateSupplierModal = ({ isOpen, onOpen }) => {
 	const suppliersApi = createSuppliersApi();
-	const { onCreate } = suppliersApi.create();
+	const { onCreate, isLoading, isSuccess } = suppliersApi.create();
 	const onCreateSupplierSubmit: SubmitHandler<
 		InferMutationInput<'suppliers.create'>
 	> = async (data) => onCreate(data);
@@ -27,10 +28,33 @@ export const CreateSupplierModal = ({ isOpen, onOpen }) => {
 			name: '',
 		},
 	});
+	const handleReset = useCallback(() => {
+		if (!isSuccess) return;
+
+		createSupplierMethods?.reset();
+	}, [isSuccess, createSupplierMethods?.reset]);
+	const handleFocus = useCallback(() => {
+		if (!isSuccess || createSupplierMethods?.formState?.isDirty)
+			return;
+
+		createSupplierMethods?.setFocus('name');
+	}, [
+		isSuccess,
+		createSupplierMethods?.setFocus,
+		createSupplierMethods?.formState?.isDirty,
+	]);
+
+	useEffect(() => {
+		handleReset();
+	}, [handleReset]);
+
+	useEffect(() => {
+		handleFocus();
+	}, [handleFocus]);
 
 	return (
 		<Dialog.Root open={isOpen} onOpenChange={onOpen}>
-			<Dialog.Trigger className={'btn'}>
+			<Dialog.Trigger className={`btn`}>
 				{locale.he.createSupplier}
 			</Dialog.Trigger>
 			<Dialog.Portal>
@@ -80,6 +104,7 @@ export const CreateSupplierModal = ({ isOpen, onOpen }) => {
 									<FormInput
 										label={locale.he.name}
 										name='name'
+										autoFocus
 									/>
 									<FormInput
 										label={locale.he.email}
@@ -89,7 +114,14 @@ export const CreateSupplierModal = ({ isOpen, onOpen }) => {
 										className={`modal-action col-span-full `}
 									>
 										<button
-											className={'btn mr-auto'}
+											className={clsx([
+												`btn mr-auto`,
+												{
+													loading:
+														isLoading,
+												},
+											])}
+											disabled={isLoading}
 											type={`submit`}
 										>
 											{locale.he.create}

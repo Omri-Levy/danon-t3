@@ -1,6 +1,7 @@
 export const locale = {
 	he: {
 		signIn: 'התחברות',
+		signInWithOutlook: 'התחברות עם Outlook',
 		signOut: 'התנתקות',
 		to: 'ל',
 		sku: 'מק"ט',
@@ -25,9 +26,31 @@ export const locale = {
 		supplier: 'ספק',
 		suppliers: 'ספקים',
 		products: 'מוצרים',
+		actions: {
+			success: `פעולה הצליחה:`,
+			error: `פעולה נכשלה:`,
+			product: {
+				create: 'יצירת מוצר',
+				update: 'עדכון מוצר',
+				delete: 'מחיקת מוצרים',
+				resetOrderAmount: 'איפוס כמות הזמנה',
+			},
+			supplier: {
+				create: 'יצירת ספק',
+				update: 'עדכון ספק',
+				delete: 'מחיקת ספקים',
+			},
+			order: {
+				create: 'יצירת הזמנה',
+				update: 'עדכון הזמנה',
+				delete: 'מחיקת הזמנות',
+				send: 'שליחת הזמנה',
+			},
+		},
 	},
 	en: {
 		signIn: 'Sign in',
+		signInWithOutlook: 'Sign in with Outlook',
 		signOut: 'Sign out',
 		to: 'To',
 		sku: 'Sku',
@@ -53,5 +76,20 @@ export const locale = {
 		supplier: 'Supplier',
 		suppliers: 'Suppliers',
 		products: 'Products',
+		actions: {
+			success: `Action succeeded:`,
+			error: `Action failed:`,
+			product: {
+				create: 'creating product',
+				update: 'updating product',
+				delete: 'deleting products',
+				resetOrderAmount: 'reset order amount',
+			},
+			supplier: {
+				create: 'creating supplier',
+				update: 'updating supplier',
+				delete: 'deleting suppliers',
+			},
+		},
 	},
 };

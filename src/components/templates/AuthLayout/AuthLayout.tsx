@@ -4,14 +4,17 @@ import { ComponentWithChildren } from '../../../types';
 
 export const AuthLayout: ComponentWithChildren = ({ children }) => {
 	const { data: session, status } = useSession();
-	const { replace } = useRouter();
+	const { replace, pathname } = useRouter();
+	const navigateToSignIn = !session && pathname !== `/auth/sign-in`;
+	const navigateToRoot = session && pathname === `/auth/sign-in`;
+	const path = navigateToSignIn ? `/auth/sign-in` : `/`;
 
 	if (typeof window === 'undefined' || status === `loading`) {
 		return null;
 	}
 
-	if (!session) {
-		replace('/api/auth/signin');
+	if (navigateToRoot || navigateToSignIn) {
+		replace(path);
 
 		return null;
 	}

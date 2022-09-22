@@ -43,7 +43,12 @@ class SuppliersApi extends TrpcApi {
 	create() {
 		const { mutateAsync, ...mutation } =
 			trpc.proxy.suppliers.create.useMutation(
-				optimisticCreate(this.ctx, ['suppliers.getAll']),
+				optimisticCreate(
+					this.ctx,
+					['suppliers.getAll'],
+					'supplier',
+					'create',
+				),
 			);
 
 		return {
@@ -55,7 +60,12 @@ class SuppliersApi extends TrpcApi {
 	updateById() {
 		const { mutateAsync, ...mutation } =
 			trpc.proxy.suppliers.updateById.useMutation(
-				optimisticUpdate(this.ctx, ['suppliers.getAll']),
+				optimisticUpdate(
+					this.ctx,
+					['suppliers.getAll'],
+					'supplier',
+					'update',
+				),
 			);
 
 		return {
@@ -66,12 +76,14 @@ class SuppliersApi extends TrpcApi {
 
 	deleteByIds<
 		TIds extends Array<string> | Record<PropertyKey, boolean>,
-	>(setSelectedIds: (ids: TIds) => void) {
+	>(setSelectedIds?: (ids: TIds) => void) {
 		const { mutateAsync, ...mutation } =
 			trpc.proxy.suppliers.deleteByIds.useMutation(
 				optimisticDelete(
 					this.ctx,
 					['suppliers.getAll'],
+					'supplier',
+					'delete',
 					setSelectedIds,
 				),
 			);

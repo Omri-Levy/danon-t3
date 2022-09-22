@@ -5,6 +5,8 @@ import {
 	optimisticDelete,
 	optimisticUpdate,
 } from './optimistic-updates';
+import { toast } from 'react-hot-toast';
+import { locale } from '../translations';
 
 class OrdersApi extends TrpcApi {
 	getAll() {
@@ -31,7 +33,12 @@ class OrdersApi extends TrpcApi {
 	create() {
 		const { mutateAsync, ...mutation } =
 			trpc.proxy.orders.create.useMutation(
-				optimisticCreate(this.ctx, ['orders.getAll']),
+				optimisticCreate(
+					this.ctx,
+					['orders.getAll'],
+					'order',
+					'create',
+				),
 			);
 
 		return {
@@ -43,7 +50,12 @@ class OrdersApi extends TrpcApi {
 	updateById() {
 		const { mutateAsync, ...mutation } =
 			trpc.proxy.orders.updateById.useMutation(
-				optimisticUpdate(this.ctx, ['orders.getAll']),
+				optimisticUpdate(
+					this.ctx,
+					['orders.getAll'],
+					'order',
+					'update',
+				),
 			);
 
 		return {
@@ -54,12 +66,14 @@ class OrdersApi extends TrpcApi {
 
 	deleteByIds<
 		TIds extends Array<string> | Record<PropertyKey, boolean>,
-	>(setSelectedIds: (ids: TIds) => void) {
+	>(setSelectedIds?: (ids: TIds) => void) {
 		const { mutateAsync, ...mutation } =
 			trpc.proxy.orders.deleteByIds.useMutation(
 				optimisticDelete(
 					this.ctx,
 					['orders.getAll'],
+					'order',
+					'delete',
 					setSelectedIds,
 				),
 			);
@@ -74,13 +88,13 @@ class OrdersApi extends TrpcApi {
 		const { mutateAsync, ...mutation } =
 			trpc.proxy.orders.send.useMutation({
 				onMutate: async () => {
-					await this.ctx.cancelQuery(['orders.getAll']);
+					await this.ctx.cancelQuery(['products.getAll']);
 					const previousData = this.ctx.getQueryData([
-						'orders.getAll',
+						'products.getAll',
 					]);
 
 					this.ctx.setQueryData(
-						['orders.getAll'],
+						['products.getAll'],
 						(prevData: any) =>
 							prevData?.map((data: any) => ({
 								...data,
@@ -93,13 +107,21 @@ class OrdersApi extends TrpcApi {
 				onError: (err, variables, context) => {
 					if (!context?.previousData) return;
 
+					toast.error(
+						`${locale.he.actions.error} ${locale.he.actions.order.send}`,
+					);
 					this.ctx.setQueryData(
-						['orders.getAll'],
+						['products.getAll'],
 						context.previousData,
 					);
 				},
+				onSuccess: () => {
+					toast.success(
+						`${locale.he.actions.success} ${locale.he.actions.order.send}`,
+					);
+				},
 				onSettled: () => {
-					this.ctx.invalidateQueries(['orders.getAll']);
+					this.ctx.invalidateQueries(['products.getAll']);
 				},
 			});
 

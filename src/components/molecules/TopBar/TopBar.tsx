@@ -1,10 +1,19 @@
 import { locale } from '../../../translations';
 import Link from 'next/link';
+import { signOut, useSession } from 'next-auth/react';
+import { SendOrderModal } from '../../organisms/SendOrderModal/SendOrderModal';
+import { PrintModal } from '../../organisms/PrintModal/PrintModal';
+import { CreateProductModal } from '../../organisms/CreateProductModal/CreateProductModal';
+import clsx from 'clsx';
+import { createProductsApi } from '../../../api/products-api';
 
 export const TopBar = ({
-	toggleOnIsCreatingProduct,
-	toggleOnIsSendingOrder,
-	toggleOnIsPrinting,
+	isPrinting,
+	isSendingOrder,
+	isCreatingProduct,
+	toggleIsPrinting,
+	toggleIsSendingOrder,
+	toggleIsCreatingProduct,
 	orderAtleastOne,
 	moreThanOneSupplier,
 	productsLength,
@@ -15,28 +24,18 @@ export const TopBar = ({
 	onDeleteSelectedProducts,
 	onResetOrderAmount,
 }) => {
+	const onSignOut = () => signOut();
+	const productsApi = createProductsApi();
+	const { isLoading: isLoadingResetOrderAmount } =
+		productsApi.resetOrderAmount();
+	const { isLoading: isLoadingDeleteByIds } =
+		productsApi.deleteByIds();
+	const { status } = useSession();
+	const isLoadingSession = status === 'loading';
+
 	return (
-		<div className={`flex justify-between`}>
-			<div className={`space-x-2`}>
-				<button
-					className={'btn'}
-					onClick={() => {
-						toggleOnIsCreatingProduct();
-					}}
-				>
-					{locale.he.createProduct}
-				</button>
-				<Link href={'/suppliers'} passHref>
-					<a className={'btn'}>{locale.he.suppliers}</a>
-				</Link>
-				<button
-					className={'btn'}
-					onClick={() => {
-						toggleOnIsPrinting();
-					}}
-				>
-					{locale.he.print}
-				</button>
+		<div className={`flex justify-between mb-1`}>
+			<div className={`space-x-2 flex items-center`}>
 				<div
 					className={
 						!orderAtleastOne || moreThanOneSupplier
@@ -49,15 +48,13 @@ export const TopBar = ({
 							: `לא ניתן לבצע הזמנה ללא מוצרים עם כמות הזמנה מעל ל0`
 					}
 				>
-					<button
+					<SendOrderModal
 						disabled={
 							!orderAtleastOne || moreThanOneSupplier
 						}
-						className={'btn '}
-						onClick={toggleOnIsSendingOrder}
-					>
-						{locale.he.order}
-					</button>
+						isOpen={isSendingOrder}
+						onOpen={toggleIsSendingOrder}
+					/>
 				</div>
 				<div
 					className={
@@ -66,8 +63,14 @@ export const TopBar = ({
 					data-tip={`לא ניתן לבצע איפוס כמות הזמנה ללא מוצרים עם כמות הזמנה מעל ל0`}
 				>
 					<button
-						disabled={!orderAtleastOne}
-						className={'btn '}
+						disabled={
+							!orderAtleastOne ||
+							isLoadingResetOrderAmount
+						}
+						className={clsx([
+							`btn`,
+							{ loading: isLoadingResetOrderAmount },
+						])}
 						onClick={onResetOrderAmount}
 					>
 						{locale.he.resetOrderAmount}
@@ -85,15 +88,29 @@ export const TopBar = ({
 						disabled={
 							!productsLength || !rowSelectionLength
 						}
-						className={'btn '}
+						className={clsx([
+							`btn`,
+							{ loading: isLoadingDeleteByIds },
+						])}
 						onClick={onDeleteSelectedProducts}
 					>
 						{locale.he.delete}
 					</button>
 				</div>
+				<CreateProductModal
+					isOpen={isCreatingProduct}
+					onOpen={toggleIsCreatingProduct}
+				/>
+				<Link href={'/suppliers'} passHref>
+					<a className={'btn'}>{locale.he.suppliers}</a>
+				</Link>
+				<PrintModal
+					isOpen={isPrinting}
+					onOpen={toggleIsPrinting}
+				/>
 			</div>
-			<div className={`flex space-x-2`}>
-				<div className='form-control mb-2'>
+			<div className={`flex space-x-2 items-center`}>
+				<div className='form-control'>
 					<div className='input-group'>
 						<input
 							type='text'
@@ -124,9 +141,15 @@ export const TopBar = ({
 						</div>
 					</div>
 				</div>
-				<Link href={`/api/auth/signout`}>
-					<a className={`btn`}>{locale.he.signOut}</a>
-				</Link>
+				<button
+					className={clsx([
+						`btn`,
+						{ loading: isLoadingSession },
+					])}
+					onClick={onSignOut}
+				>
+					{locale.he.signOut}
+				</button>
 			</div>
 		</div>
 	);

@@ -6,4 +6,5 @@ export interface IOptimisticUpdate<
 	onMutate: TOptions['onMutate'];
 	onError: TOptions['onError'];
 	onSettled: TOptions['onSettled'];
+	onSuccess: TOptions['onSuccess'];
 }
