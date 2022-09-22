@@ -44,16 +44,33 @@ export const productSchema = z.object({
 		.max(120, {
 			message: locale.he.validation.product.name.max,
 		}),
-	packageSize: z.number().max(1000, {
-		message: locale.he.validation.product.packageSize.max,
+	packageSize: z
+		.number({
+			invalid_type_error:
+				locale.he.validation.product.packageSize.invalid,
+		})
+		.max(1000, {
+			message: locale.he.validation.product.packageSize.max,
+		}),
+	unit: z.nativeEnum(Unit, {
+		invalid_type_error: locale.he.validation.product.unit,
 	}),
-	unit: z.nativeEnum(Unit),
-	orderAmount: z.number().max(1000, {
-		message: locale.he.validation.product.orderAmount.max,
-	}),
-	stock: z.number().max(1000, {
-		message: locale.he.validation.product.stock.max,
-	}),
+	orderAmount: z
+		.number({
+			invalid_type_error:
+				locale.he.validation.product.orderAmount.invalid,
+		})
+		.max(1000, {
+			message: locale.he.validation.product.orderAmount.max,
+		}),
+	stock: z
+		.number({
+			invalid_type_error:
+				locale.he.validation.product.stock.invalid,
+		})
+		.max(1000, {
+			message: locale.he.validation.product.stock.max,
+		}),
 	supplierId: z.string(),
 	orderId: z.string().nullish(),
 	createdAt: z.date(),

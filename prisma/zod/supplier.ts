@@ -15,10 +15,10 @@ export const supplierSchema = z.object({
 	id: z.string(),
 	email: z
 		.string()
+		.email(locale.he.validation.supplier.email.invalid)
 		.max(320, {
 			message: locale.he.validation.supplier.email.max,
-		})
-		.email(locale.he.validation.supplier.email.invalid),
+		}),
 	name: z
 		.string()
 		.min(1, {

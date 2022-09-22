@@ -1,3 +1,5 @@
+import { Unit } from '@prisma/client';
+
 export const locale = {
 	he: {
 		validation: {
@@ -20,13 +22,21 @@ export const locale = {
 					min: 'שם מוצר חייב לכלול לפחות 1 תו(וים)',
 					max: 'שם מוצר חייב לכלול עד 120 תו(וים)',
 				},
+				unit: {
+					invalid: `יחידת מידה חייבת להיות אחת מן הערכים הבאים: ${Object.values(
+						Unit,
+					).join(', ')}`,
+				},
 				packageSize: {
+					invalid: `גודל חבילה חייב להיות מספר חיובי`,
 					max: 'גודל חבילה חייב להיות קטן יותר או שווה ל1000',
 				},
 				orderAmount: {
+					invalid: `כמות להזמנה חייבת להיות מספר חיובי`,
 					max: 'כמות להזמנה חייבת להיות קטנה יותר או שווה ל1000',
 				},
 				stock: {
+					invalid: `מלאי חייב להיות מספר חיובי`,
 					max: 'מלאי חייב להיות קטן יותר או שווה ל1000',
 				},
 			},
@@ -101,12 +111,15 @@ export const locale = {
 					max: 'Product name must contain at most 120 character(s)',
 				},
 				packageSize: {
+					invalid: `Package size must be a positive number`,
 					max: 'Package size must be less than or equal to 1000',
 				},
 				orderAmount: {
+					invalid: `Order amount must be a positive number`,
 					max: 'Order amount must be less than or equal to 1000',
 				},
 				stock: {
+					invalid: `Stock must be a positive number`,
 					max: 'Stock must be less than or equal to 1000',
 				},
 			},
