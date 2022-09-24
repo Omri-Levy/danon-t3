@@ -1,14 +1,12 @@
 import { Unit } from '@prisma/client';
 
-// Amza שלום, נא קבלו הזמנתו #0
-
 export const locale = {
 	he: {
 		noSuppliers: `לא ניתן ליצור מוצרים ללא ספקים. נא צרו לפחות ספק אחד ונסו שנית.`,
 		navigateToSuppliers: `ניווט לספקים`,
 		attention: `שימו לב`,
 		mailSender: 'דנון הזמנת כימיקלים',
-		mailGreeting: (supplier: string, order: number) =>
+		mailGreeting: (supplier: string, order: string) =>
 			`${supplier} שלום, נא קבלו הזמנתנו. #${order}`,
 		orderPdf: `מסמך הזמנה הוצמד`,
 		validation: {
@@ -104,7 +102,7 @@ export const locale = {
 		navigateToSuppliers: 'Navigate to suppliers',
 		attention: 'Attention',
 		mailSender: 'Danon chemicals ordering',
-		mailGreeting: (supplier: string, order: number) =>
+		mailGreeting: (supplier: string, order: string) =>
 			`Hello ${supplier}, please accept our order. #${order}`,
 		orderPdf: `Order PDF attached.`,
 		validation: {

@@ -11,6 +11,7 @@ import { getLocaleDateString } from '../../utils/get-locale-date-string/get-loca
 import { productsRepository } from '../products/products.repository';
 import { TRPCError } from '@trpc/server';
 import { locale } from '../../translations';
+import { env } from '../../env/server.mjs';
 
 class OrdersService {
 	private _repository = ordersRepository;
@@ -56,6 +57,7 @@ class OrdersService {
 			include: {
 				supplier: {
 					select: {
+						id: true,
 						name: true,
 						email: true,
 					},
@@ -94,14 +96,40 @@ class OrdersService {
 			});
 		}
 
+		const order = await ordersRepository.create({
+			supplierId: supplier.id,
+			data: {
+				s3Bucket: 'bucket',
+				s3Key: 'key',
+				products: {
+					connect: productsToOrder.map(({ id }) => ({
+						id,
+					})),
+				},
+			},
+		});
+
+		if (!order) {
+			throw new TRPCError({
+				code: 'INTERNAL_SERVER_ERROR',
+				message: 'Could not create order',
+			});
+		}
+
+		const paddedOrderNumber = order.orderNumber
+			.toString()
+			.padStart(5, '0');
 		const info = await sendEmail({
-			from: locale.he.mailSender,
+			from: `${locale.he.mailSender} <${env.EMAIL}>`,
 			to: supplier.email,
-			subject: locale.he.mailGreeting(supplier.name, 0),
+			subject: locale.he.mailGreeting(
+				supplier.name,
+				paddedOrderNumber,
+			),
 			text: locale.he.orderPdf,
 			attachments: [
 				{
-					filename: `order-${getLocaleDateString()}-#${'orderNumber'}.pdf`,
+					filename: `order-${getLocaleDateString()}-#${paddedOrderNumber}.pdf`,
 					path: pdf as string,
 					contentType: 'application/pdf',
 					encoding: 'base64',
@@ -111,7 +139,7 @@ class OrdersService {
 
 		console.log(info);
 
-		await productsRepository.resetOrderAmount();
+		await productsRepository.resetManyOrderAmountByIds();
 
 		return;
 	}

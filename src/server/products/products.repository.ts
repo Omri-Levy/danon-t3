@@ -55,6 +55,20 @@ class ProductsRepository {
 		});
 	}
 
+	async updateMany({
+		ids,
+		data,
+	}: TProductIdsSchema & Prisma.ProductUpdateManyArgs) {
+		return this._repository?.updateMany({
+			where: {
+				id: {
+					in: ids,
+				},
+			},
+			data,
+		});
+	}
+
 	async updateById({
 		id,
 		data,
@@ -98,12 +112,16 @@ class ProductsRepository {
 		});
 	}
 
-	async resetManyOrderAmountByIds({ ids }: TProductIdsSchema) {
+	async resetManyOrderAmountByIds({
+		ids,
+	}: Partial<TProductIdsSchema> = {}) {
 		return this._repository?.updateMany({
 			where: {
-				id: {
-					in: ids,
-				},
+				id: ids?.length
+					? {
+							in: ids,
+					  }
+					: undefined,
 				orderAmount: {
 					gt: 0,
 				},
