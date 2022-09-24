@@ -2,14 +2,20 @@ import { normalizeSpace } from '../../../utils/normalize-space/normalize-space';
 import { EditableInput } from '../EditableInput/EditableInput';
 import { toast } from 'react-hot-toast';
 import { locale } from '../../../translations';
+import { CellContext } from '@tanstack/table-core';
+import clsx from 'clsx';
+import { InferQueryOutput } from '../../../types';
 
-export const DefaultCell = ({
+export const DefaultCell = <TValue,>({
 	getValue,
 	row: { index },
 	column: { id },
 	table,
-}) => {
-	const initialValue = normalizeSpace(getValue());
+}: CellContext<InferQueryOutput<'products.getById'>, TValue>) => {
+	const value = getValue();
+	const initialValue = normalizeSpace(
+		typeof value === 'string' ? value : '',
+	);
 	// We need to keep and update the state of the cell normally
 	// When the input is blurred, we'll call our table meta's updateData function
 	const updateValue = async (value: string) => {
@@ -25,26 +31,15 @@ export const DefaultCell = ({
 			);
 		}
 	};
+	const { className = '', ...props } =
+		table.options.meta?.numericField(index, id, table) ?? {};
 
 	return (
 		<EditableInput
 			onEdit={updateValue}
 			initialValue={initialValue}
-			type={
-				['orderAmount', 'packageSize', 'stock'].some(
-					(v) => v === id,
-				)
-					? 'number'
-					: 'text'
-			}
-			className={`bg-transparent w-full input`}
-			step={
-				id === 'orderAmount'
-					? table.getRow(index.toString()).original
-							.packageSize
-					: undefined
-			}
-			min={0}
+			className={clsx(`bg-transparent w-full input`, className)}
+			{...props}
 		/>
 	);
 };

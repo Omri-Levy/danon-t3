@@ -36,7 +36,7 @@ export const SelectColumn = <TRowData extends RowData, TValue>({
 		<select
 			ref={ref}
 			value={value as string}
-			className='select bg-transparent w-full '
+			className='select bg-transparent w-full'
 			onChange={onChange}
 			onKeyDown={onKeyDown}
 			onBlur={resetValue}

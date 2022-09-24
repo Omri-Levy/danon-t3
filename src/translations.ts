@@ -4,6 +4,10 @@ import { Unit } from '@prisma/client';
 
 export const locale = {
 	he: {
+		noSuppliers: `לא ניתן ליצור מוצרים ללא ספקים. נא צרו לפחות ספק אחד ונסו שנית.`,
+		navigateToSuppliers: `ניווט לספקים`,
+		attention: `שימו לב`,
+		mailSender: 'דנון הזמנת כימיקלים',
 		mailGreeting: (supplier: string, order: number) =>
 			`${supplier} שלום, נא קבלו הזמנתנו. #${order}`,
 		orderPdf: `מסמך הזמנה הוצמד`,
@@ -95,6 +99,11 @@ export const locale = {
 		},
 	},
 	en: {
+		noSuppliers:
+			'It is not possible to create products with no suppliers. Please create at least one supplier and try again.',
+		navigateToSuppliers: 'Navigate to suppliers',
+		attention: 'Attention',
+		mailSender: 'Danon chemicals ordering',
 		mailGreeting: (supplier: string, order: number) =>
 			`Hello ${supplier}, please accept our order. #${order}`,
 		orderPdf: `Order PDF attached.`,

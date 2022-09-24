@@ -47,8 +47,7 @@ export const optimisticCreate = <
 >(
 	ctx: TRPCContextState<AppRouter, NextPageContext>,
 	queryKey: [TKey, InferQueryInput<TKey>] | [TKey],
-	resource: 'product' | 'supplier',
-	// | 'order'
+	resource: 'product' | 'supplier' | 'order',
 	action: 'create' | 'update' | 'delete',
 ): IOptimisticUpdate<TOptions> => ({
 	onMutate: async (newData) => {

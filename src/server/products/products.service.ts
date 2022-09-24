@@ -51,8 +51,8 @@ class ProductsService {
 		return this._repository.deleteManyByIds(input);
 	}
 
-	async resetOrderAmount() {
-		return this._repository.resetOrderAmount();
+	async resetOrderAmountByIds(input: TProductIdsSchema) {
+		return this._repository.resetManyOrderAmountByIds(input);
 	}
 }
 

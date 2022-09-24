@@ -93,7 +93,7 @@ export const CreateSupplierModal = ({ isOpen, onOpen }) => {
 							<FormProvider {...createSupplierMethods}>
 								<form
 									noValidate
-									className='grid grid-cols-2 gap-x-2'
+									className='grid grid-cols-1 gap-x-2'
 									dir={`rtl`}
 									onSubmit={createSupplierMethods.handleSubmit(
 										onCreateSupplierSubmit,
@@ -104,11 +104,13 @@ export const CreateSupplierModal = ({ isOpen, onOpen }) => {
 									<FormInput
 										label={locale.he.name}
 										name='name'
+										className={`input input-bordered max-w-sm`}
 										autoFocus
 									/>
 									<FormInput
 										label={locale.he.email}
 										name='email'
+										className={`input input-bordered max-w-sm`}
 									/>
 									<div
 										className={`modal-action col-span-full `}

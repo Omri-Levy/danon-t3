@@ -98,8 +98,16 @@ class ProductsRepository {
 		});
 	}
 
-	async resetOrderAmount() {
+	async resetManyOrderAmountByIds({ ids }: TProductIdsSchema) {
 		return this._repository?.updateMany({
+			where: {
+				id: {
+					in: ids,
+				},
+				orderAmount: {
+					gt: 0,
+				},
+			},
 			data: {
 				orderAmount: 0,
 			},

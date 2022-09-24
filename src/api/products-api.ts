@@ -97,10 +97,12 @@ class ProductsApi extends TrpcApi {
 		};
 	}
 
-	resetOrderAmount() {
+	resetOrderAmountByIds<
+		TIds extends Array<string> | Record<PropertyKey, boolean>,
+	>(setSelectedIds?: (ids: TIds) => void) {
 		const { mutateAsync, ...mutation } =
-			trpc.proxy.products.resetOrderAmount.useMutation({
-				onMutate: async () => {
+			trpc.proxy.products.resetOrderAmountByIds.useMutation({
+				onMutate: async ({ ids }) => {
 					await this.ctx.cancelQuery(['products.getAll']);
 					const previousData = this.ctx.getQueryData([
 						'products.getAll',
@@ -108,11 +110,17 @@ class ProductsApi extends TrpcApi {
 
 					this.ctx.setQueryData(
 						['products.getAll'],
-						(prevData: any) =>
-							prevData?.map((data: any) => ({
-								...data,
-								orderAmount: 0,
-							})),
+						previousData?.map((data: any) =>
+							ids.includes(data.id)
+								? {
+										...data,
+										orderAmount: 0,
+								  }
+								: data,
+						),
+					);
+					setSelectedIds?.(
+						!Array.isArray(ids) ? {} : ([] as any),
 					);
 
 					return { previousData };
@@ -127,6 +135,7 @@ class ProductsApi extends TrpcApi {
 						['products.getAll'],
 						context.previousData,
 					);
+					setSelectedIds?.(variables.ids as any);
 				},
 				onSettled: () => {
 					this.ctx.invalidateQueries(['products.getAll']);

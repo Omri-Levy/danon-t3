@@ -1,9 +1,11 @@
+import * as AlertDialog from '@radix-ui/react-alert-dialog';
 import { DefaultCell } from '../components/atoms/DefaultCell/DefaultCell';
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, FunctionComponent, useState } from 'react';
 import {
 	ColumnDef,
+	createColumnHelper,
 	getCoreRowModel,
 	getFilteredRowModel,
 	getPaginationRowModel,
@@ -11,12 +13,12 @@ import {
 	RowData,
 	RowSelectionState,
 	SortingState,
+	Table,
 } from '@tanstack/table-core';
 import { useReactTable } from '@tanstack/react-table';
 import { locale } from '../translations';
 import { SelectColumn } from '../components/atoms/SelectColumn/SelectColumn';
 import { IndeterminateCheckbox } from '../components/atoms/IndeterminateCheckbox/IndeterminateCheckbox';
-import { useToggle } from 'react-use';
 import { useSkipper } from '../hooks/useSkipper/useSkipper';
 import { fuzzyFilter } from '../utils/fuzzy-filter/fuzzy-filter';
 import { TopBar } from '../components/molecules/TopBar/TopBar';
@@ -30,6 +32,7 @@ import { createSuppliersApi } from '../api/suppliers-api';
 import { toast } from 'react-hot-toast';
 import { trpc } from '../utils/trpc';
 import { formatErrors } from '../env/client.mjs';
+import Link from 'next/link';
 
 declare module '@tanstack/react-table' {
 	interface TableMeta<TData extends RowData> {
@@ -38,36 +41,50 @@ declare module '@tanstack/react-table' {
 			columnId: string,
 			value: unknown,
 		) => void;
+		numericField: (
+			rowIndex: number,
+			columnId: string,
+			table: Table<TData>,
+		) =>
+			| {
+					type: 'number';
+					min: number;
+					step: number;
+					className: 'text-left';
+					dir: 'rtl';
+			  }
+			| {
+					type: 'number';
+					min: number;
+					className: 'text-left';
+					dir: 'rtl';
+			  }
+			| {
+					type: 'text';
+					className?: string;
+			  };
 	}
 }
 
-const Home: NextPage = () => {
-	const suppliersApi = createSuppliersApi();
-	const { supplierNames } = suppliersApi.getAllSupplierNames();
+export const columnHelper =
+	createColumnHelper<InferQueryOutput<'products.getById'>>();
+
+export const useProductsTable = (
+	products: InferQueryOutput<'products.getAll'>,
+) => {
+	const [globalFilter, setGlobalFilter] = useState('');
+	const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
 	const [sorting, setSorting] = useState<SortingState>([
 		{ id: 'name', desc: false },
 	]);
 	const [rowSelection, setRowSelection] =
 		useState<RowSelectionState>({});
-	const [globalFilter, setGlobalFilter] = useState('');
-	const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
-	const [isSendingOrder, toggleIsSendingOrder] = useToggle(false);
-	const [isPrinting, toggleIsPrinting] = useToggle(false);
-	const [isCreatingProduct, toggleIsCreatingProduct] =
-		useToggle(false);
+	const suppliersApi = createSuppliersApi();
+	const { supplierNames } = suppliersApi.getAllSupplierNames();
 	const productsApi = createProductsApi();
-	const { products, isLoading } = productsApi.getAll();
 	const { onUpdateById } = productsApi.updateById();
-	const { onDeleteByIds } =
-		productsApi.deleteByIds<Record<PropertyKey, boolean>>(
-			setRowSelection,
-		);
-	const { onResetOrderAmount } = productsApi.resetOrderAmount();
-	const isValidToOrder = productsApi.isValidToOrder();
 	const columns: Array<
-		ColumnDef<
-			Exclude<InferQueryOutput<'products.getById'>, undefined>
-		>
+		ColumnDef<InferQueryOutput<'products.getById'>>
 	> = [
 		{
 			id: 'select',
@@ -144,11 +161,7 @@ const Home: NextPage = () => {
 			),
 		},
 	];
-	const defaultColumn: Partial<
-		ColumnDef<
-			Exclude<InferQueryOutput<'products.getById'>, undefined>
-		>
-	> = {
+	const defaultColumn = {
 		cell: DefaultCell,
 	};
 	const onGlobalFilter = (e: ChangeEvent<HTMLInputElement>) =>
@@ -237,6 +250,28 @@ const Home: NextPage = () => {
 			id: prevProduct?.id,
 		});
 	};
+	const numericField = (
+		rowIndex: number,
+		columnId: string,
+		table: Table<InferQueryOutput<'products.getById'>>,
+	) =>
+		['orderAmount', 'packageSize', 'stock'].some(
+			(value) => value === columnId,
+		)
+			? {
+					type: 'number',
+					className: 'text-left',
+					step:
+						columnId === 'orderAmount'
+							? table.getRow(rowIndex.toString())
+									.original?.packageSize
+							: undefined,
+					min: 0,
+					dir: 'rtl',
+			  }
+			: {
+					type: 'text',
+			  };
 	const table = useReactTable({
 		columns,
 		data: products ?? [],
@@ -263,32 +298,100 @@ const Home: NextPage = () => {
 		}, // Provide our updateData function to our table meta
 		meta: {
 			updateData,
+			numericField,
 		},
 	});
-	// const printColumns = useReactTableToAutoTable(table, blacklist);
-	// const printBody = table
-	// 	.getSortedRowModel()
-	// 	.rows.filter((r) => !isBlacklisted(r.id, blacklist))
-	// 	.map((r, index) => addRowIndex(r.original, index));
-	const onDeleteSelectedProductsSubmit = async () => {
-		const productsToDelete = products
-			?.filter((_, index) => rowSelection[index])
-			.map(({ id }) => id);
 
-		if (!productsToDelete?.length) return;
-
-		await onDeleteByIds({
-			ids: productsToDelete,
-		});
+	return {
+		table,
+		globalFilter,
+		onGlobalFilter,
+		sorting,
+		setSorting,
+		rowSelection,
+		setRowSelection,
+		autoResetPageIndex,
+		skipAutoResetPageIndex,
 	};
-	const { products: productsToOrder } =
-		productsApi.getAllForOrder();
-	const moreThanOneSupplier =
-		new Set(productsToOrder?.map(({ supplierId }) => supplierId))
-			.size > 1;
-	const isMutating = trpc.useContext().queryClient.isMutating();
+};
 
-	if (isLoading) return null;
+export const ProductsTable: FunctionComponent<{
+	table: Table<InferQueryOutput<'products.getById'>>;
+}> = ({ table }) => (
+	<ReactTable
+		table={table}
+		HeadRow={({ children, headerGroup, ...props }) => (
+			<tr {...props}>{children}</tr>
+		)}
+		BodyRow={({ children, ...props }) => (
+			<tr className={`hover`} {...props}>
+				{children}
+			</tr>
+		)}
+		renderHeader={(header, render) => (
+			<th
+				align={header.id === 'select' ? undefined : 'center'}
+				colSpan={header.colSpan}
+				className={`sticky top-0 bg-neutral text-white`}
+			>
+				{header.isPlaceholder ? null : (
+					<div
+						{...{
+							className: `${
+								header.column.getCanSort()
+									? 'cursor-pointer select-none'
+									: ''
+							}`,
+							onClick:
+								header.column.getToggleSortingHandler(),
+						}}
+					>
+						{render}
+						{!!header.column.getIsSorted() && (
+							<svg
+								xmlns='http://www.w3.org/2000/svg'
+								className={`inline-block ml-2 h-6 w-6 ${
+									header.column.getIsSorted() ===
+									'desc'
+										? 'rotate-180'
+										: ''
+								}`}
+								fill='none'
+								viewBox='0 0 24 24'
+								stroke='currentColor'
+								strokeWidth='2'
+							>
+								<path
+									strokeLinecap='round'
+									strokeLinejoin='round'
+									d='M19 9l-7 7-7-7'
+								/>
+							</svg>
+						)}
+					</div>
+				)}
+			</th>
+		)}
+		renderCell={(cell, render) => (
+			<td className={`padding-x-0`}>{render}</td>
+		)}
+		className={`table table-compact w-full`}
+	/>
+);
+
+const Home: NextPage = () => {
+	const suppliersApi = createSuppliersApi();
+	const { supplierNames } = suppliersApi.getAllSupplierNames();
+	const productsApi = createProductsApi();
+	const { products, isLoading } = productsApi.getAll();
+	const isMutating = trpc.useContext().queryClient.isMutating();
+	const {
+		table,
+		globalFilter,
+		onGlobalFilter,
+		rowSelection,
+		setRowSelection,
+	} = useProductsTable(products);
 
 	return (
 		<div>
@@ -317,99 +420,62 @@ const Home: NextPage = () => {
 						/>
 					</svg>
 				)}
+				{!supplierNames?.length && !isLoading && (
+					<AlertDialog.Root defaultOpen open>
+						<AlertDialog.Portal>
+							<AlertDialog.Overlay />
+							<div
+								className={`modal modal-open`}
+								dir={`rtl`}
+							>
+								<AlertDialog.Content
+									className={`modal-box`}
+								>
+									<AlertDialog.Title
+										className={`font-bold`}
+									>
+										{locale.he.attention}
+									</AlertDialog.Title>
+									<AlertDialog.Description>
+										{locale.he.noSuppliers}
+									</AlertDialog.Description>
+									<div
+										className={`flex justify-end mt-2`}
+									>
+										<AlertDialog.Action asChild>
+											<Link
+												href={'/suppliers'}
+												passHref
+											>
+												<a className={`btn`}>
+													{
+														locale.he
+															.navigateToSuppliers
+													}
+												</a>
+											</Link>
+										</AlertDialog.Action>
+									</div>
+								</AlertDialog.Content>
+							</div>
+						</AlertDialog.Portal>
+					</AlertDialog.Root>
+				)}
 				<TopBar
-					moreThanOneSupplier={moreThanOneSupplier}
-					onResetOrderAmount={() => onResetOrderAmount()}
-					onDeleteSelectedProducts={
-						onDeleteSelectedProductsSubmit
-					}
 					globalFilter={globalFilter}
 					onGlobalFilter={onGlobalFilter}
-					productsLength={products?.length}
-					rowSelectionLength={
-						Object.keys(rowSelection)?.length
-					}
-					toggleIsCreatingProduct={toggleIsCreatingProduct}
-					isCreatingProduct={isCreatingProduct}
-					isPrinting={isPrinting}
-					isSendingOrder={isSendingOrder}
-					toggleIsPrinting={toggleIsPrinting}
-					toggleIsSendingOrder={toggleIsSendingOrder}
-					orderAtleastOne={isValidToOrder}
+					rowSelection={rowSelection}
+					setRowSelection={setRowSelection}
 					productsCount={table
 						.getPreFilteredRowModel()
 						?.rows.length?.toString()}
 				/>
 				<div className={`overflow-auto h-[78vh]`}>
-					<ReactTable
-						table={table}
-						HeadRow={({
-							children,
-							headerGroup,
-							...props
-						}) => <tr {...props}>{children}</tr>}
-						BodyRow={({ children, ...props }) => (
-							<tr className={`hover`} {...props}>
-								{children}
-							</tr>
-						)}
-						renderHeader={(header, render) => (
-							<th
-								align={
-									header.id === 'select'
-										? undefined
-										: 'center'
-								}
-								colSpan={header.colSpan}
-								className={`sticky top-0 bg-neutral text-white`}
-							>
-								{header.isPlaceholder ? null : (
-									<div
-										{...{
-											className: `${
-												header.column.getCanSort()
-													? 'cursor-pointer select-none'
-													: ''
-											}`,
-											onClick:
-												header.column.getToggleSortingHandler(),
-										}}
-									>
-										{render}
-										{!!header.column.getIsSorted() && (
-											<svg
-												xmlns='http://www.w3.org/2000/svg'
-												className={`inline-block ml-2 h-6 w-6 ${
-													header.column.getIsSorted() ===
-													'desc'
-														? 'rotate-180'
-														: ''
-												}`}
-												fill='none'
-												viewBox='0 0 24 24'
-												stroke='currentColor'
-												strokeWidth='2'
-											>
-												<path
-													strokeLinecap='round'
-													strokeLinejoin='round'
-													d='M19 9l-7 7-7-7'
-												/>
-											</svg>
-										)}
-									</div>
-								)}
-							</th>
-						)}
-						renderCell={(cell, render) => (
-							<td className={`padding-x-0`}>
-								{render}
-							</td>
-						)}
-						className={`table table-compact w-full`}
-					/>
+					{!isLoading && <ProductsTable table={table} />}
+					{!!products?.length && (
+						<Pagination table={table} />
+					)}
 				</div>
-				{!!products?.length && <Pagination table={table} />}
 			</main>
 		</div>
 	);

@@ -109,6 +109,7 @@ const Suppliers: NextPage = () => {
 					</div>
 				</div>
 				<ul
+					dir={`rtl`}
 					className={`menu p-1 border border-neutral/25 rounded`}
 				>
 					<li
@@ -118,7 +119,7 @@ const Suppliers: NextPage = () => {
 					</li>
 					<li>
 						<div
-							className={`hover:!bg-base-100 cursor-auto`}
+							className={`hover:!bg-base-100 cursor-auto mr-auto`}
 						>
 							<input
 								type={`checkbox`}

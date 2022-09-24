@@ -95,7 +95,7 @@ class OrdersService {
 		}
 
 		const info = await sendEmail({
-			from: process.env.EMAIL,
+			from: locale.he.mailSender,
 			to: supplier.email,
 			subject: locale.he.mailGreeting(supplier.name, 0),
 			text: locale.he.orderPdf,

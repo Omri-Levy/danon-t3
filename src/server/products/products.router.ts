@@ -31,7 +31,9 @@ export const productsRouter = t.router({
 		.mutation(({ input }) => {
 			return productsService.deleteByIds(input);
 		}),
-	resetOrderAmount: authedProcedure.mutation(() => {
-		return productsService.resetOrderAmount();
-	}),
+	resetOrderAmountByIds: authedProcedure
+		.input(productIdsSchema)
+		.mutation(({ input }) => {
+			return productsService.resetOrderAmountByIds(input);
+		}),
 });
