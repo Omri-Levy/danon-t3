@@ -66,12 +66,12 @@ model Product {
     /// @zod.min(1, { message: "Product name must contain at least 1 character(s)" })
     name String @db.VarChar(120)
     /// @zod.max(1000, { message: "Package size must be lower or equal to 1000" })
-    packageSize Decimal @db.Decimal(4,2)
+    packageSize Decimal @db.Decimal(6,2)
     unit Unit
     /// @zod.max(1000, { message: "Order amount must be lower or equal to 1000" })
-    orderAmount Decimal @db.Decimal(4,2)
+    orderAmount Decimal @db.Decimal(6,2)
     /// @zod.max(1000, { message: "Stock amount must be lower or equal to 1000" })
-    stock Decimal @db.Decimal(4,2)
+    stock Decimal @db.Decimal(6,2)
     supplier Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
     supplierId String
     order Order? @relation(fields: [orderId], references: [id])
