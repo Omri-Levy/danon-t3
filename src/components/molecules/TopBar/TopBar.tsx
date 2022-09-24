@@ -57,7 +57,6 @@ export const TopBar = ({
 		!products?.length || !Object.keys(rowSelection)?.length;
 	const disableOrder = !isValidToOrder || moreThanOneSupplier;
 	const disableResetOrderAmount = [
-		!selectedProducts?.length,
 		!products?.length,
 		!isValidToOrder,
 		isLoadingResetOrderAmount,
@@ -90,12 +89,15 @@ export const TopBar = ({
 				</div>
 				<div
 					className={
-						disableResetOrderAmount ? `tooltip` : `inline`
+						!selectedProducts?.length ||
+						disableResetOrderAmount
+							? `tooltip`
+							: `inline`
 					}
 					data-tip={
-						!selectedProducts?.length
-							? `לא ניתן לבצע איפוס כמות הזמנה עם 0 מוצרים מסומנים`
-							: `לא ניתן לבצע איפוס כמות הזמנה ללא מוצרים עם כמות הזמנה מעל ל0`
+						disableResetOrderAmount
+							? `לא ניתן לבצע איפוס כמות הזמנה ללא מוצרים עם כמות הזמנה מעל ל0`
+							: `לא ניתן לבצע איפוס כמות הזמנה עם 0 מוצרים מסומנים`
 					}
 				>
 					<button
