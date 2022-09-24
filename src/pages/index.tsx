@@ -228,7 +228,7 @@ export const useProductsTable = (
 		const prevPackageSizeAsNumber = Number(prevPackageSize);
 		const isException = prevPackageSizeAsNumber === 1;
 		const isDivisible =
-			valueAsNumber % prevPackageSizeAsNumber === 0;
+			Math.round(valueAsNumber % prevPackageSizeAsNumber) === 0;
 		const isOrderAmountOrPackageSize = [
 			'orderAmount',
 			'packageSize',
