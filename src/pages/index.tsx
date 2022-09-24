@@ -239,11 +239,11 @@ export const useProductsTable = (
 			valueAsNumber > 0 &&
 			!isException;
 
-		// if (shouldSkip) {
-		// 	toast.error(locale.he.mustBeDivisibleBy);
-		//
-		// 	return;
-		// }
+		if (shouldSkip) {
+			toast.error(locale.he.mustBeDivisibleBy);
+
+			return;
+		}
 
 		await onUpdateById({
 			[column]: parsedValue,
