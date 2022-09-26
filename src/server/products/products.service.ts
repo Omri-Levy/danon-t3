@@ -62,9 +62,11 @@ class ProductsService {
 
 	async updateById(input: TUpdateProductSchema) {
 		const { id, ...data } = input;
+		const { supplierId, sku } = id;
 
 		return this._repository.updateById({
-			id,
+			supplierId,
+			sku,
 			data,
 		});
 	}

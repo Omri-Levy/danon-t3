@@ -2,6 +2,7 @@ import { Prisma, Supplier } from '@prisma/client';
 import { TSupplierIdForeignSchema } from '../suppliers/types';
 import { TProductIdSchema, TProductIdsSchema } from './types';
 import { suppliersRepository } from '../suppliers/suppliers.repository';
+import { TRPCError } from '@trpc/server';
 
 class ProductsRepository {
 	private _repository = prisma?.product;
@@ -29,10 +30,13 @@ class ProductsRepository {
 		});
 	}
 
-	async findById({ id }: TProductIdSchema) {
+	async findById({ sku, supplierId }: TProductIdSchema) {
 		return this._repository?.findUnique({
 			where: {
-				id,
+				supplierId_sku: {
+					sku,
+					supplierId,
+				},
 			},
 		});
 	}
@@ -61,8 +65,11 @@ class ProductsRepository {
 	}: TProductIdsSchema & Prisma.ProductUpdateManyArgs) {
 		return this._repository?.updateMany({
 			where: {
-				id: {
-					in: ids,
+				supplierId: {
+					in: ids.map(({ supplierId }) => supplierId),
+				},
+				sku: {
+					in: ids.map(({ sku }) => sku),
 				},
 			},
 			data,
@@ -70,7 +77,8 @@ class ProductsRepository {
 	}
 
 	async updateById({
-		id,
+		sku,
+		supplierId,
 		data,
 	}: TProductIdSchema & {
 		data: Prisma.ProductUpdateInput & {
@@ -78,15 +86,23 @@ class ProductsRepository {
 		};
 	}) {
 		const { supplier, ...rest } = data;
-		const supplierId = supplier
-			? await suppliersRepository.findIdByName({
-					name: supplier,
-			  })
-			: undefined;
+		const supplierExists = await suppliersRepository.findById({
+			id: supplierId,
+		});
+
+		if (!supplierExists) {
+			throw new TRPCError({
+				code: 'BAD_REQUEST',
+				message: 'Supplier does not exist',
+			});
+		}
 
 		return this._repository?.update({
 			where: {
-				id,
+				supplierId_sku: {
+					sku,
+					supplierId,
+				},
 			},
 			data: {
 				...rest,
@@ -105,8 +121,11 @@ class ProductsRepository {
 	async deleteManyByIds({ ids }: TProductIdsSchema) {
 		return this._repository?.deleteMany({
 			where: {
-				id: {
-					in: ids,
+				supplierId: {
+					in: ids.map(({ supplierId }) => supplierId),
+				},
+				sku: {
+					in: ids.map(({ sku }) => sku),
 				},
 			},
 		});
@@ -115,13 +134,20 @@ class ProductsRepository {
 	async resetManyOrderAmountByIds({
 		ids,
 	}: Partial<TProductIdsSchema> = {}) {
+		const inIds = ids?.length
+			? {
+					supplierId: {
+						in: ids.map(({ supplierId }) => supplierId),
+					},
+					sku: {
+						in: ids.map(({ sku }) => sku),
+					},
+			  }
+			: undefined;
+
 		return this._repository?.updateMany({
 			where: {
-				id: ids?.length
-					? {
-							in: ids,
-					  }
-					: undefined,
+				...inIds,
 				orderAmount: {
 					gt: 0,
 				},

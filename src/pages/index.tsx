@@ -210,7 +210,10 @@ export const useProductsTable = (
 			await onUpdateById({
 				orderAmount: 0,
 				[column]: parsedValue,
-				id: prevProduct?.id,
+				id: {
+					supplierId: prevProduct.supplierId,
+					sku: prevProduct?.sku,
+				},
 			});
 
 			return;
@@ -219,7 +222,11 @@ export const useProductsTable = (
 		if (isPackageSize && parsedValue === 1) {
 			await onUpdateById({
 				[column]: parsedValue,
-				id: prevProduct?.id,
+				supplierId: prevProduct.supplierId,
+				id: {
+					supplierId: prevProduct.supplierId,
+					sku: prevProduct?.sku,
+				},
 			});
 
 			return;
@@ -248,7 +255,10 @@ export const useProductsTable = (
 
 		await onUpdateById({
 			[column]: parsedValue,
-			id: prevProduct?.id,
+			id: {
+				supplierId: prevProduct.supplierId,
+				sku: prevProduct?.sku,
+			},
 		});
 	};
 	const numericField = (

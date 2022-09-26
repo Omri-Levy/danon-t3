@@ -4,11 +4,12 @@ import { z } from 'zod';
 export * from '../../../prisma/zod/product';
 
 export const productIdSchema = productSchema.pick({
-	id: true,
+	supplierId: true,
+	sku: true,
 });
 
 export const productIdsSchema = z.object({
-	ids: z.array(productIdSchema.shape.id),
+	ids: z.array(productIdSchema),
 });
 
 export const createProductSchema = productSchema
@@ -23,4 +24,4 @@ export const createProductSchema = productSchema
 export const updateProductSchema = productSchema
 	.setKey('supplier', supplierSchema.shape.name)
 	.partial()
-	.setKey('id', productIdSchema.shape.id);
+	.setKey('id', productIdSchema);
