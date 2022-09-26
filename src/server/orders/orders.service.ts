@@ -6,12 +6,32 @@ import {
 	TSendOrderSchema,
 	TUpdateOrderSchema,
 } from './types';
-import { sendEmail } from '../email/send-email';
 import { getLocaleDateString } from '../../utils/get-locale-date-string/get-locale-date-string';
 import { productsRepository } from '../products/products.repository';
 import { TRPCError } from '@trpc/server';
-import { locale } from '../../translations';
 import { env } from '../../env/server.mjs';
+import { s3Client } from '../s3/s3-client';
+import { sendEmail } from '../email/send-email';
+import { locale } from '../../translations';
+
+const appendOrdinal = (number: number) => {
+	const modulusOfTen = number % 10;
+	const modulusOfHundred = number % 100;
+
+	if (modulusOfTen === 1 && modulusOfHundred !== 11) {
+		return `${number}st`;
+	}
+
+	if (modulusOfTen === 2 && modulusOfHundred !== 12) {
+		return `${number}nd`;
+	}
+
+	if (modulusOfTen === 3 && modulusOfHundred !== 13) {
+		return `${number}rd`;
+	}
+
+	return `${number}th`;
+};
 
 class OrdersService {
 	private _repository = ordersRepository;
@@ -99,12 +119,16 @@ class OrdersService {
 		const order = await ordersRepository.create({
 			supplierId: supplier.id,
 			data: {
-				s3Bucket: 'bucket',
 				s3Key: 'key',
 				products: {
-					connect: productsToOrder.map(({ id }) => ({
-						id,
-					})),
+					connect: productsToOrder.map(
+						({ supplierId, sku }) => ({
+							supplierId_sku: {
+								supplierId,
+								sku,
+							},
+						}),
+					),
 				},
 			},
 		});
@@ -119,6 +143,22 @@ class OrdersService {
 		const paddedOrderNumber = order.orderNumber
 			.toString()
 			.padStart(5, '0');
+		const filename = `${getLocaleDateString()}-order-#${paddedOrderNumber}.pdf`;
+		const date = new Date();
+		const year = date.getFullYear();
+		const month = date.toLocaleString(undefined, {
+			month: 'long',
+		});
+		const day = appendOrdinal(date.getDate());
+		const s3Key = `${supplier.name}/${year}/${month}/${day}-order-#${paddedOrderNumber}.pdf`;
+
+		await ordersRepository.updateById({
+			id: order.id,
+			data: {
+				s3Key,
+			},
+		});
+
 		const info = await sendEmail({
 			from: `${locale.he.mailSender} <${env.EMAIL}>`,
 			to: supplier.email,
@@ -129,7 +169,7 @@ class OrdersService {
 			text: locale.he.orderPdf,
 			attachments: [
 				{
-					filename: `order-${getLocaleDateString()}-#${paddedOrderNumber}.pdf`,
+					filename,
 					path: pdf as string,
 					contentType: 'application/pdf',
 					encoding: 'base64',
@@ -138,6 +178,18 @@ class OrdersService {
 		});
 
 		console.log(info);
+
+		const Body = Buffer.from(pdf?.toString() ?? '', 'base64');
+
+		await s3Client
+			.upload({
+				Bucket: env.S3_BUCKET,
+				Key: s3Key,
+				Body,
+				ContentEncoding: 'base64',
+				ContentType: 'application/pdf',
+			})
+			.promise();
 
 		await productsRepository.resetManyOrderAmountByIds();
 

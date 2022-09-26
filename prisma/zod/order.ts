@@ -10,7 +10,6 @@ export const orderSchema = z.object({
   id: z.string(),
   orderNumber: z.number().int(),
   supplierId: z.string(),
-  s3Bucket: z.string(),
   s3Key: z.string(),
   createdAt: z.date(),
   updatedAt: z.date(),

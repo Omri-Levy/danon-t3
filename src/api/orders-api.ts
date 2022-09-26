@@ -113,7 +113,9 @@ class OrdersApi extends TrpcApi {
 				const result = await mutateAsync(data);
 
 				return result;
-			} catch {}
+			} catch (e) {
+				console.error(e);
+			}
 		};
 
 		return {

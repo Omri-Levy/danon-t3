@@ -15,8 +15,10 @@ export const serverSchema = z.object({
 	AZURE_AD_CLIENT_ID: z.string(),
 	AZURE_AD_CLIENT_SECRET: z.string(),
 	AZURE_AD_TENANT_ID: z.string(),
-
-
+	S3_BUCKET: z.string(),
+	S3_REGION: z.string(),
+	S3_ACCESS_KEY: z.string(),
+	S3_SECRET_KEY: z.string(),
 });
 
 /**

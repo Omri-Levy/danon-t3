@@ -90,7 +90,6 @@ model Order {
     products Product[]
     supplier Supplier @relation(fields: [supplierId], references: [id])
     supplierId String
-    s3Bucket String @db.VarChar(320)
     s3Key String @db.VarChar(320)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt

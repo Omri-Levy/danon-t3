@@ -37,6 +37,7 @@
 		"@trpc/next": "10.0.0-alpha.41",
 		"@trpc/react": "10.0.0-alpha.41",
 		"@trpc/server": "10.0.0-alpha.41",
+		"aws-sdk": "^2.1223.0",
 		"clsx": "^1.2.1",
 		"decimal.js": "^10.4.0",
 		"googleapis": "^105.0.0",
