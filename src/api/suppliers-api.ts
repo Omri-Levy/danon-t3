@@ -5,6 +5,8 @@ import {
 	optimisticDelete,
 	optimisticUpdate,
 } from './optimistic-updates';
+import { SubmitHandler } from 'react-hook-form';
+import { InferMutationInput } from '../types';
 
 class SuppliersApi extends TrpcApi {
 	getAll() {
@@ -50,9 +52,18 @@ class SuppliersApi extends TrpcApi {
 					'create',
 				),
 			);
+		const onCreate: SubmitHandler<
+			InferMutationInput<'suppliers.create'>
+		> = async (data) => {
+			try {
+				const result = await mutateAsync(data);
+
+				return result;
+			} catch {}
+		};
 
 		return {
-			onCreate: mutateAsync,
+			onCreate,
 			...mutation,
 		};
 	}

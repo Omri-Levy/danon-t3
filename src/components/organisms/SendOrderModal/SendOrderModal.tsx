@@ -192,8 +192,6 @@ export const SendOrderModal = ({ disabled, isOpen, onOpen }) => {
 									noValidate
 									onSubmit={sendOrderMethods.handleSubmit(
 										onSendOrderSubmit,
-										(errors) =>
-											console.error(errors),
 									)}
 								>
 									<button

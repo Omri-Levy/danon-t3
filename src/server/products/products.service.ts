@@ -7,6 +7,8 @@ import {
 } from './types';
 import { suppliersRepository } from '../suppliers/suppliers.repository';
 import { TRPCError } from '@trpc/server';
+import { Prisma } from '@prisma/client';
+import { locale } from '../../translations';
 
 class ProductsService {
 	private _repository = productsRepository;
@@ -32,10 +34,30 @@ class ProductsService {
 			});
 		}
 
-		return this._repository.create({
-			data,
-			supplierId,
-		});
+		try {
+			const result = await this._repository.create({
+				data,
+				supplierId,
+			});
+
+			return result;
+		} catch (err) {
+			if (
+				!(err instanceof Prisma.PrismaClientKnownRequestError)
+			) {
+				throw err;
+			}
+
+			if (err.code === 'P2002') {
+				throw new TRPCError({
+					message:
+						locale.he.validation.product.alreadyExists(
+							input.sku,
+						),
+					code: 'BAD_REQUEST',
+				});
+			}
+		}
 	}
 
 	async updateById(input: TUpdateProductSchema) {

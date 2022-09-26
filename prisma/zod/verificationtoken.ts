@@ -1,4 +1,5 @@
 import * as z from "zod"
+import * as imports from "../../src/translations"
 
 export const verificationTokenSchema = z.object({
   identifier: z.string(),

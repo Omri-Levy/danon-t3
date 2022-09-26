@@ -8,6 +8,8 @@ import {
 } from './optimistic-updates';
 import toast from 'react-hot-toast';
 import { locale } from '../translations';
+import { SubmitHandler } from 'react-hook-form';
+import { InferMutationInput } from '../types';
 
 class ProductsApi extends TrpcApi {
 	getAll() {
@@ -53,9 +55,18 @@ class ProductsApi extends TrpcApi {
 					'create',
 				),
 			);
+		const onCreate: SubmitHandler<
+			InferMutationInput<'products.create'>
+		> = async (data) => {
+			try {
+				const result = await mutateAsync(data);
+
+				return result;
+			} catch {}
+		};
 
 		return {
-			onCreate: mutateAsync,
+			onCreate,
 			...mutation,
 		};
 	}

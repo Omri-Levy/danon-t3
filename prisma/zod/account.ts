@@ -1,4 +1,5 @@
 import * as z from "zod"
+import * as imports from "../../src/translations"
 import { CompleteUser, relatedUserSchema } from "./index"
 
 export const accountSchema = z.object({

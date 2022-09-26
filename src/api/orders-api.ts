@@ -7,6 +7,8 @@ import {
 } from './optimistic-updates';
 import { toast } from 'react-hot-toast';
 import { locale } from '../translations';
+import { SubmitHandler } from 'react-hook-form';
+import { InferMutationInput } from '../types';
 
 class OrdersApi extends TrpcApi {
 	getAll() {
@@ -104,9 +106,18 @@ class OrdersApi extends TrpcApi {
 					this.ctx.invalidateQueries(['products.getAll']);
 				},
 			});
+		const onSend: SubmitHandler<
+			InferMutationInput<'orders.send'>
+		> = async (data) => {
+			try {
+				const result = await mutateAsync(data);
+
+				return result;
+			} catch {}
+		};
 
 		return {
-			onSend: mutateAsync,
+			onSend,
 			...mutation,
 		};
 	}

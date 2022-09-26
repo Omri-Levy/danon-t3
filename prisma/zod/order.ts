@@ -1,4 +1,5 @@
 import * as z from "zod"
+import * as imports from "../../src/translations"
 import { CompleteProduct, relatedProductSchema, CompleteSupplier, relatedSupplierSchema } from "./index"
 
 export const orderSchema = z.object({

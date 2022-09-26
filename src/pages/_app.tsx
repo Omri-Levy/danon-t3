@@ -27,7 +27,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
 				<Toaster
 					position='top-center'
 					toastOptions={{
-						duration: 2000,
+						duration: 3000,
 					}}
 				/>
 				<Component {...pageProps} />

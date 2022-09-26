@@ -1,16 +1,11 @@
 import { locale } from '../../../translations';
-import {
-	FormProvider,
-	SubmitHandler,
-	useForm,
-} from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { FormInput } from '../../molecules/FormInput/FormInput';
 import { FormSelect } from '../../molecules/FormSelect/FormSelect';
 import { Unit } from '@prisma/client';
 import { useCallback, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createProductsApi } from '../../../api/products-api';
-import { InferMutationInput } from '../../../types';
 import { createProductSchema } from '../../../server/products/validation';
 import { createSuppliersApi } from '../../../api/suppliers-api';
 import * as Dialog from '@radix-ui/react-dialog';
@@ -35,9 +30,6 @@ export const CreateProductModal = ({ isOpen, onOpen }) => {
 		},
 	});
 	const { onCreate, isLoading, isSuccess } = productsApi.create();
-	const onCreateProductSubmit: SubmitHandler<
-		InferMutationInput<'products.create'>
-	> = async (data) => onCreate(data);
 	const handleReset = useCallback(() => {
 		if (!isSuccess) return;
 
@@ -106,9 +98,7 @@ export const CreateProductModal = ({ isOpen, onOpen }) => {
 									className='grid grid-cols-2 gap-x-2'
 									dir={`rtl`}
 									onSubmit={createProductMethods.handleSubmit(
-										onCreateProductSubmit,
-										(errors) =>
-											console.error(errors),
+										onCreate,
 									)}
 								>
 									<FormSelect
@@ -149,6 +139,7 @@ export const CreateProductModal = ({ isOpen, onOpen }) => {
 										min={0}
 									/>
 									<button
+										dir={`ltr`}
 										className={clsx([
 											'btn mt-2 mr-auto col-span-full',
 											{ loading: isLoading },

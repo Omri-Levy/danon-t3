@@ -1,13 +1,8 @@
 import { locale } from '../../../translations';
-import {
-	FormProvider,
-	SubmitHandler,
-	useForm,
-} from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 import { FormInput } from '../../molecules/FormInput/FormInput';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createSuppliersApi } from '../../../api/suppliers-api';
-import { InferMutationInput } from '../../../types';
 import * as Dialog from '@radix-ui/react-dialog';
 import clsx from 'clsx';
 import { createSupplierSchema } from '../../../server/suppliers/validation';
@@ -16,9 +11,6 @@ import { useCallback, useEffect } from 'react';
 export const CreateSupplierModal = ({ isOpen, onOpen }) => {
 	const suppliersApi = createSuppliersApi();
 	const { onCreate, isLoading, isSuccess } = suppliersApi.create();
-	const onCreateSupplierSubmit: SubmitHandler<
-		InferMutationInput<'suppliers.create'>
-	> = async (data) => onCreate(data);
 	const createSupplierMethods = useForm({
 		mode: 'all',
 		criteriaMode: 'all',
@@ -96,9 +88,7 @@ export const CreateSupplierModal = ({ isOpen, onOpen }) => {
 									className='grid grid-cols-1 gap-x-2'
 									dir={`rtl`}
 									onSubmit={createSupplierMethods.handleSubmit(
-										onCreateSupplierSubmit,
-										(errors) =>
-											console.error(errors),
+										onCreate,
 									)}
 								>
 									<FormInput
@@ -116,8 +106,9 @@ export const CreateSupplierModal = ({ isOpen, onOpen }) => {
 										className={`modal-action col-span-full `}
 									>
 										<button
+											dir={`ltr`}
 											className={clsx([
-												`btn mr-auto`,
+												'btn mt-2 mr-auto col-span-full',
 												{
 													loading:
 														isLoading,

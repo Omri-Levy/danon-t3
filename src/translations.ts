@@ -11,6 +11,8 @@ export const locale = {
 		orderPdf: `מסמך הזמנה הוצמד`,
 		validation: {
 			supplier: {
+				alreadyExists: (email: string) =>
+					`ספק עם האימייל ${email} כבר קיים`,
 				email: {
 					max: 'אימייל חייב לכלול עד 320 תו(וים)',
 					invalid: 'אימייל חייב להיות כתובת אימייל תקינה',
@@ -21,6 +23,8 @@ export const locale = {
 				},
 			},
 			product: {
+				alreadyExists: (sku: string) =>
+					`מוצר עם המק"ט ${sku} כבר קיים`,
 				sku: {
 					min: 'מק"ט חייב לכלול לפחות 1 תו(וים)',
 					max: 'מק"ט חייב לכלול עד 10 תו(וים)',
@@ -37,14 +41,17 @@ export const locale = {
 				packageSize: {
 					invalid: `גודל חבילה חייב להיות מספר חיובי`,
 					max: 'גודל חבילה חייב להיות קטן יותר או שווה ל1000',
+					min: 'גודל חבילה חייב להיות גדול יותר מ0',
 				},
 				orderAmount: {
 					invalid: `כמות להזמנה חייבת להיות מספר חיובי`,
 					max: 'כמות להזמנה חייבת להיות קטנה יותר או שווה ל1000',
+					min: 'כמות להזמנה חייבת להיות גדולה יותר מ0',
 				},
 				stock: {
 					invalid: `מלאי חייב להיות מספר חיובי`,
 					max: 'מלאי חייב להיות קטן יותר או שווה ל1000',
+					min: 'מלאי חייב להיות גדול יותר מ0',
 				},
 			},
 		},
@@ -107,6 +114,8 @@ export const locale = {
 		orderPdf: `Order PDF attached.`,
 		validation: {
 			supplier: {
+				alreadyExists: (email: string) =>
+					`Supplier with email ${email} already exists`,
 				email: {
 					max: 'Email must contain at most 320 character(s)',
 					invalid: 'Email must be a valid email address',
@@ -117,6 +126,8 @@ export const locale = {
 				},
 			},
 			product: {
+				alreadyExists: (sku: string) =>
+					`Product with SKU ${sku} already exists`,
 				sku: {
 					min: 'SKU must contain at least 1 character(s)',
 					max: 'SKU must contain at most 10 character(s)',

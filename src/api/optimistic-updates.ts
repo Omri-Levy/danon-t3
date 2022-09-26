@@ -30,10 +30,10 @@ export const optimisticUpdates = <
 	},
 	onError: (err, newData, context) => {
 		if (!context?.previousData) return;
+		const message =
+			err.message ?? locale.he.actions[resource][action];
 
-		toast.error(
-			`${locale.he.actions.error} ${locale.he.actions[resource][action]}`,
-		);
+		toast.error(`${locale.he.actions.error} ${message}`);
 		ctx.setQueryData(queryKey, context.previousData);
 		onError?.(newData);
 	},

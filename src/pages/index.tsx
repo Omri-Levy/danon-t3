@@ -31,7 +31,6 @@ import { Unit } from '@prisma/client';
 import { createSuppliersApi } from '../api/suppliers-api';
 import { toast } from 'react-hot-toast';
 import { trpc } from '../utils/trpc';
-import { formatErrors } from '../env/client.mjs';
 import Link from 'next/link';
 
 declare module '@tanstack/react-table' {
@@ -197,7 +196,9 @@ export const useProductsTable = (
 			});
 
 		if (!result.success) {
-			const error = formatErrors(result.error.format());
+			const error = result.error.errors
+				.map(({ message }) => message)
+				.join('\n');
 
 			toast.error(`${locale.he.actions.error} ${error}`);
 
