@@ -35,10 +35,13 @@ class SuppliersService {
 			if (err.code === 'P2002') {
 				throw new TRPCError({
 					code: 'BAD_REQUEST',
-					message:
-						locale.he.validation.supplier.alreadyExists(
-							input.email,
-						),
+					message: (err as any).meta.target.includes('name')
+						? locale.he.validation.supplier.nameAlreadyExists(
+								input.name,
+						  )
+						: locale.he.validation.supplier.emailAlreadyExists(
+								input.email,
+						  ),
 				});
 			}
 		}

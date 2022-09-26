@@ -11,8 +11,10 @@ export const locale = {
 		orderPdf: `מסמך הזמנה הוצמד`,
 		validation: {
 			supplier: {
-				alreadyExists: (email: string) =>
+				emailAlreadyExists: (email: string) =>
 					`ספק עם האימייל ${email} כבר קיים`,
+				nameAlreadyExists: (name: string) =>
+					`ספק עם השם ${name} כבר קיים`,
 				email: {
 					max: 'אימייל חייב לכלול עד 320 תו(וים)',
 					invalid: 'אימייל חייב להיות כתובת אימייל תקינה',
@@ -114,8 +116,10 @@ export const locale = {
 		orderPdf: `Order PDF attached.`,
 		validation: {
 			supplier: {
-				alreadyExists: (email: string) =>
+				emailAlreadyExists: (email: string) =>
 					`Supplier with email ${email} already exists`,
+				nameAlreadyExists: (name: string) =>
+					`Supplier with name ${name} already exists`,
 				email: {
 					max: 'Email must contain at most 320 character(s)',
 					invalid: 'Email must be a valid email address',

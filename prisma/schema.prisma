@@ -46,7 +46,7 @@ model Supplier {
     email String @db.VarChar(320) @unique
     /// @zod.max(120, { message: imports.locale.he.validation.supplier.name.max })
     /// @zod.min(1, { message: imports.locale.he.validation.supplier.name.min })
-    name String @db.VarChar(120)
+    name String @db.VarChar(120) @unique
     products Product[]
     orders Order[]
     createdAt DateTime @default(now())
