@@ -3,9 +3,10 @@ import { TSupplierIdForeignSchema } from '../suppliers/types';
 import { TOrderIdSchema, TOrderIdsSchema } from './types';
 import { suppliersRepository } from '../suppliers/suppliers.repository';
 import { TRPCError } from '@trpc/server';
+import { prisma } from '../db/client';
 
 class OrdersRepository {
-	private _repository = prisma?.order;
+	private _repository = prisma.order;
 
 	async findMany({
 		where,
@@ -14,7 +15,7 @@ class OrdersRepository {
 		where?: Prisma.OrderWhereInput;
 		include?: Prisma.OrderInclude;
 	} = {}) {
-		return this._repository?.findMany({
+		return this._repository.findMany({
 			orderBy: {
 				createdAt: 'asc',
 			},
@@ -31,7 +32,7 @@ class OrdersRepository {
 	}
 
 	async findById({ id }: TOrderIdSchema) {
-		return this._repository?.findUnique({
+		return this._repository.findUnique({
 			where: {
 				id,
 			},
@@ -44,7 +45,7 @@ class OrdersRepository {
 	}: TSupplierIdForeignSchema & {
 		data: Prisma.OrderCreateWithoutSupplierInput;
 	}) {
-		return this._repository?.create({
+		return this._repository.create({
 			data: {
 				...data,
 				supplier: {
@@ -77,7 +78,7 @@ class OrdersRepository {
 			});
 		}
 
-		return this._repository?.update({
+		return this._repository.update({
 			where: {
 				id,
 			},
@@ -96,7 +97,7 @@ class OrdersRepository {
 	}
 
 	async deleteManyByIds({ ids }: TOrderIdsSchema) {
-		return this._repository?.deleteMany({
+		return this._repository.deleteMany({
 			where: {
 				id: {
 					in: ids,
@@ -106,7 +107,7 @@ class OrdersRepository {
 	}
 
 	async findS3KeyById({ id }: TOrderIdSchema) {
-		return this._repository?.findUnique({
+		return this._repository.findUnique({
 			where: {
 				id,
 			},

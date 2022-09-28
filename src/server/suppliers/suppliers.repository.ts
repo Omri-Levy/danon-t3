@@ -1,8 +1,9 @@
 import { Prisma, Supplier } from '@prisma/client';
 import { TSupplierIdSchema, TSupplierIdsSchema } from './types';
+import { prisma } from '../db/client';
 
 class SuppliersRepository {
-	private _repository = prisma?.supplier;
+	private _repository = prisma.supplier;
 
 	async findMany({
 		where,
@@ -11,14 +12,14 @@ class SuppliersRepository {
 		where?: Prisma.SupplierWhereInput;
 		include?: Prisma.SupplierInclude;
 	} = {}) {
-		return this._repository?.findMany({
+		return this._repository.findMany({
 			where,
 			include,
 		});
 	}
 
 	async findById({ id }: TSupplierIdSchema) {
-		return this._repository?.findUnique({
+		return this._repository.findUnique({
 			where: {
 				id,
 			},
@@ -26,7 +27,7 @@ class SuppliersRepository {
 	}
 
 	async findByName({ name }: Pick<Supplier, 'name'>) {
-		return this._repository?.findFirst({
+		return this._repository.findFirst({
 			where: {
 				name,
 			},
@@ -34,7 +35,7 @@ class SuppliersRepository {
 	}
 
 	async create(data: Prisma.SupplierCreateInput) {
-		return this._repository?.create({
+		return this._repository.create({
 			data,
 		});
 	}
@@ -45,7 +46,7 @@ class SuppliersRepository {
 	}: Pick<Supplier, 'id'> & {
 		data: Prisma.SupplierUpdateInput;
 	}) {
-		return this._repository?.update({
+		return this._repository.update({
 			where: {
 				id,
 			},
@@ -54,7 +55,7 @@ class SuppliersRepository {
 	}
 
 	async deleteManyByIds({ ids }: TSupplierIdsSchema) {
-		return this._repository?.deleteMany({
+		return this._repository.deleteMany({
 			where: {
 				id: {
 					in: ids,
@@ -64,7 +65,7 @@ class SuppliersRepository {
 	}
 
 	async findIdByName({ name }: Pick<Supplier, 'name'>) {
-		const supplier = await this._repository?.findFirst({
+		const supplier = await this._repository.findFirst({
 			where: {
 				name,
 			},

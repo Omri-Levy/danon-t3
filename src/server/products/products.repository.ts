@@ -3,9 +3,10 @@ import { TSupplierIdForeignSchema } from '../suppliers/types';
 import { TProductIdSchema, TProductIdsSchema } from './types';
 import { suppliersRepository } from '../suppliers/suppliers.repository';
 import { TRPCError } from '@trpc/server';
+import { prisma } from '../db/client';
 
 class ProductsRepository {
-	private _repository = prisma?.product;
+	private _repository = prisma.product;
 
 	async findMany({
 		where,
@@ -14,7 +15,7 @@ class ProductsRepository {
 		where?: Prisma.ProductWhereInput;
 		include?: Prisma.ProductInclude;
 	} = {}) {
-		return this._repository?.findMany({
+		return this._repository.findMany({
 			orderBy: {
 				name: 'asc',
 			},
@@ -31,7 +32,7 @@ class ProductsRepository {
 	}
 
 	async findById({ sku, supplierId }: TProductIdSchema) {
-		return this._repository?.findUnique({
+		return this._repository.findUnique({
 			where: {
 				supplierId_sku: {
 					sku,
@@ -47,7 +48,7 @@ class ProductsRepository {
 	}: TSupplierIdForeignSchema & {
 		data: Prisma.ProductCreateWithoutSupplierInput;
 	}) {
-		return this._repository?.create({
+		return this._repository.create({
 			data: {
 				...data,
 				supplier: {
@@ -63,7 +64,7 @@ class ProductsRepository {
 		ids,
 		data,
 	}: TProductIdsSchema & Prisma.ProductUpdateManyArgs) {
-		return this._repository?.updateMany({
+		return this._repository.updateMany({
 			where: {
 				supplierId: {
 					in: ids.map(({ supplierId }) => supplierId),
@@ -97,7 +98,7 @@ class ProductsRepository {
 			});
 		}
 
-		return this._repository?.update({
+		return this._repository.update({
 			where: {
 				supplierId_sku: {
 					sku,
@@ -119,7 +120,7 @@ class ProductsRepository {
 	}
 
 	async deleteManyByIds({ ids }: TProductIdsSchema) {
-		return this._repository?.deleteMany({
+		return this._repository.deleteMany({
 			where: {
 				supplierId: {
 					in: ids.map(({ supplierId }) => supplierId),
@@ -145,7 +146,7 @@ class ProductsRepository {
 			  }
 			: undefined;
 
-		return this._repository?.updateMany({
+		return this._repository.updateMany({
 			where: {
 				...inIds,
 				orderAmount: {
