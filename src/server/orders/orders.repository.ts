@@ -1,6 +1,8 @@
-import { Prisma } from '@prisma/client';
+import { Prisma, Supplier } from '@prisma/client';
 import { TSupplierIdForeignSchema } from '../suppliers/types';
 import { TOrderIdSchema, TOrderIdsSchema } from './types';
+import { suppliersRepository } from '../suppliers/suppliers.repository';
+import { TRPCError } from '@trpc/server';
 
 class OrdersRepository {
 	private _repository = prisma?.order;
@@ -13,8 +15,18 @@ class OrdersRepository {
 		include?: Prisma.OrderInclude;
 	} = {}) {
 		return this._repository?.findMany({
+			orderBy: {
+				createdAt: 'asc',
+			},
+			include: {
+				supplier: {
+					select: {
+						name: true,
+					},
+				},
+				...include,
+			},
 			where,
-			include,
 		});
 	}
 
@@ -48,13 +60,38 @@ class OrdersRepository {
 		id,
 		data,
 	}: TOrderIdSchema & {
-		data: Prisma.OrderUpdateInput;
+		data: Prisma.OrderUpdateInput & {
+			supplier?: Supplier['name'];
+		};
 	}) {
+		const { supplier: name, ...rest } = data;
+		const supplier = await suppliersRepository.findByName({
+			name: name ?? '',
+		});
+		const { id: supplierId } = supplier ?? {};
+
+		if (name && !supplierId) {
+			throw new TRPCError({
+				code: 'BAD_REQUEST',
+				message: `Supplier with name ${name} does not exist`,
+			});
+		}
+
 		return this._repository?.update({
 			where: {
 				id,
 			},
-			data,
+			data: {
+				...rest,
+				supplier:
+					supplier && supplierId
+						? {
+								connect: {
+									id: supplierId,
+								},
+						  }
+						: undefined,
+			},
 		});
 	}
 
@@ -64,6 +101,17 @@ class OrdersRepository {
 				id: {
 					in: ids,
 				},
+			},
+		});
+	}
+
+	async findS3KeyById({ id }: TOrderIdSchema) {
+		return this._repository?.findUnique({
+			where: {
+				id,
+			},
+			select: {
+				s3Key: true,
 			},
 		});
 	}

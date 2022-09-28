@@ -40,7 +40,7 @@ declare module '@tanstack/react-table' {
 			columnId: string,
 			value: unknown,
 		) => void;
-		numericField: (
+		format: (
 			rowIndex: number,
 			columnId: string,
 			table: Table<TData>,
@@ -261,7 +261,7 @@ export const useProductsTable = (
 			},
 		});
 	};
-	const numericField = (
+	const format = (
 		rowIndex: number,
 		columnId: string,
 		table: Table<InferQueryOutput<'products.getById'>>,
@@ -309,7 +309,7 @@ export const useProductsTable = (
 		}, // Provide our updateData function to our table meta
 		meta: {
 			updateData,
-			numericField,
+			format,
 		},
 	});
 
@@ -483,10 +483,8 @@ const Home: NextPage = () => {
 				/>
 				<div className={`overflow-auto h-[78vh]`}>
 					{!isLoading && <ProductsTable table={table} />}
-					{!!products?.length && (
-						<Pagination table={table} />
-					)}
 				</div>
+				{!!products?.length && <Pagination table={table} />}
 			</main>
 		</div>
 	);

@@ -3,7 +3,6 @@ import { TrpcApi } from './trpc-api';
 import {
 	optimisticCreate,
 	optimisticDelete,
-	optimisticUpdate,
 } from './optimistic-updates';
 import { toast } from 'react-hot-toast';
 import { locale } from '../translations';
@@ -45,23 +44,6 @@ class OrdersApi extends TrpcApi {
 
 		return {
 			onCreate: mutateAsync,
-			...mutation,
-		};
-	}
-
-	updateById() {
-		const { mutateAsync, ...mutation } =
-			trpc.proxy.orders.updateById.useMutation(
-				optimisticUpdate(
-					this.ctx,
-					['orders.getAll'],
-					'order',
-					'update',
-				),
-			);
-
-		return {
-			onUpdateById: mutateAsync,
 			...mutation,
 		};
 	}
@@ -122,6 +104,26 @@ class OrdersApi extends TrpcApi {
 			onSend,
 			...mutation,
 		};
+	}
+
+	getPresignedUrlById({
+		id,
+		enabled,
+	}: {
+		id: string;
+		enabled: boolean;
+	}) {
+		return trpc.proxy.orders.getPresignedUrlById.useQuery(
+			{
+				id,
+			},
+			{
+				enabled,
+				onError: (err) => {
+					toast.error(err.message);
+				},
+			},
+		);
 	}
 }
 

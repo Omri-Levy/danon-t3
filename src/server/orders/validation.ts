@@ -18,10 +18,6 @@ export const createOrderSchema = orderSchema.omit({
 	updatedAt: true,
 });
 
-export const updateOrderSchema = orderSchema
-	.partial()
-	.setKey('id', orderIdSchema.shape.id);
-
 export const sendOrderSchema = z.object({
 	pdf: z.union([z.string(), z.instanceof(ArrayBuffer), z.null()]),
 });

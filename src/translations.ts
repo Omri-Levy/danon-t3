@@ -2,6 +2,11 @@ import { Unit } from '@prisma/client';
 
 export const locale = {
 	he: {
+		view: 'צפייה',
+		pdf: 'מסמך',
+		orderNumber: 'מספר הזמנה',
+		createdAt: 'נוצר בתאריך',
+		orders: 'הזמנות',
 		noSuppliers: `לא ניתן ליצור מוצרים ללא ספקים. נא צרו לפחות ספק אחד ונסו שנית.`,
 		navigateToSuppliers: `ניווט לספקים`,
 		attention: `שימו לב`,
@@ -76,7 +81,7 @@ export const locale = {
 		delete: 'מחיקה',
 		reload: 'רענון',
 		resetOrderAmount: 'איפוס כמות הזמנה',
-		search: 'חיפוש ב$1 מוצרים...',
+		search: 'חיפוש ב$1 ב$2...',
 		mustBeDivisibleBy: 'כמות הזמנה חייבת להתחלק בגודל אריזה',
 		createProduct: 'יצירת מוצר',
 		createSupplier: 'יצירת ספק',
@@ -106,6 +111,11 @@ export const locale = {
 		},
 	},
 	en: {
+		view: 'View',
+		pdf: 'PDF',
+		orderNumber: 'Order number',
+		createdAt: 'Created At',
+		orders: 'Orders',
 		noSuppliers:
 			'It is not possible to create products with no suppliers. Please create at least one supplier and try again.',
 		navigateToSuppliers: 'Navigate to suppliers',

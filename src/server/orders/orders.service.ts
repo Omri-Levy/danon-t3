@@ -4,7 +4,6 @@ import {
 	TOrderIdSchema,
 	TOrderIdsSchema,
 	TSendOrderSchema,
-	TUpdateOrderSchema,
 } from './types';
 import { getLocaleDateString } from '../../utils/get-locale-date-string/get-locale-date-string';
 import { productsRepository } from '../products/products.repository';
@@ -49,15 +48,6 @@ class OrdersService {
 
 		return this._repository.create({
 			supplierId,
-			data,
-		});
-	}
-
-	async updateById(input: TUpdateOrderSchema) {
-		const { id, ...data } = input;
-
-		return this._repository.updateById({
-			id,
 			data,
 		});
 	}
@@ -159,6 +149,7 @@ class OrdersService {
 			},
 		});
 
+		const pdfAsString = pdf?.toString();
 		const info = await sendEmail({
 			from: `${locale.he.mailSender} <${env.EMAIL}>`,
 			to: supplier.email,
@@ -170,7 +161,7 @@ class OrdersService {
 			attachments: [
 				{
 					filename,
-					path: pdf as string,
+					path: pdfAsString,
 					contentType: 'application/pdf',
 					encoding: 'base64',
 				},
@@ -179,7 +170,13 @@ class OrdersService {
 
 		console.log(info);
 
-		const Body = Buffer.from(pdf?.toString() ?? '', 'base64');
+		const Body = Buffer.from(
+			pdfAsString?.replace(
+				/^data:application\/pdf;base64,/,
+				'',
+			) ?? '',
+			'base64',
+		);
 
 		await s3Client
 			.upload({
@@ -194,6 +191,38 @@ class OrdersService {
 		await productsRepository.resetManyOrderAmountByIds();
 
 		return;
+	}
+
+	async getPresignedUrlById(input: TOrderIdSchema) {
+		const { id } = input;
+		const order = await ordersRepository.findS3KeyById({
+			id,
+		});
+
+		if (!order) {
+			throw new TRPCError({
+				code: 'BAD_REQUEST',
+				message: 'Order not found',
+			});
+		}
+
+		const { s3Key } = order;
+		const presignedUrl = await s3Client.getSignedUrlPromise(
+			'getObject',
+			{
+				Bucket: env.S3_BUCKET,
+				Key: s3Key,
+			},
+		);
+
+		if (!presignedUrl) {
+			throw new TRPCError({
+				code: 'INTERNAL_SERVER_ERROR',
+				message: 'Could not get presigned URL',
+			});
+		}
+
+		return presignedUrl;
 	}
 }
 

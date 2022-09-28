@@ -4,14 +4,13 @@ import { toast } from 'react-hot-toast';
 import { locale } from '../../../translations';
 import { CellContext } from '@tanstack/table-core';
 import clsx from 'clsx';
-import { InferQueryOutput } from '../../../types';
 
-export const DefaultCell = <TValue,>({
+export const DefaultCell = <TValue, TQuery>({
 	getValue,
 	row: { index },
 	column: { id },
 	table,
-}: CellContext<InferQueryOutput<'products.getById'>, TValue>) => {
+}: CellContext<TQuery, TValue>) => {
 	const value = getValue();
 	const initialValue = normalizeSpace(
 		typeof value === 'string' ? value : '',
@@ -32,7 +31,7 @@ export const DefaultCell = <TValue,>({
 		}
 	};
 	const { className = '', ...props } =
-		table.options.meta?.numericField(index, id, table) ?? {};
+		table.options.meta?.format(index, id, table) ?? {};
 
 	return (
 		<EditableInput

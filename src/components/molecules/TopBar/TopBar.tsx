@@ -73,6 +73,9 @@ export const TopBar = ({
 	return (
 		<div className={`flex justify-between mb-1`}>
 			<div className={`space-x-2 flex items-center`}>
+				<Link href={'/orders'} passHref>
+					<a className={'btn'}>{locale.he.orders}</a>
+				</Link>
 				<div
 					className={disableOrder ? `tooltip` : `inline`}
 					data-tip={
@@ -144,10 +147,9 @@ export const TopBar = ({
 						<input
 							type='text'
 							dir={`rtl`}
-							placeholder={locale.he.search.replace(
-								'$1',
-								productsCount,
-							)}
+							placeholder={locale.he.search
+								.replace('$1', productsCount)
+								.replace('$2', 'מוצרים')}
 							className='input input-bordered'
 							value={globalFilter ?? ''}
 							onChange={onGlobalFilter}

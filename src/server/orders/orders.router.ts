@@ -5,7 +5,6 @@ import {
 	orderIdSchema,
 	orderIdsSchema,
 	sendOrderSchema,
-	updateOrderSchema,
 } from './validation';
 
 export const ordersRouter = t.router({
@@ -22,11 +21,6 @@ export const ordersRouter = t.router({
 		.mutation(({ input }) => {
 			return ordersService.create(input);
 		}),
-	updateById: authedProcedure
-		.input(updateOrderSchema)
-		.mutation(({ input }) => {
-			return ordersService.updateById(input);
-		}),
 	deleteByIds: authedProcedure
 		.input(orderIdsSchema)
 		.mutation(({ input }) => {
@@ -36,5 +30,10 @@ export const ordersRouter = t.router({
 		.input(sendOrderSchema)
 		.mutation(async ({ input }) => {
 			return ordersService.send(input);
+		}),
+	getPresignedUrlById: authedProcedure
+		.input(orderIdSchema)
+		.query(async ({ input }) => {
+			return ordersService.getPresignedUrlById(input);
 		}),
 });
