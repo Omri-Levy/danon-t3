@@ -1,78 +1,44 @@
 import { normalizeSpace } from '../../../utils/normalize-space/normalize-space';
-import { useEffect, useState } from 'react';
-import { ZodError } from 'zod';
+import { EditableInput } from '../EditableInput/EditableInput';
+import { toast } from 'react-hot-toast';
+import { locale } from '../../../translations';
+import { CellContext } from '@tanstack/table-core';
+import clsx from 'clsx';
 
-export const DefaultCell = ({
+export const DefaultCell = <TValue, TQuery>({
 	getValue,
 	row: { index },
 	column: { id },
 	table,
-}) => {
-	const initialValue = normalizeSpace(getValue());
+}: CellContext<TQuery, TValue>) => {
+	const value = getValue();
+	const initialValue = normalizeSpace(
+		typeof value === 'string' ? value : '',
+	);
 	// We need to keep and update the state of the cell normally
-	const [value, setValue] = useState(initialValue);
 	// When the input is blurred, we'll call our table meta's updateData function
-	const updateValue = async () => {
+	const updateValue = async (value: string) => {
 		try {
-			table.options.meta?.updateData(index, id, value);
+			table.options.meta?.updateData(
+				index,
+				id,
+				normalizeSpace(value),
+			);
 		} catch (err) {
-			if (err instanceof ZodError) {
-				const [{ message }] = err.errors;
-
-				setToast({
-					message,
-					type: 'error',
-				});
-
-				return;
-			}
-
-			setToast({
-				message: `עדכון מוצר: נכשל`,
-				type: 'error',
-			});
+			toast.error(
+				`${locale.he.actions.error} ${locale.he.actions.product.update}`,
+			);
 		}
 	};
-	const resetValue = () => setValue(initialValue);
-	const onChange = (e) => setValue(normalizeSpace(e.target.value));
-	const onKeyDown = async (e) => {
-		if (e.key === 'Enter') {
-			updateValue();
-			e.target.blur();
-		}
-
-		if (e.key === 'Escape') {
-			resetValue();
-			e.target.blur();
-		}
-	};
-
-	// If the initialValue is changed external, sync it up with our state
-	useEffect(() => {
-		resetValue();
-	}, [initialValue]);
+	const { className = '', ...props } =
+		table.options.meta?.format(index, id, table) ?? {};
 
 	return (
-		<input
-			type={
-				['orderAmount', 'packageSize', 'stock'].some(
-					(v) => v === id,
-				)
-					? 'number'
-					: 'text'
-			}
-			onKeyDown={onKeyDown}
-			onBlur={resetValue}
-			className={`bg-transparent w-full input`}
-			value={value ?? ('' as string)}
-			onChange={onChange}
-			step={
-				id === 'orderAmount'
-					? table.getRow(index.toString()).original
-							.packageSize
-					: undefined
-			}
-			min={0}
+		<EditableInput
+			onEdit={updateValue}
+			initialValue={initialValue}
+			className={clsx(`bg-transparent w-full input`, className)}
+			{...props}
 		/>
 	);
 };

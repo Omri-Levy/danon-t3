@@ -1,7 +1,7 @@
 import * as z from "zod"
-import * as imports from "../null"
+import * as imports from "../../src/translations"
 
-export const VerificationTokenModel = z.object({
+export const verificationTokenSchema = z.object({
   identifier: z.string(),
   token: z.string(),
   expires: z.date(),

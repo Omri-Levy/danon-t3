@@ -1,126 +1,155 @@
 import { locale } from '../../../translations';
 import Link from 'next/link';
+import { signOut, useSession } from 'next-auth/react';
+import { SendOrderModal } from '../../organisms/SendOrderModal/SendOrderModal';
+import { PrintModal } from '../../organisms/PrintModal/PrintModal';
+import { CreateProductModal } from '../../organisms/CreateProductModal/CreateProductModal';
+import clsx from 'clsx';
+import { createProductsApi } from '../../../api/products-api';
+import { useToggle } from 'react-use';
 
 export const TopBar = ({
-	toggleOnIsCreatingSupplier,
-	toggleOnIsCreatingProduct,
-	toggleOnIsSendingOrder,
-	toggleOnIsPrinting,
-	orderAtleastOne,
-	setToast,
-	refetch,
-	productsLength,
-	rowSelectionLength,
 	globalFilter,
 	onGlobalFilter,
 	productsCount,
-	onDeleteSelectedProducts,
-	onResetOrderAmount,
+	rowSelection,
+	setRowSelection,
 }) => {
-	return (
-		<div className={`flex justify-between`}>
-			<div className={`space-x-2`}>
-				<button
-					className={'btn'}
-					onClick={() => {
-						toggleOnIsCreatingProduct();
-					}}
-				>
-					{locale.he.createProduct}
-				</button>
-				<button
-					className={'btn'}
-					onClick={() => {
-						toggleOnIsCreatingSupplier();
-					}}
-				>
-					{locale.he.createSupplier}
-				</button>
-				<button
-					className={'btn'}
-					onClick={() => {
-						toggleOnIsPrinting();
-					}}
-				>
-					{locale.he.print}
-				</button>
-				<button
-					className={'btn '}
-					onClick={async () => {
-						try {
-							await refetch();
+	const [isSendingOrder, toggleIsSendingOrder] = useToggle(false);
+	const [isPrinting, toggleIsPrinting] = useToggle(false);
+	const [isCreatingProduct, toggleIsCreatingProduct] =
+		useToggle(false);
+	const productsApi = createProductsApi();
+	const { products: productsToOrder } =
+		productsApi.getAllForOrder();
+	const { products } = productsApi.getAll();
+	const moreThanOneSupplier =
+		new Set(productsToOrder?.map(({ supplierId }) => supplierId))
+			.size > 1;
+	const isValidToOrder = productsApi.isValidToOrder();
+	const onSignOut = () => signOut();
+	const {
+		isLoading: isLoadingResetOrderAmount,
+		onResetOrderAmount,
+	} =
+		productsApi.resetOrderAmountByIds<
+			Record<PropertyKey, boolean>
+		>(setRowSelection);
+	const { isLoading: isLoadingDeleteByIds } =
+		productsApi.deleteByIds();
+	const { status } = useSession();
+	const isLoadingSession = status === 'loading';
+	const { onDeleteByIds } =
+		productsApi.deleteByIds<Record<PropertyKey, boolean>>(
+			setRowSelection,
+		);
+	const selectedProducts = products
+		?.filter((_, index) => rowSelection[index])
+		.map(({ supplierId, sku }) => ({ supplierId, sku }));
+	const onDeleteSelectedProducts = async () => {
+		if (!selectedProducts?.length) return;
 
-							setToast({
-								message: `Reload: success`,
-								type: 'success',
-							});
-						} catch (err) {
-							setToast({
-								message: `Reload: failed`,
-								type: 'error',
-							});
-						}
-					}}
-				>
-					{locale.he.reload}
-				</button>
+		await onDeleteByIds({
+			ids: selectedProducts,
+		});
+	};
+	const disableDelete =
+		!products?.length || !Object.keys(rowSelection)?.length;
+	const disableOrder = !isValidToOrder || moreThanOneSupplier;
+	const disableResetOrderAmount = [
+		!products?.length,
+		!isValidToOrder,
+		isLoadingResetOrderAmount,
+		!Object.keys(rowSelection)?.length,
+	].some(Boolean);
+	const resetOrderAmount = () => {
+		if (!selectedProducts?.length) return;
+
+		return onResetOrderAmount({
+			ids: selectedProducts,
+		});
+	};
+
+	return (
+		<div className={`flex justify-between mb-1`}>
+			<div className={`space-x-2 flex items-center`}>
+				<Link href={'/orders'} passHref>
+					<a className={'btn'}>{locale.he.orders}</a>
+				</Link>
 				<div
-					className={
-						!orderAtleastOne ? `tooltip` : `inline`
+					className={disableOrder ? `tooltip` : `inline`}
+					data-tip={
+						moreThanOneSupplier
+							? `לא ניתן לבצע הזמנה עם יותר מספק אחד עם כמות הזמנה מעל ל0`
+							: `לא ניתן לבצע הזמנה ללא מוצרים עם כמות הזמנה מעל ל0`
 					}
-					data-tip={`לא ניתן לבצע הזמנה ללא מוצרים עם כמות הזמנה מעל ל0`}
 				>
-					<button
-						disabled={!orderAtleastOne}
-						className={'btn '}
-						onClick={toggleOnIsSendingOrder}
-					>
-						{locale.he.order}
-					</button>
+					<SendOrderModal
+						disabled={disableOrder}
+						isOpen={isSendingOrder}
+						onOpen={toggleIsSendingOrder}
+					/>
 				</div>
 				<div
 					className={
-						!orderAtleastOne ? `tooltip` : `inline`
+						!selectedProducts?.length ||
+						disableResetOrderAmount
+							? `tooltip`
+							: `inline`
 					}
-					data-tip={`לא ניתן לבצע איפוס כמות הזמנה ללא מוצרים עם כמות הזמנה מעל ל0`}
+					data-tip={
+						disableResetOrderAmount
+							? `לא ניתן לבצע איפוס כמות הזמנה ללא מוצרים עם כמות הזמנה מעל ל0`
+							: `לא ניתן לבצע איפוס כמות הזמנה עם 0 מוצרים מסומנים`
+					}
 				>
 					<button
-						disabled={!orderAtleastOne}
-						className={'btn '}
-						onClick={onResetOrderAmount}
+						disabled={disableResetOrderAmount}
+						className={clsx([
+							`btn`,
+							{ loading: isLoadingResetOrderAmount },
+						])}
+						onClick={resetOrderAmount}
 					>
 						{locale.he.resetOrderAmount}
 					</button>
 				</div>
 				<div
-					className={
-						!productsLength || !rowSelectionLength
-							? `tooltip`
-							: `inline`
-					}
+					className={disableDelete ? `tooltip` : `inline`}
 					data-tip={`לא ניתן לבצע מחיקת מוצרים עם 0 מוצרים מסומנים`}
 				>
 					<button
-						disabled={
-							!productsLength || !rowSelectionLength
-						}
-						className={'btn '}
+						disabled={disableDelete}
+						className={clsx([
+							`btn`,
+							{ loading: isLoadingDeleteByIds },
+						])}
 						onClick={onDeleteSelectedProducts}
 					>
 						{locale.he.delete}
 					</button>
 				</div>
+				<CreateProductModal
+					isOpen={isCreatingProduct}
+					onOpen={toggleIsCreatingProduct}
+				/>
+				<Link href={'/suppliers'} passHref>
+					<a className={'btn'}>{locale.he.suppliers}</a>
+				</Link>
+				<PrintModal
+					isOpen={isPrinting}
+					onOpen={toggleIsPrinting}
+				/>
 			</div>
-			<div className={`flex space-x-2`}>
-				<div className='form-control mb-2'>
+			<div className={`flex space-x-2 items-center`}>
+				<div className='form-control'>
 					<div className='input-group'>
 						<input
 							type='text'
 							dir={`rtl`}
-							placeholder={locale.he.search.replace(
-								'$1',
-								productsCount,
-							)}
+							placeholder={locale.he.search
+								.replace('$1', productsCount)
+								.replace('$2', 'מוצרים')}
 							className='input input-bordered'
 							value={globalFilter ?? ''}
 							onChange={onGlobalFilter}
@@ -143,9 +172,15 @@ export const TopBar = ({
 						</div>
 					</div>
 				</div>
-				<Link href={`/api/auth/signout`}>
-					<a className={`btn`}>Sign out</a>
-				</Link>
+				<button
+					className={clsx([
+						`btn`,
+						{ loading: isLoadingSession },
+					])}
+					onClick={onSignOut}
+				>
+					{locale.he.signOut}
+				</button>
 			</div>
 		</div>
 	);

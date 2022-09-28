@@ -7,7 +7,7 @@ export const Map = <TItems extends Array<any>>({
 	items: TItems;
 	render: (item: TItems[number], index: number) => ReactNode;
 }) => {
-	const noItems = !items.length;
+	const noItems = !items?.length;
 	const itemsNotArray = !Array.isArray(items);
 
 	if (noItems || itemsNotArray) return null;

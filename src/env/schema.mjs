@@ -10,8 +10,15 @@ export const serverSchema = z.object({
 	NODE_ENV: z.enum(["development", "test", "production"]),
 	NEXTAUTH_SECRET: z.string(),
 	NEXTAUTH_URL: z.string().url(),
-	CLIENT_ID: z.string(),
-	CLIENT_SECRET: z.string(),
+	EMAIL: z.string().email(),
+	PASS: z.string(),
+	AZURE_AD_CLIENT_ID: z.string(),
+	AZURE_AD_CLIENT_SECRET: z.string(),
+	AZURE_AD_TENANT_ID: z.string(),
+	S3_BUCKET: z.string(),
+	S3_REGION: z.string(),
+	S3_ACCESS_KEY: z.string(),
+	S3_SECRET_KEY: z.string(),
 });
 
 /**

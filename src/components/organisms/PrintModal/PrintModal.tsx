@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
-import {
+import ReactPDF, {
 	Document,
 	Font,
 	Image,
@@ -11,88 +11,14 @@ import {
 	View,
 } from '@react-pdf/renderer';
 import { locale } from '../../../translations';
-import { Modal } from '../../molecules/Modal/Modal';
-import { trpc } from '../../../utils/trpc';
-import { FunctionComponent } from 'react';
+import { createProductsApi } from '../../../api/products-api';
+import { ReactPdfTable } from '../../molecules/ReactPdfTable/ReactPdfTable';
+import * as Dialog from '@radix-ui/react-dialog';
+import clsx from 'clsx';
 
-export const ReactPdfTable: FunctionComponent<{
-	headers: Array<{
-		accessorKey: string;
-		header: string;
-	}>;
-	data: Array<any>;
-}> = ({ headers, data }) => {
-	const styles = StyleSheet.create({
-		table: {
-			flexWrap: 'wrap',
-		},
-		tr: {
-			flexDirection: 'row',
-		},
-		thead: {
-			flexDirection: 'row',
-		},
-		td: {
-			border: '1px solid black',
-			padding: '5px',
-		},
-		th: {
-			textAlign: 'center',
-			border: '1px solid black',
-			padding: '5px',
-			fontWeight: 'bold',
-		},
-	});
-
-	return (
-		<View style={styles.table}>
-			<View style={styles.thead}>
-				{headers?.map(({ header, accessorKey }, index) => (
-					<Text
-						key={`${accessorKey ?? index}-th`}
-						style={{
-							...styles.th,
-							width: `${100 / headers.length}%`,
-						}}
-					>
-						{header}
-					</Text>
-				))}
-			</View>
-			{data?.map((item, index) => (
-				<View
-					key={`${item?.id ?? index}-tr`}
-					style={styles.tr}
-				>
-					{headers?.map(({ accessorKey }) => {
-						const keys = accessorKey.split('.');
-						let value = item;
-
-						keys.forEach((key) => {
-							value = value[key];
-						});
-
-						return (
-							<Text
-								key={`${accessorKey ?? index}-td`}
-								style={{
-									...styles.td,
-									width: `${100 / headers.length}%`,
-								}}
-							>
-								{value}
-							</Text>
-						);
-					})}
-				</View>
-			))}
-		</View>
-	);
-};
-
-export const PrintModal = ({ isOpen, onClose }) => {
-	const { data: products } =
-		trpc.proxy.products.getProducts.useQuery();
+export const PrintModal = ({ isOpen, onOpen }) => {
+	const productsApi = createProductsApi();
+	const { products } = productsApi.getAll();
 	const styles = StyleSheet.create({
 		page: {
 			position: 'relative',
@@ -118,54 +44,114 @@ export const PrintModal = ({ isOpen, onClose }) => {
 		{
 			accessorKey: 'stock',
 			header: locale.he.stock,
+			styles: {
+				width: '70px',
+			},
 		},
 		{
 			accessorKey: 'packageSize',
 			header: locale.he.packageSize,
+			styles: {
+				width: '70px',
+			},
 		},
 		{
 			accessorKey: 'unit',
 			header: locale.he.unit,
+			styles: {
+				width: '70px',
+			},
 		},
 		{
 			accessorKey: 'name',
 			header: locale.he.productName,
+			styles: {
+				width: '220px',
+			},
 		},
 		{
 			accessorKey: 'sku',
 			header: locale.he.sku,
+			styles: {
+				width: '70px',
+			},
 		},
 		{
 			accessorKey: 'supplier.name',
 			header: locale.he.supplier,
+			styles: {
+				width: '70px',
+			},
 		},
 	];
 
 	return (
-		<Modal isOpen={isOpen} onClose={onClose}>
-			<h2 className={'text-3xl font-bold mb-2 text-center'}>
+		<Dialog.Root open={isOpen} onOpenChange={onOpen}>
+			<Dialog.Trigger className={'btn'}>
 				{locale.he.print}
-			</h2>
-			<PDFViewer height={`100%`}>
-				<Document>
-					<Page size={`A4`} style={styles.page}>
-						<Image
-							src={'/danon-logo.png'}
-							style={styles.logo}
-						/>
-						{!!products && (
-							<ReactPdfTable
-								headers={headers}
-								data={products}
-							/>
-						)}
-						<Image
-							src={'/danon-footer.jpg'}
-							style={styles.footer}
-						/>
-					</Page>
-				</Document>
-			</PDFViewer>
-		</Modal>
+			</Dialog.Trigger>
+			<Dialog.Portal>
+				<Dialog.Overlay>
+					<div
+						className={clsx([
+							`modal`,
+							{
+								[`modal-open`]: isOpen,
+							},
+						])}
+					>
+						<Dialog.Content
+							className={`modal-box w-6/12 max-w-none h-full max-h-none`}
+						>
+							<div className={`flex justify-end`}>
+								<Dialog.Close>
+									<svg
+										xmlns='http://www.w3.org/2000/svg'
+										viewBox='0 0 24 24'
+										fill='currentColor'
+										className='w-6 h-6'
+									>
+										<path
+											fillRule='evenodd'
+											d='M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z'
+											clipRule='evenodd'
+										/>
+									</svg>
+								</Dialog.Close>
+							</div>
+							<Dialog.Title
+								dir={`rtl`}
+								className={`font-bold text-center`}
+							>
+								{locale.he.print}
+							</Dialog.Title>
+							<PDFViewer height={`94%`} width={`100%`}>
+								<Document>
+									<Page
+										size={`A4`}
+										style={styles.page}
+									>
+										<Image
+											src={'/danon-logo.png'}
+											style={styles.logo}
+										/>
+										{!!products && (
+											<ReactPdfTable
+												headers={headers}
+												data={products}
+											/>
+										)}
+										<Image
+											src={'/danon-footer.jpg'}
+											style={styles.footer}
+										/>
+									</Page>
+								</Document>
+							</PDFViewer>
+						</Dialog.Content>
+					</div>
+				</Dialog.Overlay>
+			</Dialog.Portal>
+		</Dialog.Root>
 	);
 };

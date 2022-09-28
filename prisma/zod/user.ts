@@ -1,8 +1,8 @@
 import * as z from "zod"
-import * as imports from "../null"
-import { CompleteAccount, RelatedAccountModel, CompleteSession, RelatedSessionModel } from "./index"
+import * as imports from "../../src/translations"
+import { CompleteAccount, relatedAccountSchema, CompleteSession, relatedSessionSchema } from "./index"
 
-export const UserModel = z.object({
+export const userSchema = z.object({
   id: z.string(),
   name: z.string(),
   email: z.string().nullish(),
@@ -12,17 +12,17 @@ export const UserModel = z.object({
   updatedAt: z.date(),
 })
 
-export interface CompleteUser extends z.infer<typeof UserModel> {
+export interface CompleteUser extends z.infer<typeof userSchema> {
   accounts: CompleteAccount[]
   sessions: CompleteSession[]
 }
 
 /**
- * RelatedUserModel contains all relations on your model in addition to the scalars
+ * relatedUserSchema contains all relations on your model in addition to the scalars
  *
  * NOTE: Lazy required in case of potential circular dependencies within schema
  */
-export const RelatedUserModel: z.ZodSchema<CompleteUser> = z.lazy(() => UserModel.extend({
-  accounts: RelatedAccountModel.array(),
-  sessions: RelatedSessionModel.array(),
+export const relatedUserSchema: z.ZodSchema<CompleteUser> = z.lazy(() => userSchema.extend({
+  accounts: relatedAccountSchema.array(),
+  sessions: relatedSessionSchema.array(),
 }))
