@@ -58,6 +58,7 @@ class OrdersService {
 
 	async send(input: TSendOrderSchema) {
 		const { pdf } = input;
+		const pdfAsString = pdf?.toString();
 		const productsToOrder = await productsRepository.findMany({
 			where: {
 				orderAmount: {
@@ -149,7 +150,6 @@ class OrdersService {
 			},
 		});
 
-		const pdfAsString = pdf?.toString();
 		const info = await sendEmail({
 			from: `${locale.he.mailSender} <${env.EMAIL}>`,
 			to: supplier.email,

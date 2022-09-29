@@ -156,7 +156,7 @@ export const useOrdersTable = (
 			accessorKey: 'orderNumber',
 			header: locale.he.orderNumber,
 			cell: ({ cell }) =>
-				`#${cell.getValue()?.toString().padStart(5, '0')}`,
+				cell.getValue()?.toString().padStart(5, '0'),
 		},
 		{
 			accessorKey: 'createdAt',

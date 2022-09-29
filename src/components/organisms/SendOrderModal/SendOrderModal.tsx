@@ -5,46 +5,20 @@ import {
 	useForm,
 } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import ReactPDF, {
-	Document,
-	Image,
-	Page,
-	PDFViewer,
-	StyleSheet,
-	Text,
-} from '@react-pdf/renderer';
 import { createProductsApi } from '../../../api/products-api';
 import { createOrdersApi } from '../../../api/orders-api';
 import { InferMutationInput } from '../../../types';
-import { ReactPdfTable } from '../../molecules/ReactPdfTable/ReactPdfTable';
 import { sendOrderSchema } from '../../../server/orders/validation';
 import { useCallback, useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import clsx from 'clsx';
-import pdf = ReactPDF.pdf;
+import { usePdfTable } from '../../../hooks/usePdfTable/usePdfTable';
 
-const OrderDocument = ({ products }) => {
-	const styles = StyleSheet.create({
-		page: {
-			position: 'relative',
-			fontFamily: 'Heebo',
-			fontSize: 11,
-			flexDirection: 'column',
-			alignItems: 'center',
-			padding: '5px',
-			height: '100%',
-		},
-		logo: {
-			width: '120px',
-			marginRight: 'auto',
-			marginBottom: '10px',
-		},
-		footer: {
-			position: 'absolute',
-			bottom: '10px',
-			width: '450px',
-		},
-	});
+export const SendOrderModal = ({ disabled, isOpen, onOpen }) => {
+	const ordersApi = createOrdersApi();
+	const productsApi = createProductsApi();
+	const { products } = productsApi.getAllForOrder();
+	const { onSend, isSuccess, isLoading } = ordersApi.send();
 	const headers = [
 		{
 			accessorKey: 'orderAmount',
@@ -66,62 +40,27 @@ const OrderDocument = ({ products }) => {
 			accessorKey: 'sku',
 			header: locale.he.sku,
 		},
-	];
-
-	return (
-		<Document>
-			<Page size={`A4`} style={styles.page}>
-				<Image src={'/danon-logo.png'} style={styles.logo} />
-				<Text
-					style={{
-						fontSize: '24px',
-						fontWeight: 'bold',
-						textAlign: 'center',
-					}}
-				>
-					הזמנה
-				</Text>
-				{!!products && (
-					<ReactPdfTable
-						headers={headers}
-						data={products}
-					/>
-				)}
-				<Image
-					src={'/danon-footer.jpg'}
-					style={styles.footer}
-				/>
-			</Page>
-		</Document>
+	].map(({ header, ...rest }) => ({
+		header: header.split('').reverse().join(''),
+		...rest,
+	}));
+	const { orders } = ordersApi.getAll();
+	const nextOrder = ((orders?.at(-1)?.orderNumber ?? 0) + 1)
+		.toString()
+		.padStart(5, '0');
+	const base64 = usePdfTable(
+		headers,
+		products ?? [],
+		`הזמנה מספר ${nextOrder}`.split('').reverse().join(''),
 	);
-};
-
-export const SendOrderModal = ({ disabled, isOpen, onOpen }) => {
-	const ordersApi = createOrdersApi();
-	const productsApi = createProductsApi();
-	const { products } = productsApi.getAllForOrder();
-	const { onSend, isSuccess, isLoading } = ordersApi.send();
 	const onSendOrderSubmit: SubmitHandler<
 		InferMutationInput<'orders.send'>
 	> = useCallback(async () => {
 		if (!products?.length) return;
 
-		const blob = await pdf(
-			<OrderDocument products={products} />,
-		).toBlob();
-		const reader = new FileReader();
-		reader.readAsDataURL(blob);
-		reader.addEventListener(
-			'loadend',
-			async (e) => {
-				const result = e.target?.result ?? null;
-
-				await onSend({
-					pdf: result,
-				});
-			},
-			false,
-		);
+		await onSend({
+			pdf: base64,
+		});
 	}, [onSend, products?.length]);
 	const sendOrderMethods = useForm({
 		mode: 'all',
@@ -176,17 +115,14 @@ export const SendOrderModal = ({ disabled, isOpen, onOpen }) => {
 								dir={`rtl`}
 								className={`font-bold text-center`}
 							>
-								{locale.he.print}
+								{locale.he.order}
 							</Dialog.Title>
-							<PDFViewer
-								height={`86%`}
-								width={`100%`}
-								style={{
-									marginBottom: '10px',
-								}}
-							>
-								<OrderDocument products={products} />
-							</PDFViewer>
+							{!!products?.length && (
+								<iframe
+									src={base64}
+									className={`w-full h-[86%]`}
+								/>
+							)}
 							<FormProvider {...sendOrderMethods}>
 								<form
 									noValidate

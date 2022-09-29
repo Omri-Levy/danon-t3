@@ -12,7 +12,7 @@ export const locale = {
 		attention: `שימו לב`,
 		mailSender: 'דנון הזמנת כימיקלים',
 		mailGreeting: (supplier: string, order: string) =>
-			`${supplier} שלום, נא קבלו הזמנתנו. #${order}`,
+			`${supplier} שלום, נא קבלו הזמנתנו מספר ${order}`,
 		orderPdf: `מסמך הזמנה הוצמד`,
 		validation: {
 			supplier: {
@@ -81,7 +81,7 @@ export const locale = {
 		delete: 'מחיקה',
 		reload: 'רענון',
 		resetOrderAmount: 'איפוס כמות הזמנה',
-		search: 'חיפוש ב$1 ב$2...',
+		search: 'חיפוש ב$1 $2...',
 		mustBeDivisibleBy: 'כמות הזמנה חייבת להתחלק בגודל אריזה',
 		createProduct: 'יצירת מוצר',
 		createSupplier: 'יצירת ספק',
@@ -122,7 +122,7 @@ export const locale = {
 		attention: 'Attention',
 		mailSender: 'Danon chemicals ordering',
 		mailGreeting: (supplier: string, order: string) =>
-			`Hello ${supplier}, please accept our order. #${order}`,
+			`Hello ${supplier}, please accept our order number ${order}`,
 		orderPdf: `Order PDF attached.`,
 		validation: {
 			supplier: {
