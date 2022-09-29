@@ -23,8 +23,6 @@ export const usePdfTable = (
 	);
 	const margin = 45;
 	const doc = new JsPdf('p', 'px', 'a4');
-	const pdfHeight = doc.internal.pageSize.getHeight();
-	const pdfWidth = doc.internal.pageSize.getWidth();
 	const logo = new Image();
 	const footer = new Image();
 
@@ -33,16 +31,18 @@ export const usePdfTable = (
 
 	if (text) {
 		doc.setFont('Heebo-normal', 'normal');
-		doc.text(text, pdfWidth / 2, 35, { align: 'center' });
+		doc.text(text, doc.internal.pageSize.width / 2, 35, {
+			align: 'center',
+		});
 	}
 
 	doc.addImage(logo, 'PNG', 26, 5, 70, 70 / 2);
 	doc.addImage(
 		footer,
 		'JPG',
-		pdfWidth / 2 - 142,
-		pdfHeight - margin,
-		pdfWidth / 2 + 50,
+		doc.internal.pageSize.width / 2 - 142,
+		doc.internal.pageSize.height - 30,
+		doc.internal.pageSize.width / 2 + 50,
 		25,
 	);
 
