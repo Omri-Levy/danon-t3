@@ -1,89 +1,42 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import ReactPDF, {
-	Document,
-	Font,
-	Image,
-	Page,
-	PDFViewer,
-	StyleSheet,
-	Text,
-	View,
-} from '@react-pdf/renderer';
 import { locale } from '../../../translations';
 import { createProductsApi } from '../../../api/products-api';
-import { ReactPdfTable } from '../../molecules/ReactPdfTable/ReactPdfTable';
 import * as Dialog from '@radix-ui/react-dialog';
 import clsx from 'clsx';
+import { usePdfTable } from '../../../hooks/usePdfTable/usePdfTable';
 
 export const PrintModal = ({ isOpen, onOpen }) => {
 	const productsApi = createProductsApi();
 	const { products } = productsApi.getAll();
-	const styles = StyleSheet.create({
-		page: {
-			position: 'relative',
-			fontFamily: 'Heebo',
-			fontSize: 11,
-			flexDirection: 'column',
-			alignItems: 'center',
-			padding: '5px',
-			height: '100%',
-		},
-		logo: {
-			width: '120px',
-			marginRight: 'auto',
-			marginBottom: '10px',
-		},
-		footer: {
-			position: 'absolute',
-			bottom: '10px',
-			width: '450px',
-		},
-	});
 	const headers = [
 		{
 			accessorKey: 'stock',
 			header: locale.he.stock,
-			styles: {
-				width: '70px',
-			},
 		},
 		{
 			accessorKey: 'packageSize',
 			header: locale.he.packageSize,
-			styles: {
-				width: '70px',
-			},
 		},
 		{
 			accessorKey: 'unit',
 			header: locale.he.unit,
-			styles: {
-				width: '70px',
-			},
 		},
 		{
 			accessorKey: 'name',
 			header: locale.he.productName,
-			styles: {
-				width: '220px',
-			},
 		},
 		{
 			accessorKey: 'sku',
 			header: locale.he.sku,
-			styles: {
-				width: '70px',
-			},
 		},
 		{
 			accessorKey: 'supplier.name',
 			header: locale.he.supplier,
-			styles: {
-				width: '70px',
-			},
 		},
-	];
+	].map(({ header, ...rest }) => ({
+		header: header.split('').reverse().join(''),
+		...rest,
+	}));
+	const base64 = usePdfTable(headers, products ?? []);
 
 	return (
 		<Dialog.Root open={isOpen} onOpenChange={onOpen}>
@@ -125,29 +78,12 @@ export const PrintModal = ({ isOpen, onOpen }) => {
 							>
 								{locale.he.print}
 							</Dialog.Title>
-							<PDFViewer height={`94%`} width={`100%`}>
-								<Document>
-									<Page
-										size={`A4`}
-										style={styles.page}
-									>
-										<Image
-											src={'/danon-logo.png'}
-											style={styles.logo}
-										/>
-										{!!products && (
-											<ReactPdfTable
-												headers={headers}
-												data={products}
-											/>
-										)}
-										<Image
-											src={'/danon-footer.jpg'}
-											style={styles.footer}
-										/>
-									</Page>
-								</Document>
-							</PDFViewer>
+							{!!products && (
+								<iframe
+									src={base64}
+									className={`w-full h-[94%]`}
+								/>
+							)}
 						</Dialog.Content>
 					</div>
 				</Dialog.Overlay>

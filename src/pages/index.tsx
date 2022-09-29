@@ -402,7 +402,7 @@ const Home: NextPage = () => {
 		onGlobalFilter,
 		rowSelection,
 		setRowSelection,
-	} = useProductsTable(products);
+	} = useProductsTable(products ?? []);
 
 	return (
 		<div>
