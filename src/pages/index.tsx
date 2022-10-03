@@ -179,21 +179,15 @@ export const useProductsTable = (
 
 		const column =
 			columnId === 'supplier_name' ? 'supplier' : columnId;
-		const valueAsNumber = Number(value);
-		const parsedValue = [
+		const isNumeric = [
+			'stock',
 			'orderAmount',
 			'packageSize',
-			'stock',
-		].includes(column)
-			? valueAsNumber
-			: value;
-		const isPackageSize = column === 'packageSize';
-
-		const result = updateProductSchema
-			.pick({ [column]: true })
-			.safeParse({
-				[column]: parsedValue,
-			});
+		].some((col) => col === columnId);
+		const result = updateProductSchema.safeParse({
+			id: prevProduct.id,
+			[column]: isNumeric ? Number(value) : value,
+		});
 
 		if (!result.success) {
 			const error = result.error.errors
@@ -205,60 +199,30 @@ export const useProductsTable = (
 			return;
 		}
 
-		// Make sure it is always possible to return to a package size of 1.
-		if (isPackageSize && !prevProduct?.packageSize) {
-			await onUpdateById({
-				orderAmount: 0,
-				[column]: parsedValue,
-				id: {
-					supplierId: prevProduct.supplierId,
-					sku: prevProduct?.sku,
-				},
-			});
-
-			return;
-		}
-
-		if (isPackageSize && parsedValue === 1) {
-			await onUpdateById({
-				[column]: parsedValue,
-				supplierId: prevProduct.supplierId,
-				id: {
-					supplierId: prevProduct.supplierId,
-					sku: prevProduct?.sku,
-				},
-			});
-
-			return;
-		}
-
-		const prevPackageSize = prevProduct?.packageSize;
-		const prevPackageSizeAsNumber = Number(prevPackageSize);
-		const isException = prevPackageSizeAsNumber === 1;
+		const prevOrderAmount = prevProduct.orderAmount;
+		const prevPackageSize = prevProduct.packageSize;
+		const isOrderAmount = column === 'orderAmount';
+		const isPackageSize = column === 'packageSize';
+		const orderAmount = Number(
+			isOrderAmount ? value : prevOrderAmount,
+		);
+		const packageSize = Number(
+			isPackageSize ? value : prevPackageSize,
+		);
+		const isException = orderAmount === 0 || packageSize === 1;
 		const isDivisible =
-			Math.round(valueAsNumber % prevPackageSizeAsNumber) === 0;
-		const isOrderAmountOrPackageSize = [
-			'orderAmount',
-			'packageSize',
-		].includes(column);
-		const shouldSkip =
-			isOrderAmountOrPackageSize &&
-			!isDivisible &&
-			valueAsNumber > 0 &&
-			!isException;
+			Math.round(orderAmount % packageSize) === 0;
+		const shouldUpdate = isException || isDivisible;
 
-		if (shouldSkip) {
+		if ((isOrderAmount || isPackageSize) && !shouldUpdate) {
 			toast.error(locale.he.mustBeDivisibleBy);
 
 			return;
 		}
 
 		await onUpdateById({
-			[column]: parsedValue,
-			id: {
-				supplierId: prevProduct.supplierId,
-				sku: prevProduct?.sku,
-			},
+			...result.data,
+			id: prevProduct.id,
 		});
 	};
 	const format = (

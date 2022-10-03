@@ -3,13 +3,24 @@ import { z } from 'zod';
 
 export * from '../../../prisma/zod/product';
 
-export const productIdSchema = productSchema.pick({
-	supplierId: true,
-	sku: true,
+// Expects `${supplierId}-${sku}`
+export const productIdSchema = z.object({
+	id: z.preprocess((v) => {
+		if (typeof v !== 'string') {
+			return v;
+		}
+
+		const [supplierId, sku] = v.split('-');
+
+		return {
+			supplierId,
+			sku,
+		};
+	}, productSchema.pick({ supplierId: true, sku: true })),
 });
 
 export const productIdsSchema = z.object({
-	ids: z.array(productIdSchema),
+	ids: z.array(productIdSchema.shape.id),
 });
 
 export const createProductSchema = productSchema
@@ -24,4 +35,4 @@ export const createProductSchema = productSchema
 export const updateProductSchema = productSchema
 	.setKey('supplier', supplierSchema.shape.name)
 	.partial()
-	.setKey('id', productIdSchema);
+	.setKey('id', productIdSchema.shape.id);

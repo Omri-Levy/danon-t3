@@ -12,9 +12,7 @@ export const DefaultCell = <TValue, TQuery>({
 	table,
 }: CellContext<TQuery, TValue>) => {
 	const value = getValue();
-	const initialValue = normalizeSpace(
-		typeof value === 'string' ? value : '',
-	);
+	const initialValue = normalizeSpace(value as any);
 	// We need to keep and update the state of the cell normally
 	// When the input is blurred, we'll call our table meta's updateData function
 	const updateValue = async (value: string) => {

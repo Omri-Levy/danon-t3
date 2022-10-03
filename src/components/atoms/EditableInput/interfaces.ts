@@ -1,7 +1,7 @@
 import { HTMLProps } from 'react';
 
-export interface IEditableInputProps<TValue = string>
+export interface IEditableInputProps
 	extends HTMLProps<HTMLInputElement> {
-	initialValue: TValue;
-	onEdit?: (value: TValue) => void;
+	initialValue: string;
+	onEdit?: (value: string) => void;
 }

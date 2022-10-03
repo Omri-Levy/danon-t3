@@ -14,7 +14,12 @@ class ProductsService {
 	private _repository = productsRepository;
 
 	async getAll() {
-		return this._repository.findMany();
+		const result = await this._repository.findMany();
+
+		return result.map((product) => ({
+			...product,
+			id: `${product.supplierId}-${product.sku}`,
+		}));
 	}
 
 	async getById(input: TProductIdSchema) {
@@ -35,12 +40,10 @@ class ProductsService {
 		}
 
 		try {
-			const result = await this._repository.create({
+			return await this._repository.create({
 				data,
 				supplierId,
 			});
-
-			return result;
 		} catch (err) {
 			if (
 				!(err instanceof Prisma.PrismaClientKnownRequestError)
@@ -62,13 +65,29 @@ class ProductsService {
 
 	async updateById(input: TUpdateProductSchema) {
 		const { id, ...data } = input;
-		const { supplierId, sku } = id;
 
-		return this._repository.updateById({
-			supplierId,
-			sku,
-			data,
-		});
+		try {
+			return await this._repository.updateById({
+				id,
+				data,
+			});
+		} catch (err) {
+			if (
+				!(err instanceof Prisma.PrismaClientKnownRequestError)
+			) {
+				throw err;
+			}
+
+			if (err.code === 'P2002' && input.sku) {
+				throw new TRPCError({
+					message:
+						locale.he.validation.product.alreadyExists(
+							input.sku,
+						),
+					code: 'BAD_REQUEST',
+				});
+			}
+		}
 	}
 
 	async deleteByIds(input: TProductIdsSchema) {
