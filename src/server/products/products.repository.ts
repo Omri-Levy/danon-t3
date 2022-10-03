@@ -31,12 +31,14 @@ class ProductsRepository {
 		});
 	}
 
-	async findById({ sku, supplierId }: TProductIdSchema) {
+	async findById({ id }: TProductIdSchema) {
+		const { supplierId, sku } = id;
+
 		return this._repository.findUnique({
 			where: {
 				supplierId_sku: {
-					sku,
 					supplierId,
+					sku,
 				},
 			},
 		});
@@ -78,8 +80,7 @@ class ProductsRepository {
 	}
 
 	async updateById({
-		sku,
-		supplierId,
+		id,
 		data,
 	}: TProductIdSchema & {
 		data: Prisma.ProductUpdateInput & {
@@ -87,6 +88,8 @@ class ProductsRepository {
 		};
 	}) {
 		const { supplier, ...rest } = data;
+		const { supplierId, sku } = id;
+
 		const supplierExists = await suppliersRepository.findById({
 			id: supplierId,
 		});

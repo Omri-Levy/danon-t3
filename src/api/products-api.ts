@@ -59,9 +59,7 @@ class ProductsApi extends TrpcApi {
 			InferMutationInput<'products.create'>
 		> = async (data) => {
 			try {
-				const result = await mutateAsync(data);
-
-				return result;
+				return await mutateAsync(data);
 			} catch {}
 		};
 
@@ -81,9 +79,16 @@ class ProductsApi extends TrpcApi {
 					'update',
 				),
 			);
+		const onUpdateById: SubmitHandler<
+			InferMutationInput<'products.updateById'>
+		> = async (data) => {
+			try {
+				return await mutateAsync(data);
+			} catch {}
+		};
 
 		return {
-			onUpdateById: mutateAsync,
+			onUpdateById,
 			...mutation,
 		};
 	}

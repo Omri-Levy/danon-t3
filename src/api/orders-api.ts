@@ -92,12 +92,8 @@ class OrdersApi extends TrpcApi {
 			InferMutationInput<'orders.send'>
 		> = async (data) => {
 			try {
-				const result = await mutateAsync(data);
-
-				return result;
-			} catch (e) {
-				console.error(e);
-			}
+				return await mutateAsync(data);
+			} catch {}
 		};
 
 		return {

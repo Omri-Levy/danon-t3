@@ -56,9 +56,7 @@ class SuppliersApi extends TrpcApi {
 			InferMutationInput<'suppliers.create'>
 		> = async (data) => {
 			try {
-				const result = await mutateAsync(data);
-
-				return result;
+				return await mutateAsync(data);
 			} catch {}
 		};
 

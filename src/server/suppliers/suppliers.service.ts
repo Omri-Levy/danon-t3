@@ -22,9 +22,7 @@ class SuppliersService {
 
 	async create(input: TCreateSupplierSchema) {
 		try {
-			const result = await this._repository.create(input);
-
-			return result;
+			return await this._repository.create(input);
 		} catch (err) {
 			if (
 				!(err instanceof Prisma.PrismaClientKnownRequestError)

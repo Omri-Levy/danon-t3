@@ -46,8 +46,8 @@ model Supplier {
     /// @zod.max(320, { message: imports.locale.he.validation.supplier.email.max })
     /// @zod.email({ message: imports.locale.he.validation.supplier.email.invalid })
     email String @db.VarChar(320) @unique
-    /// @zod.max(120, { message: imports.locale.he.validation.supplier.name.max })
     /// @zod.min(1, { message: imports.locale.he.validation.supplier.name.min })
+    /// @zod.max(120, { message: imports.locale.he.validation.supplier.name.max })
     name String @db.VarChar(120) @unique
     products Product[]
     orders Order[]
@@ -58,20 +58,21 @@ model Supplier {
 }
 
 model Product {
-    /// @zod.max(10, { message: imports.locale.he.validation.product.sku.max })
     /// @zod.min(1, { message: imports.locale.he.validation.product.sku.min })
+    /// @zod.max(10, { message: imports.locale.he.validation.product.sku.max })
     sku String @db.VarChar(10)
-    /// @zod.max(120, { message: imports.locale.he.validation.product.name.max })
     /// @zod.min(1, { message: imports.locale.he.validation.product.name.min })
+    /// @zod.max(120, { message: imports.locale.he.validation.product.name.max })
     name String @db.VarChar(120)
+    /// @zod.min(1, { message: imports.locale.he.validation.product.packageSize.min })
     /// @zod.max(1000, { message: imports.locale.he.validation.product.packageSize.max })
     packageSize Decimal @db.Decimal(6,2)
     unit Unit
-    /// @zod.max(1000, { message: imports.locale.he.validation.product.orderAmount.max })
     /// @zod.min(0, { message: imports.locale.he.validation.product.orderAmount.min })
+    /// @zod.max(1000, { message: imports.locale.he.validation.product.orderAmount.max })
     orderAmount Decimal @db.Decimal(6,2)
-    /// @zod.max(1000, { message: imports.locale.he.validation.product.stock.max })
     /// @zod.min(0, { message: imports.locale.he.validation.product.stock.min })
+    /// @zod.max(1000, { message: imports.locale.he.validation.product.stock.max })
     stock Decimal @db.Decimal(6,2)
     supplier Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
     supplierId String

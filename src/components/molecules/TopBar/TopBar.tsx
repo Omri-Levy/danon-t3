@@ -45,7 +45,7 @@ export const TopBar = ({
 		);
 	const selectedProducts = products
 		?.filter((_, index) => rowSelection[index])
-		.map(({ supplierId, sku }) => ({ supplierId, sku }));
+		.map(({ id }) => id);
 	const onDeleteSelectedProducts = async () => {
 		if (!selectedProducts?.length) return;
 
