@@ -1,47 +1,18 @@
-import { locale } from '../../../translations';
 import * as Dialog from '@radix-ui/react-dialog';
 import clsx from 'clsx';
-import { usePdfTable } from '../../../hooks/usePdfTable/usePdfTable';
-import { useGetAllProducts } from '../../../api/products-api';
+import { locale } from '../../../translations';
 
-export const PrintModal = ({ isOpen, onOpen }) => {
-	const { products } = useGetAllProducts();
-	const headers = [
-		{
-			accessorKey: 'stock',
-			header: locale.he.stock,
-		},
-		{
-			accessorKey: 'packageSize',
-			header: locale.he.packageSize,
-		},
-		{
-			accessorKey: 'unit',
-			header: locale.he.unit,
-		},
-		{
-			accessorKey: 'name',
-			header: locale.he.productName,
-		},
-		{
-			accessorKey: 'sku',
-			header: locale.he.sku,
-		},
-		{
-			accessorKey: 'supplier.name',
-			header: locale.he.supplier,
-		},
-	].map(({ header, ...rest }) => ({
-		header: header.split('').reverse().join(''),
-		...rest,
-	}));
-	const base64 = usePdfTable(headers, products ?? []);
-
+export const ViewPDF = ({
+	presignedUrl,
+	isOpen,
+	onOpen,
+}: {
+	presignedUrl: string;
+	isOpen: boolean;
+	onOpen: (nextValue?: boolean) => void;
+}) => {
 	return (
 		<Dialog.Root open={isOpen} onOpenChange={onOpen}>
-			<Dialog.Trigger className={'btn'}>
-				{locale.he.print}
-			</Dialog.Trigger>
 			<Dialog.Portal>
 				<Dialog.Overlay>
 					<div
@@ -75,14 +46,12 @@ export const PrintModal = ({ isOpen, onOpen }) => {
 								dir={`rtl`}
 								className={`font-bold text-center`}
 							>
-								{locale.he.print}
+								{locale.he.order}
 							</Dialog.Title>
-							{!!products && (
-								<iframe
-									src={base64}
-									className={`w-full h-[94%]`}
-								/>
-							)}
+							<iframe
+								className={`w-full h-[94%]`}
+								src={presignedUrl}
+							/>
 						</Dialog.Content>
 					</div>
 				</Dialog.Overlay>
