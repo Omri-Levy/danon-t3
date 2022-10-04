@@ -4,7 +4,6 @@ import {
 	orderIdSchema,
 	orderIdsSchema,
 	sendOrderSchema,
-	updateOrderSchema,
 } from './validation';
 import { Order } from '@prisma/client';
 
@@ -14,4 +13,3 @@ export type TSendOrderSchema = z.infer<typeof sendOrderSchema>;
 export type TOrderId = Order['id'];
 export type TOrderIds = Array<TOrderId>;
 export type TCreateOrderSchema = z.infer<typeof createOrderSchema>;
-export type TUpdateOrderSchema = z.infer<typeof updateOrderSchema>;

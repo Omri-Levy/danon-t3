@@ -1,145 +1,31 @@
 import { locale } from '../../../translations';
-import Link from 'next/link';
 import { signOut, useSession } from 'next-auth/react';
-import { SendOrderModal } from '../../organisms/SendOrderModal/SendOrderModal';
-import { PrintModal } from '../../organisms/PrintModal/PrintModal';
-import { CreateProductModal } from '../../organisms/CreateProductModal/CreateProductModal';
 import clsx from 'clsx';
-import { createProductsApi } from '../../../api/products-api';
-import { useToggle } from 'react-use';
+import { Navigation } from '../../organisms/Navigation/Navigation';
+import { ChangeEventHandler, FunctionComponent } from 'react';
 
-export const TopBar = ({
+export const TopBar: FunctionComponent<{
+	resource: string;
+	Actions: JSX.Element;
+	globalFilter: string;
+	onGlobalFilter: ChangeEventHandler<HTMLInputElement>;
+	resourceCount: number;
+}> = ({
 	globalFilter,
 	onGlobalFilter,
-	productsCount,
-	rowSelection,
-	setRowSelection,
+	resourceCount,
+	Actions,
+	resource,
 }) => {
-	const [isSendingOrder, toggleIsSendingOrder] = useToggle(false);
-	const [isPrinting, toggleIsPrinting] = useToggle(false);
-	const [isCreatingProduct, toggleIsCreatingProduct] =
-		useToggle(false);
-	const productsApi = createProductsApi();
-	const { products: productsToOrder } =
-		productsApi.getAllForOrder();
-	const { products } = productsApi.getAll();
-	const moreThanOneSupplier =
-		new Set(productsToOrder?.map(({ supplierId }) => supplierId))
-			.size > 1;
-	const isValidToOrder = productsApi.isValidToOrder();
-	const onSignOut = () => signOut();
-	const {
-		isLoading: isLoadingResetOrderAmount,
-		onResetOrderAmount,
-	} =
-		productsApi.resetOrderAmountByIds<
-			Record<PropertyKey, boolean>
-		>(setRowSelection);
-	const { isLoading: isLoadingDeleteByIds } =
-		productsApi.deleteByIds();
 	const { status } = useSession();
 	const isLoadingSession = status === 'loading';
-	const { onDeleteByIds } =
-		productsApi.deleteByIds<Record<PropertyKey, boolean>>(
-			setRowSelection,
-		);
-	const selectedProducts = products
-		?.filter((_, index) => rowSelection[index])
-		.map(({ id }) => id);
-	const onDeleteSelectedProducts = async () => {
-		if (!selectedProducts?.length) return;
-
-		await onDeleteByIds({
-			ids: selectedProducts,
-		});
-	};
-	const disableDelete =
-		!products?.length || !Object.keys(rowSelection)?.length;
-	const disableOrder = !isValidToOrder || moreThanOneSupplier;
-	const disableResetOrderAmount = [
-		!products?.length,
-		!isValidToOrder,
-		isLoadingResetOrderAmount,
-		!Object.keys(rowSelection)?.length,
-	].some(Boolean);
-	const resetOrderAmount = () => {
-		if (!selectedProducts?.length) return;
-
-		return onResetOrderAmount({
-			ids: selectedProducts,
-		});
-	};
+	const onSignOut = () => signOut();
 
 	return (
 		<div className={`flex justify-between mb-1`}>
 			<div className={`space-x-2 flex items-center`}>
-				<Link href={'/orders'} passHref>
-					<a className={'btn'}>{locale.he.orders}</a>
-				</Link>
-				<div
-					className={disableOrder ? `tooltip` : `inline`}
-					data-tip={
-						moreThanOneSupplier
-							? `לא ניתן לבצע הזמנה עם יותר מספק אחד עם כמות הזמנה מעל ל0`
-							: `לא ניתן לבצע הזמנה ללא מוצרים עם כמות הזמנה מעל ל0`
-					}
-				>
-					<SendOrderModal
-						disabled={disableOrder}
-						isOpen={isSendingOrder}
-						onOpen={toggleIsSendingOrder}
-					/>
-				</div>
-				<div
-					className={
-						!selectedProducts?.length ||
-						disableResetOrderAmount
-							? `tooltip`
-							: `inline`
-					}
-					data-tip={
-						disableResetOrderAmount
-							? `לא ניתן לבצע איפוס כמות הזמנה ללא מוצרים עם כמות הזמנה מעל ל0`
-							: `לא ניתן לבצע איפוס כמות הזמנה עם 0 מוצרים מסומנים`
-					}
-				>
-					<button
-						disabled={disableResetOrderAmount}
-						className={clsx([
-							`btn`,
-							{ loading: isLoadingResetOrderAmount },
-						])}
-						onClick={resetOrderAmount}
-					>
-						{locale.he.resetOrderAmount}
-					</button>
-				</div>
-				<div
-					className={disableDelete ? `tooltip` : `inline`}
-					data-tip={`לא ניתן לבצע מחיקת מוצרים עם 0 מוצרים מסומנים`}
-				>
-					<button
-						disabled={disableDelete}
-						className={clsx([
-							`btn`,
-							{ loading: isLoadingDeleteByIds },
-						])}
-						onClick={onDeleteSelectedProducts}
-					>
-						{locale.he.delete}
-					</button>
-				</div>
-				<CreateProductModal
-					isOpen={isCreatingProduct}
-					onOpen={toggleIsCreatingProduct}
-				/>
-				<Link href={'/suppliers'} passHref>
-					<a className={'btn'}>{locale.he.suppliers}</a>
-				</Link>
-				<PrintModal
-					isOpen={isPrinting}
-					onOpen={toggleIsPrinting}
-				/>
+				{Actions}
+				<Navigation />
 			</div>
 			<div className={`flex space-x-2 items-center`}>
 				<div className='form-control'>
@@ -148,8 +34,11 @@ export const TopBar = ({
 							type='text'
 							dir={`rtl`}
 							placeholder={locale.he.search
-								.replace('$1', productsCount)
-								.replace('$2', 'מוצרים')}
+								.replace(
+									'$1',
+									resourceCount?.toString(),
+								)
+								.replace('$2', resource)}
 							className='input input-bordered'
 							value={globalFilter ?? ''}
 							onChange={onGlobalFilter}

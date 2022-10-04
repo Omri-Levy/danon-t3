@@ -5,20 +5,27 @@ import {
 	useForm,
 } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createProductsApi } from '../../../api/products-api';
-import { createOrdersApi } from '../../../api/orders-api';
-import { InferMutationInput } from '../../../types';
+import {
+	useGetAllOrders,
+	useSendOrder,
+} from '../../../api/orders-api';
+import { OrderSendInput } from '../../../types';
 import { sendOrderSchema } from '../../../server/orders/validation';
 import { useCallback, useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import clsx from 'clsx';
 import { usePdfTable } from '../../../hooks/usePdfTable/usePdfTable';
+import {
+	useGetAllProducts,
+	useProductsToOrder,
+} from '../../../api/products-api';
 
 export const SendOrderModal = ({ disabled, isOpen, onOpen }) => {
-	const ordersApi = createOrdersApi();
-	const productsApi = createProductsApi();
-	const { products } = productsApi.getAllForOrder();
-	const { onSend, isSuccess, isLoading } = ordersApi.send();
+	const productsToOrderSelector = useProductsToOrder();
+	const { products } = useGetAllProducts({
+		select: productsToOrderSelector,
+	});
+	const { onSend, isSuccess, isLoading } = useSendOrder();
 	const headers = [
 		{
 			accessorKey: 'orderAmount',
@@ -44,7 +51,7 @@ export const SendOrderModal = ({ disabled, isOpen, onOpen }) => {
 		header: header.split('').reverse().join(''),
 		...rest,
 	}));
-	const { orders } = ordersApi.getAll();
+	const { orders } = useGetAllOrders();
 	const nextOrder = ((orders?.at(-1)?.orderNumber ?? 0) + 1)
 		.toString()
 		.padStart(5, '0');
@@ -53,15 +60,14 @@ export const SendOrderModal = ({ disabled, isOpen, onOpen }) => {
 		products ?? [],
 		`הזמנה מספר ${nextOrder}`.split('').reverse().join(''),
 	);
-	const onSendOrderSubmit: SubmitHandler<
-		InferMutationInput<'orders.send'>
-	> = useCallback(async () => {
-		if (!products?.length) return;
+	const onSendOrderSubmit: SubmitHandler<OrderSendInput> =
+		useCallback(async () => {
+			if (!products?.length) return;
 
-		await onSend({
-			pdf: base64,
-		});
-	}, [onSend, products?.length]);
+			await onSend({
+				pdf: base64,
+			});
+		}, [onSend, products?.length]);
 	const sendOrderMethods = useForm({
 		mode: 'all',
 		criteriaMode: 'all',

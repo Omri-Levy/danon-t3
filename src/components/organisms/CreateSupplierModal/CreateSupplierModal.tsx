@@ -2,15 +2,14 @@ import { locale } from '../../../translations';
 import { FormProvider, useForm } from 'react-hook-form';
 import { FormInput } from '../../molecules/FormInput/FormInput';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createSuppliersApi } from '../../../api/suppliers-api';
+import { useCreateSupplier } from '../../../api/suppliers-api';
 import * as Dialog from '@radix-ui/react-dialog';
 import clsx from 'clsx';
 import { createSupplierSchema } from '../../../server/suppliers/validation';
 import { useCallback, useEffect } from 'react';
 
 export const CreateSupplierModal = ({ isOpen, onOpen }) => {
-	const suppliersApi = createSuppliersApi();
-	const { onCreate, isLoading, isSuccess } = suppliersApi.create();
+	const { onCreate, isLoading, isSuccess } = useCreateSupplier();
 	const createSupplierMethods = useForm({
 		mode: 'all',
 		criteriaMode: 'all',

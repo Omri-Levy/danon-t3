@@ -5,16 +5,14 @@ import { FormSelect } from '../../molecules/FormSelect/FormSelect';
 import { Unit } from '@prisma/client';
 import { useCallback, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { createProductsApi } from '../../../api/products-api';
+import { useCreateProduct } from '../../../api/products-api';
 import { createProductSchema } from '../../../server/products/validation';
-import { createSuppliersApi } from '../../../api/suppliers-api';
+import { useGetAllSupplierNames } from '../../../api/suppliers-api';
 import * as Dialog from '@radix-ui/react-dialog';
 import clsx from 'clsx';
 
 export const CreateProductModal = ({ isOpen, onOpen }) => {
-	const productsApi = createProductsApi();
-	const suppliersApi = createSuppliersApi();
-	const { supplierNames } = suppliersApi.getAllSupplierNames();
+	const { supplierNames } = useGetAllSupplierNames();
 	const createProductMethods = useForm({
 		mode: 'all',
 		criteriaMode: 'all',
@@ -29,7 +27,7 @@ export const CreateProductModal = ({ isOpen, onOpen }) => {
 			stock: 0,
 		},
 	});
-	const { onCreate, isLoading, isSuccess } = productsApi.create();
+	const { onCreate, isLoading, isSuccess } = useCreateProduct();
 	const handleReset = useCallback(() => {
 		if (!isSuccess) return;
 
