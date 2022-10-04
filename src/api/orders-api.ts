@@ -1,126 +1,184 @@
 import { trpc } from '../utils/trpc';
-import { TrpcApi } from './trpc-api';
-import {
-	optimisticCreate,
-	optimisticDelete,
-} from './optimistic-updates';
-import { toast } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import { locale } from '../translations';
 import { SubmitHandler } from 'react-hook-form';
-import { InferMutationInput } from '../types';
+import {
+	OrderCreateInput,
+	OrderDeleteByIdsInput,
+	OrderGetAllOutput,
+	OrderSendInput,
+} from '../types';
 
-class OrdersApi extends TrpcApi {
-	getAll() {
-		const { data, ...query } =
-			trpc.proxy.orders.getAll.useQuery();
+export const useCreateOrder = () => {
+	const ctx = trpc.useContext();
+	const { mutateAsync, ...mutation } =
+		trpc.orders.create.useMutation({
+			onMutate: async (newData) => {
+				ctx.orders.getAll.cancel();
+				const previousData = ctx.orders.getAll.getData();
 
-		return {
-			orders: data,
-			...query,
-		};
-	}
+				ctx.orders.getAll.setData((prevData: any) => [
+					...prevData,
+					newData,
+				]);
 
-	getById(id: string) {
-		const { data, ...query } = trpc.proxy.orders.getById.useQuery(
-			{ id },
-		);
+				return { previousData };
+			},
+			onSuccess: () => {
+				toast.success(
+					`${locale.he.actions.success} ${locale.he.actions.order.create}`,
+				);
+			},
+			onError: (err, newData, context) => {
+				if (!context?.previousData) return;
+				const message =
+					err.message ??
+					locale.he.actions['order']['create'];
 
-		return {
-			order: data,
-			...query,
-		};
-	}
+				toast.error(`${locale.he.actions.error} ${message}`);
+				ctx.orders.getAll.setData(context.previousData);
+			},
+			onSettled: () => {
+				ctx.orders.getAll.invalidate();
+			},
+		});
+	const onCreate: SubmitHandler<OrderCreateInput> = async (
+		data,
+	) => {
+		try {
+			return await mutateAsync(data);
+		} catch {}
+	};
 
-	create() {
-		const { mutateAsync, ...mutation } =
-			trpc.proxy.orders.create.useMutation(
-				optimisticCreate(
-					this.ctx,
-					['orders.getAll'],
-					'order',
-					'create',
-				),
-			);
+	return {
+		onCreate,
+		...mutation,
+	};
+};
 
-		return {
-			onCreate: mutateAsync,
-			...mutation,
-		};
-	}
+export const useDeleteOrdersByIds = (
+	setSelectedIds: (ids: Record<PropertyKey, boolean>) => void,
+) => {
+	const ctx = trpc.useContext();
+	const { mutateAsync, ...mutation } =
+		trpc.orders.deleteByIds.useMutation({
+			onMutate: async ({ ids }) => {
+				ctx.orders.getAll.cancel();
+				const previousData = ctx.orders.getAll.getData();
+				ctx.orders.getAll.setData((prevData) =>
+					prevData?.filter(
+						(data) => !ids.includes(data.id),
+					),
+				);
 
-	deleteByIds<
-		TIds extends Array<string> | Record<PropertyKey, boolean>,
-	>(setSelectedIds?: (ids: TIds) => void) {
-		const { mutateAsync, ...mutation } =
-			trpc.proxy.orders.deleteByIds.useMutation(
-				optimisticDelete(
-					this.ctx,
-					['orders.getAll'],
-					'order',
-					'delete',
-					setSelectedIds,
-				),
-			);
+				setSelectedIds({});
 
-		return {
-			onDeleteByIds: mutateAsync,
-			...mutation,
-		};
-	}
+				return { previousData };
+			},
+			onSuccess: () => {
+				toast.success(
+					`${locale.he.actions.success} ${locale.he.actions.order.update}`,
+				);
+			},
+			onError: (err, newData, context) => {
+				if (!context?.previousData) return;
+				const message =
+					err.message ?? locale.he.actions.order.update;
 
-	send() {
-		const { mutateAsync, ...mutation } =
-			trpc.proxy.orders.send.useMutation({
-				onMutate: async () => {
-					await this.ctx.cancelQuery(['products.getAll']);
-				},
-				onError: () => {
-					toast.error(
-						`${locale.he.actions.error} ${locale.he.actions.order.send}`,
-					);
-				},
-				onSuccess: () => {
-					toast.success(
-						`${locale.he.actions.success} ${locale.he.actions.order.send}`,
-					);
-				},
-				onSettled: () => {
-					this.ctx.invalidateQueries(['products.getAll']);
-				},
-			});
-		const onSend: SubmitHandler<
-			InferMutationInput<'orders.send'>
-		> = async (data) => {
-			try {
-				return await mutateAsync(data);
-			} catch {}
-		};
+				toast.error(`${locale.he.actions.error} ${message}`);
+				ctx.orders.getAll.setData(context.previousData);
+			},
+			onSettled: () => {
+				ctx.orders.getAll.invalidate();
+			},
+		});
+	const onDeleteByIds: SubmitHandler<
+		OrderDeleteByIdsInput
+	> = async (data) => {
+		try {
+			return await mutateAsync(data);
+		} catch {}
+	};
 
-		return {
-			onSend,
-			...mutation,
-		};
-	}
+	return {
+		onDeleteByIds,
+		...mutation,
+	};
+};
 
-	getPresignedUrlById({
+export const useGetAllOrders = (initialData?: OrderGetAllOutput) => {
+	const { data, ...query } = trpc.orders.getAll.useQuery(
+		undefined,
+		{ initialData },
+	);
+
+	return {
+		orders: data,
+		...query,
+	};
+};
+
+export const useGetOrderById = (id: string) => {
+	const { data, ...query } = trpc.orders.getById.useQuery({
 		id,
-		enabled,
-	}: {
-		id: string;
-		enabled: boolean;
-	}) {
-		return trpc.proxy.orders.getPresignedUrlById.useQuery(
-			{
-				id,
-			},
-			{
-				enabled,
-				onError: (err) => {
-					toast.error(err.message);
-				},
-			},
-		);
-	}
-}
+	});
 
-export const createOrdersApi = () => new OrdersApi();
+	return {
+		order: data,
+		...query,
+	};
+};
+
+export const useSendOrder = () => {
+	const ctx = trpc.useContext();
+	const { mutateAsync, ...mutation } = trpc.orders.send.useMutation(
+		{
+			onMutate: async () => {
+				ctx.products.getAll.cancel();
+			},
+			onError: () => {
+				toast.error(
+					`${locale.he.actions.error} ${locale.he.actions.order.send}`,
+				);
+			},
+			onSuccess: () => {
+				toast.success(
+					`${locale.he.actions.success} ${locale.he.actions.order.send}`,
+				);
+			},
+			onSettled: () => {
+				ctx.products.getAll.invalidate();
+			},
+		},
+	);
+	const onSend: SubmitHandler<OrderSendInput> = async (data) => {
+		try {
+			return await mutateAsync(data);
+		} catch {}
+	};
+
+	return {
+		onSend,
+		...mutation,
+	};
+};
+
+export const useGetOrderPresignedUrlById = ({
+	id,
+	enabled,
+}: {
+	id: string;
+	enabled: boolean;
+}) => {
+	return trpc.orders.getPresignedUrlById.useQuery(
+		{
+			id,
+		},
+		{
+			enabled,
+			onError: (err) => {
+				toast.error(err.message);
+			},
+		},
+	);
+};

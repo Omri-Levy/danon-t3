@@ -20,4 +20,12 @@ export default defineNextConfig({
 	eslint: {
 		ignoreDuringBuilds: true,
 	},
+	async rewrites() {
+		return [
+			{
+				source: '/((?!api/.*).*)',
+				destination: '/',
+			},
+		];
+	}
 });

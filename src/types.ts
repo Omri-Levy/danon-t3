@@ -1,74 +1,84 @@
 import { AppRouter } from './server';
-import {
-	inferProcedureInput,
-	inferProcedureOutput,
-	inferSubscriptionOutput,
-} from '@trpc/server/dist';
+import { GetInferenceHelpers } from '@trpc/server/dist';
 import { FunctionComponent } from 'react';
 import { WithChildren } from './interfaces';
 
 /**
- * Enum containing all api query paths
+ * tRPC
  */
-export type TQuery = keyof AppRouter['_def']['queries'];
-/**
- * Enum containing all api mutation paths
- */
-export type TMutation = keyof AppRouter['_def']['mutations'];
-/**
- * Enum containing all api subscription paths
- */
-export type TSubscription = keyof AppRouter['_def']['subscriptions'];
-/**
- * This is a helper method to infer the output of a query resolver
- * @example type HelloOutput = InferQueryOutput<'hello'>
- */
-export type InferQueryOutput<TRouteKey extends TQuery> =
-	inferProcedureOutput<AppRouter['_def']['queries'][TRouteKey]>;
-/**
- * This is a helper method to infer the input of a query resolver
- * @example type HelloInput = InferQueryInput<'hello'>
- */
-export type InferQueryInput<TRouteKey extends TQuery> =
-	inferProcedureInput<AppRouter['_def']['queries'][TRouteKey]>;
-/**
- * This is a helper method to infer the output of a mutation resolver
- * @example type HelloOutput = InferMutationOutput<'hello'>
- */
-export type InferMutationOutput<TRouteKey extends TMutation> =
-	inferProcedureOutput<AppRouter['_def']['mutations'][TRouteKey]>;
-/**
- * This is a helper method to infer the input of a mutation resolver
- * @example type HelloInput = InferMutationInput<'hello'>
- */
-export type InferMutationInput<TRouteKey extends TMutation> =
-	inferProcedureInput<AppRouter['_def']['mutations'][TRouteKey]>;
-/**
- * This is a helper method to infer the output of a subscription resolver
- * @example type HelloOutput = InferSubscriptionOutput<'hello'>
- */
-export type InferSubscriptionOutput<TRouteKey extends TSubscription> =
-	inferProcedureOutput<
-		AppRouter['_def']['subscriptions'][TRouteKey]
-	>;
-/**
- * This is a helper method to infer the asynchronous output of a subscription resolver
- * @example type HelloAsyncOutput = InferAsyncSubscriptionOutput<'hello'>
- */
-export type InferAsyncSubscriptionOutput<
-	TRouteKey extends TSubscription,
-> = inferSubscriptionOutput<AppRouter, TRouteKey>;
-/**
- * This is a helper method to infer the input of a subscription resolver
- * @example type HelloInput = InferSubscriptionInput<'hello'>
- */
-export type InferSubscriptionInput<TRouteKey extends TSubscription> =
-	inferProcedureInput<
-		AppRouter['_def']['subscriptions'][TRouteKey]
-	>;
+export type AppRouterTypes = GetInferenceHelpers<AppRouter>;
 
-export type ComponentWithChildren<P = {}> = FunctionComponent<
-	P & WithChildren
->;
+/**
+ * Products
+ */
+export type ProductGetAll = AppRouterTypes['products']['getAll'];
+export type ProductGetAllInput = ProductGetAll['input'];
+export type ProductGetAllOutput = ProductGetAll['output'];
+export type ProductGetById = AppRouterTypes['products']['getById'];
+export type ProductGetByIdInput = ProductGetById['input'];
+export type ProductGetByIdOutput = ProductGetById['output'];
+export type ProductCreate = AppRouterTypes['products']['create'];
+export type ProductCreateInput = ProductCreate['input'];
+export type ProductCreateOutput = ProductCreate['output'];
+export type ProductUpdateById =
+	AppRouterTypes['products']['updateById'];
+export type ProductUpdateByIdInput = ProductUpdateById['input'];
+export type ProductUpdateByIdOutput = ProductUpdateById['output'];
+export type ProductDeleteByIds =
+	AppRouterTypes['products']['deleteByIds'];
+export type ProductDeleteByIdsInput = ProductDeleteByIds['input'];
+export type ProductDeleteByIdsOutput = ProductDeleteByIds['output'];
+
+/**
+ * Suppliers
+ */
+export type SupplierGetAll = AppRouterTypes['suppliers']['getAll'];
+export type SupplierGetAllInput = SupplierGetAll['input'];
+export type SupplierGetAllOutput = SupplierGetAll['output'];
+export type SupplierGetById = AppRouterTypes['suppliers']['getById'];
+export type SupplierGetByIdInput = SupplierGetById['input'];
+export type SupplierGetByIdOutput = SupplierGetById['output'];
+export type SupplierCreate = AppRouterTypes['suppliers']['create'];
+export type SupplierCreateInput = SupplierCreate['input'];
+export type SupplierCreateOutput = SupplierCreate['output'];
+export type SupplierUpdateById =
+	AppRouterTypes['suppliers']['updateById'];
+export type SupplierUpdateByIdInput = SupplierUpdateById['input'];
+export type SupplierUpdateByIdOutput = SupplierUpdateById['output'];
+export type SupplierDeleteByIds =
+	AppRouterTypes['suppliers']['deleteByIds'];
+export type SupplierDeleteByIdsInput = SupplierDeleteByIds['input'];
+export type SupplierDeleteByIdsOutput = SupplierDeleteByIds['output'];
+
+/**
+ * Orders
+ */
+export type OrderGetAll = AppRouterTypes['orders']['getAll'];
+export type OrderGetAllInput = OrderGetAll['input'];
+export type OrderGetAllOutput = OrderGetAll['output'];
+export type OrderGetById = AppRouterTypes['orders']['getById'];
+export type OrderGetByIdInput = OrderGetById['input'];
+export type OrderGetByIdOutput = OrderGetById['output'];
+export type OrderCreate = AppRouterTypes['orders']['create'];
+export type OrderCreateInput = OrderCreate['input'];
+export type OrderCreateOutput = OrderCreate['output'];
+export type OrderDeleteByIds =
+	AppRouterTypes['orders']['deleteByIds'];
+export type OrderDeleteByIdsInput = OrderDeleteByIds['input'];
+export type OrderDeleteByIdsOutput = OrderDeleteByIds['output'];
+export type OrderSend = AppRouterTypes['orders']['send'];
+export type OrderSendInput = OrderSend['input'];
+export type OrderSendOutput = OrderSend['output'];
+export type OrderGetPresignedUrlById =
+	AppRouterTypes['orders']['getPresignedUrlById'];
+export type OrderGetPresignedUrlByIdInput =
+	OrderGetPresignedUrlById['input'];
+export type OrderGetPresignedUrlByIdOutput =
+	OrderGetPresignedUrlById['output'];
+
+/** */
+
+export type ComponentWithChildren<P = Record<any, any>> =
+	FunctionComponent<P & WithChildren>;
 
 export type AnyArray = Array<any>;

@@ -1,4 +1,4 @@
-import { UseTRPCMutationOptions } from '@trpc/react/dist/createReactQueryHooks';
+import { UseTRPCMutationOptions } from '@trpc/react/shared';
 
 export interface IOptimisticUpdate<
 	TOptions extends UseTRPCMutationOptions<any, any, any, any>,
