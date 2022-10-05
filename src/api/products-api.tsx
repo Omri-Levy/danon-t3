@@ -8,7 +8,6 @@ import {
 	ProductGetAllOutput,
 	ProductUpdateByIdInput,
 } from '../types';
-import { useCallback } from 'react';
 
 export const useCreateProduct = () => {
 	const ctx = trpc.useContext();
@@ -159,16 +158,32 @@ export const useDeleteProductsByIds = (
 	};
 };
 
-export const useGetAllProducts = ({
-	initialData,
-	select,
-}: {
-	initialData?: ProductGetAllOutput;
-	select?: (data: ProductGetAllOutput) => ProductGetAllOutput;
-} = {}) => {
+export const useGetAllProducts = (
+	initialData?: ProductGetAllOutput,
+) => {
 	const { data, ...query } = trpc.products.getAll.useQuery(
 		undefined,
-		{ initialData, select },
+		{ initialData },
+	);
+
+	return {
+		products: data,
+		...query,
+	};
+};
+
+export const useGetAllProductsToOrder = (
+	initialData?: ProductGetAllOutput,
+) => {
+	const { data, ...query } = trpc.products.getAll.useQuery(
+		undefined,
+		{
+			initialData,
+			select: (products) =>
+				products?.filter(
+					(product) => Number(product.orderAmount) > 0,
+				),
+		},
 	);
 
 	return {
@@ -188,20 +203,8 @@ export const useGetProductById = (id: string) => {
 	};
 };
 
-export const useProductsToOrder = () =>
-	useCallback(
-		(products: ProductGetAllOutput) =>
-			products?.filter(
-				(product) => Number(product.orderAmount) > 0,
-			),
-		[],
-	);
-
 export const useIsValidToOrder = () => {
-	const productsToOrderSelector = useProductsToOrder();
-	const { products } = useGetAllProducts({
-		select: productsToOrderSelector,
-	});
+	const { products } = useGetAllProductsToOrder();
 
 	return !!products?.length;
 };

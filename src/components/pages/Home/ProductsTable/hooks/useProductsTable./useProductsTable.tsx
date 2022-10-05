@@ -2,7 +2,7 @@ import {
 	ProductGetAllOutput,
 	ProductGetByIdOutput,
 } from '../../../../../../types';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent, useCallback, useState } from 'react';
 import { useSkipper } from '../../../../../../hooks/useSkipper/useSkipper';
 import {
 	ColumnDef,
@@ -21,7 +21,7 @@ import { useUpdateProductById } from '../../../../../../api/products-api';
 import { IndeterminateCheckbox } from '../../../../../atoms/IndeterminateCheckbox/IndeterminateCheckbox';
 import { locale } from '../../../../../../translations';
 import { SelectColumn } from '../../../../../atoms/SelectColumn/SelectColumn';
-import { Unit } from '@prisma/client';
+import { Unit } from '../../../../../../enums';
 import { DefaultCell } from '../../../../../atoms/DefaultCell/DefaultCell';
 import { updateProductSchema } from '../../../../../../server/products/validation';
 import { toast } from 'react-hot-toast';
@@ -151,90 +151,96 @@ export const useProductsTable = (products: ProductGetAllOutput) => {
 	const defaultColumn = {
 		cell: DefaultCell,
 	};
-	const onGlobalFilter = (e: ChangeEvent<HTMLInputElement>) =>
-		setGlobalFilter(e.target.value);
-	const updateData = async (
-		rowIndex: number,
-		columnId: string,
-		value: any,
-	) => {
-		// Skip page index reset until after next rerender
-		skipAutoResetPageIndex();
+	const onGlobalFilter = useCallback(
+		(e: ChangeEvent<HTMLInputElement>) =>
+			setGlobalFilter(e.target.value),
+		[],
+	);
+	const updateData = useCallback(
+		async (rowIndex: number, columnId: string, value: any) => {
+			// Skip page index reset until after next rerender
+			skipAutoResetPageIndex();
 
-		const prevProduct = products?.[rowIndex];
+			const prevProduct = products?.[rowIndex];
 
-		if (!prevProduct) return;
+			if (!prevProduct) return;
 
-		const column =
-			columnId === 'supplier_name' ? 'supplier' : columnId;
-		const isNumeric = [
-			'stock',
-			'orderAmount',
-			'packageSize',
-		].some((col) => col === columnId);
-		const result = updateProductSchema.safeParse({
-			id: prevProduct.id,
-			[column]: isNumeric ? Number(value) : value,
-		});
+			const column =
+				columnId === 'supplier_name' ? 'supplier' : columnId;
+			const isNumeric = [
+				'stock',
+				'orderAmount',
+				'packageSize',
+			].some((col) => col === columnId);
+			const result = updateProductSchema.safeParse({
+				id: prevProduct.id,
+				[column]: isNumeric ? Number(value) : value,
+			});
 
-		if (!result.success) {
-			const error = result.error.errors
-				.map(({ message }) => message)
-				.join('\n');
+			if (!result.success) {
+				const error = result.error.errors
+					.map(({ message }) => message)
+					.join('\n');
 
-			toast.error(`${locale.he.actions.error} ${error}`);
+				toast.error(`${locale.he.actions.error} ${error}`);
 
-			return;
-		}
+				return;
+			}
 
-		const prevOrderAmount = prevProduct.orderAmount;
-		const prevPackageSize = prevProduct.packageSize;
-		const isOrderAmount = column === 'orderAmount';
-		const isPackageSize = column === 'packageSize';
-		const orderAmount = Number(
-			isOrderAmount ? value : prevOrderAmount,
-		);
-		const packageSize = Number(
-			isPackageSize ? value : prevPackageSize,
-		);
-		const isException = orderAmount === 0 || packageSize === 1;
-		const isDivisible =
-			Math.round(orderAmount % packageSize) === 0;
-		const shouldUpdate = isException || isDivisible;
+			const prevOrderAmount = prevProduct.orderAmount;
+			const prevPackageSize = prevProduct.packageSize;
+			const isOrderAmount = column === 'orderAmount';
+			const isPackageSize = column === 'packageSize';
+			const orderAmount = Number(
+				isOrderAmount ? value : prevOrderAmount,
+			);
+			const packageSize = Number(
+				isPackageSize ? value : prevPackageSize,
+			);
+			const isException =
+				orderAmount === 0 || packageSize === 1;
+			const isDivisible =
+				Math.round(orderAmount % packageSize) === 0;
+			const shouldUpdate = isException || isDivisible;
 
-		if ((isOrderAmount || isPackageSize) && !shouldUpdate) {
-			toast.error(locale.he.mustBeDivisibleBy);
+			if ((isOrderAmount || isPackageSize) && !shouldUpdate) {
+				toast.error(locale.he.mustBeDivisibleBy);
 
-			return;
-		}
+				return;
+			}
 
-		await onUpdateById({
-			...result.data,
-			id: prevProduct.id,
-		});
-	};
-	const format = (
-		rowIndex: number,
-		columnId: string,
-		table: Table<ProductGetByIdOutput>,
-	) =>
-		['orderAmount', 'packageSize', 'stock'].some(
-			(value) => value === columnId,
-		)
-			? {
-					type: 'number',
-					className: 'text-left',
-					step:
-						columnId === 'orderAmount'
-							? table.getRow(rowIndex.toString())
-									.original?.packageSize
-							: undefined,
-					min: 0,
-					dir: 'rtl',
-			  }
-			: {
-					type: 'text',
-			  };
+			await onUpdateById({
+				...result.data,
+				id: prevProduct.id,
+			});
+		},
+		[onUpdateById, products?.length, skipAutoResetPageIndex],
+	);
+	const format = useCallback(
+		(
+			rowIndex: number,
+			columnId: string,
+			table: Table<ProductGetByIdOutput>,
+		) =>
+			['orderAmount', 'packageSize', 'stock'].some(
+				(value) => value === columnId,
+			)
+				? {
+						type: 'number',
+						className: 'text-left',
+						step:
+							columnId === 'orderAmount'
+								? table.getRow(rowIndex.toString())
+										.original?.packageSize
+								: undefined,
+						min: 0,
+						dir: 'rtl',
+				  }
+				: {
+						type: 'text',
+				  },
+		[],
+	);
 	const table = useReactTable({
 		columns,
 		data: products,

@@ -1,18 +1,19 @@
-// src/server/db/client.ts
-import { PrismaClient } from "@prisma/client";
-import { env } from "../../env/server.mjs";
+import { Kysely, MysqlDialect } from 'kysely';
+import { PlanetScaleDialect } from 'kysely-planetscale';
+import { DB } from './db.d';
+import { createPool } from 'mysql2';
 
-declare global {
-  // eslint-disable-next-line no-var
-  var prisma: PrismaClient | undefined;
-}
+const dialect =
+	process.env.NODE_ENV === 'production'
+		? new PlanetScaleDialect({
+				url: process.env.DATABASE_URL,
+		  })
+		: new MysqlDialect({
+				pool: createPool({
+					uri: process.env.DATABASE_URL,
+				}),
+		  });
 
-export const prisma =
-  global.prisma ||
-  new PrismaClient({
-    log: ["query"],
-  });
-
-if (env.NODE_ENV !== "production") {
-  global.prisma = prisma;
-}
+export const db = new Kysely<DB>({
+	dialect,
+});

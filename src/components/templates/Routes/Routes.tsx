@@ -7,7 +7,6 @@ import { Home } from '../../pages/Home';
 import { Suspense } from 'react';
 import { Suppliers } from '../../pages/Suppliers';
 import { Orders } from '../../pages/Orders';
-import { AuthLayout } from '../AuthLayout/AuthLayout';
 import { queryClient } from '../../../utils/trpc';
 
 const router = createBrowserRouter([
@@ -15,9 +14,7 @@ const router = createBrowserRouter([
 		path: '/',
 		element: (
 			<Suspense>
-				<AuthLayout>
-					<Outlet />
-				</AuthLayout>
+				<Outlet />
 			</Suspense>
 		),
 		children: [

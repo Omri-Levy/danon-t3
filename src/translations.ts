@@ -1,4 +1,4 @@
-import { Unit } from '@prisma/client';
+import { Unit } from './enums';
 
 export const locale = {
 	he: {

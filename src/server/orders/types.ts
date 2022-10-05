@@ -5,7 +5,7 @@ import {
 	orderIdsSchema,
 	sendOrderSchema,
 } from './validation';
-import { Order } from '@prisma/client';
+import { Order } from '../db/db';
 
 export type TOrderIdSchema = z.infer<typeof orderIdSchema>;
 export type TOrderIdsSchema = z.infer<typeof orderIdsSchema>;

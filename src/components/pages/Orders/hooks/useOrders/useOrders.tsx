@@ -5,7 +5,7 @@ import {
 	useGetAllOrders,
 	useGetOrderPresignedUrlById,
 } from '../../../../../api/orders-api';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useOrdersTable } from '../../OrdersTable/hooks/useOrdersTable/useOrdersTable';
 
 export const useOrders = () => {
@@ -15,7 +15,10 @@ export const useOrders = () => {
 	const [isOpen, toggleIsOpen] = useToggle(false);
 	const { orders, isLoading } = useGetAllOrders(initialOrders);
 	const [id, setId] = useState('');
-	const onIdChange = (id: string) => setId(id);
+	const onIdChange = useCallback(
+		(id: string) => setId(id),
+		[setId],
+	);
 	const { data: presignedUrl } = useGetOrderPresignedUrlById({
 		id,
 		enabled: !!id && isOpen,

@@ -3,7 +3,7 @@ import autoTable from 'jspdf-autotable';
 // Required for Hebrew, in addition to using reverse on Hebrew strings.
 import './Heebo-normal';
 import './Heebo-bold';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export const usePdfTable = (
 	headers: Array<{ header: string; accessorKey: string }>,
@@ -21,45 +21,50 @@ export const usePdfTable = (
 			return keys.reduce((acc, key) => acc[key], row);
 		}),
 	);
-	const margin = 45;
-	const doc = new JsPdf('p', 'px', 'a4');
-	const logo = new Image();
-	const footer = new Image();
+	const constructDoc = useCallback(() => {
+		const margin = 45;
+		const doc = new JsPdf('p', 'px', 'a4');
+		const logo = new Image();
+		const footer = new Image();
 
-	logo.src = '/danon-logo.png';
-	footer.src = '/danon-footer.jpg';
+		logo.src = '/danon-logo.png';
+		footer.src = '/danon-footer.jpg';
 
-	if (text) {
-		doc.setFont('Heebo-normal', 'normal');
-		doc.text(text, doc.internal.pageSize.width / 2, 35, {
-			align: 'center',
+		if (text) {
+			doc.setFont('Heebo-normal', 'normal');
+			doc.text(text, doc.internal.pageSize.width / 2, 35, {
+				align: 'center',
+			});
+		}
+
+		doc.addImage(logo, 'PNG', 26, 5, 70, 70 / 2);
+		doc.addImage(
+			footer,
+			'JPG',
+			doc.internal.pageSize.width / 2 - 142,
+			doc.internal.pageSize.height - 30,
+			doc.internal.pageSize.width / 2 + 50,
+			25,
+		);
+
+		autoTable(doc, {
+			startY: margin,
+			bodyStyles: {
+				font: 'Heebo-normal',
+			},
+			headStyles: {
+				halign: 'center',
+				font: 'Heebo-bold',
+			},
+			head,
+			body,
 		});
-	}
 
-	doc.addImage(logo, 'PNG', 26, 5, 70, 70 / 2);
-	doc.addImage(
-		footer,
-		'JPG',
-		doc.internal.pageSize.width / 2 - 142,
-		doc.internal.pageSize.height - 30,
-		doc.internal.pageSize.width / 2 + 50,
-		25,
-	);
+		return doc;
+	}, [body?.length, head?.length, text]);
 
-	autoTable(doc, {
-		startY: margin,
-		bodyStyles: {
-			font: 'Heebo-normal',
-		},
-		headStyles: {
-			halign: 'center',
-			font: 'Heebo-bold',
-		},
-		head,
-		body,
-	});
-
-	useEffect(() => {
+	const handleBase64 = useCallback(() => {
+		const doc = constructDoc();
 		const blob = doc.output('blob');
 		const reader = new FileReader();
 		reader.readAsDataURL(blob);
@@ -69,10 +74,19 @@ export const usePdfTable = (
 
 		reader.addEventListener('loadend', onLoadEnd);
 
+		return {
+			onLoadEnd,
+			reader,
+		};
+	}, [constructDoc]);
+
+	useEffect(() => {
+		const { onLoadEnd, reader } = handleBase64();
+
 		return () => {
 			reader.removeEventListener('loadend', onLoadEnd);
 		};
-	}, [body?.length]);
+	}, [handleBase64, body?.length]);
 
 	return base64;
 };
