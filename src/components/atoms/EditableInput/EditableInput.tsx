@@ -14,19 +14,25 @@ export const EditableInput: FunctionComponent<
 	const ref = useRef<HTMLInputElement>(null);
 	const [value, setValue] = useState(initialValue);
 	const onChange = useCallback(
-		(e: ChangeEvent<HTMLInputElement>) =>
-			setValue(e.target.value),
-		[],
+		(e: ChangeEvent<HTMLInputElement>) => {
+			if (e.target.value === value) return;
+
+			setValue(e.target.value);
+		},
+		[setValue, value, initialValue],
 	);
-	const resetValue = useCallback(
-		() => setValue(initialValue),
-		[initialValue],
-	);
+	const resetValue = useCallback(() => {
+		if (value === initialValue) return;
+
+		setValue(initialValue);
+	}, [setValue, initialValue]);
 	const onKeyDown: KeyboardEventHandler<HTMLInputElement> =
 		useCallback(
 			async (e) => {
 				switch (e.key) {
 					case 'Enter':
+						if (value === initialValue) return;
+
 						await onEdit?.(value);
 						ref.current?.blur();
 						break;
@@ -38,7 +44,7 @@ export const EditableInput: FunctionComponent<
 						break;
 				}
 			},
-			[onEdit, ref.current?.blur],
+			[value, initialValue, onEdit, ref.current?.blur],
 		);
 
 	return (

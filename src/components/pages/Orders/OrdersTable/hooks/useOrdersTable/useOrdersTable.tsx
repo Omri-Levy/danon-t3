@@ -109,7 +109,14 @@ export const useOrdersTable = (
 		},
 	];
 	const onGlobalFilter: ChangeEventHandler<HTMLInputElement> =
-		useCallback((e) => setGlobalFilter(e.target.value), []);
+		useCallback(
+			(e) => {
+				if (e.target.value === globalFilter) return;
+
+				setGlobalFilter(e.target.value);
+			},
+			[globalFilter, setGlobalFilter],
+		);
 	const table = useReactTable({
 		columns,
 		data: orders,

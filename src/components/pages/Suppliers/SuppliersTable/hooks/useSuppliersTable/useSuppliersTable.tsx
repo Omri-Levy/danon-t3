@@ -116,7 +116,14 @@ export const useSuppliersTable = (
 		cell: DefaultCell,
 	};
 	const onGlobalFilter: ChangeEventHandler<HTMLInputElement> =
-		useCallback((e) => setGlobalFilter(e.target.value), []);
+		useCallback(
+			(e) => {
+				if (e.target.value === globalFilter) return;
+
+				setGlobalFilter(e.target.value);
+			},
+			[globalFilter, setGlobalFilter],
+		);
 	const updateData = useCallback(
 		async (rowIndex: number, columnId: string, value: any) => {
 			// Skip page index reset until after next rerender

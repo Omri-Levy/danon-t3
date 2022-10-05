@@ -24,25 +24,44 @@ export const SelectColumn = <TRowData extends RowData, TValue>({
 	const updateValue = useCallback(() => {
 		table.options.meta?.updateData(index, id, value);
 	}, [index, id, value, table.options.meta?.updateData]);
-	const resetValue = useCallback(
-		() => setValue(initialValue),
-		[initialValue],
-	);
+	const resetValue = useCallback(() => {
+		if (value === initialValue) return;
+
+		setValue(initialValue);
+	}, [setValue, value, initialValue]);
 	const onChange: ChangeEventHandler<HTMLSelectElement> =
-		useCallback((e) => setValue(e.target.value as any), []);
+		useCallback(
+			(e) => {
+				if ((e.target.value as any) === value) return;
+
+				setValue(e.target.value as any);
+			},
+			[setValue, value],
+		);
 	const onKeyDown: KeyboardEventHandler = useCallback(
 		async (e) => {
-			if (e.key === 'Enter') {
-				updateValue();
-				ref.current?.blur();
-			}
+			switch (e.key) {
+				case 'Enter':
+					if (value === initialValue) return;
 
-			if (e.key === 'Escape') {
-				resetValue();
-				ref.current?.blur();
+					updateValue();
+					ref.current?.blur();
+					break;
+				case 'Escape':
+					resetValue();
+					ref.current?.blur();
+					break;
+				default:
+					break;
 			}
 		},
-		[updateValue, resetValue, ref.current?.blur],
+		[
+			value,
+			initialValue,
+			updateValue,
+			resetValue,
+			ref.current?.blur,
+		],
 	);
 
 	return (

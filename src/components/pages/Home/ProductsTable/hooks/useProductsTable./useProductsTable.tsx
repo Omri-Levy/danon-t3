@@ -152,9 +152,12 @@ export const useProductsTable = (products: ProductGetAllOutput) => {
 		cell: DefaultCell,
 	};
 	const onGlobalFilter = useCallback(
-		(e: ChangeEvent<HTMLInputElement>) =>
-			setGlobalFilter(e.target.value),
-		[],
+		(e: ChangeEvent<HTMLInputElement>) => {
+			if (e.target.value === globalFilter) return;
+
+			setGlobalFilter(e.target.value);
+		},
+		[globalFilter, setGlobalFilter],
 	);
 	const updateData = useCallback(
 		async (rowIndex: number, columnId: string, value: any) => {
@@ -174,7 +177,7 @@ export const useProductsTable = (products: ProductGetAllOutput) => {
 			].some((col) => col === columnId);
 			const result = updateProductSchema.safeParse({
 				id: prevProduct.id,
-				[column]: isNumeric ? Number(value) : value,
+				[column]: isNumeric ? parseFloat(value) : value,
 			});
 
 			if (!result.success) {
@@ -191,10 +194,10 @@ export const useProductsTable = (products: ProductGetAllOutput) => {
 			const prevPackageSize = prevProduct.packageSize;
 			const isOrderAmount = column === 'orderAmount';
 			const isPackageSize = column === 'packageSize';
-			const orderAmount = Number(
+			const orderAmount = parseFloat(
 				isOrderAmount ? value : prevOrderAmount,
 			);
-			const packageSize = Number(
+			const packageSize = parseFloat(
 				isPackageSize ? value : prevPackageSize,
 			);
 			const isException =

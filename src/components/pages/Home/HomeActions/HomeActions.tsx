@@ -6,6 +6,7 @@ import { PrintModal } from '../../../organisms/PrintModal/PrintModal';
 import { useToggle } from 'react-use';
 import {
 	useDeleteProductsByIds,
+	useGetAllProducts,
 	useGetAllProductsToOrder,
 	useIsValidToOrder,
 	useResetProductsOrderAmountByIds,
@@ -20,13 +21,14 @@ export const HomeActions = ({ rowSelection, setRowSelection }) => {
 		useToggle(false);
 
 	// Queries
+	const { products } = useGetAllProducts();
 	const { products: productsToOrder } = useGetAllProductsToOrder();
 
 	// Mutations
 	const { onResetOrderAmount } =
 		useResetProductsOrderAmountByIds(setRowSelection);
 	const { onDeleteByIds } = useDeleteProductsByIds(setRowSelection);
-	const selectedProducts = productsToOrder
+	const selectedProducts = products
 		?.filter((_, index) => rowSelection[index])
 		.map(({ id }) => id);
 	const { isLoading: isLoadingDeleteByIds } =
@@ -35,16 +37,12 @@ export const HomeActions = ({ rowSelection, setRowSelection }) => {
 		useResetProductsOrderAmountByIds(setRowSelection);
 
 	// Disables
-	const moreThanOneSupplier =
-		new Set(productsToOrder?.map(({ supplierId }) => supplierId))
-			.size > 1;
-	const isValidToOrder = useIsValidToOrder();
+	const { isValidToOrder, moreThanOneSupplier } =
+		useIsValidToOrder();
 	const disableDelete =
-		!productsToOrder?.length ||
-		!Object.keys(rowSelection)?.length;
+		!products?.length || !Object.keys(rowSelection)?.length;
 	const disableOrder = !isValidToOrder || moreThanOneSupplier;
 	const disableResetOrderAmount = [
-		!productsToOrder?.length,
 		!isValidToOrder,
 		isLoadingResetOrderAmount,
 		!Object.keys(rowSelection)?.length,

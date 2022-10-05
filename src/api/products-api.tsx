@@ -181,7 +181,7 @@ export const useGetAllProductsToOrder = (
 			initialData,
 			select: (products) =>
 				products?.filter(
-					(product) => Number(product.orderAmount) > 0,
+					(product) => parseFloat(product.orderAmount) > 0,
 				),
 		},
 	);
@@ -205,8 +205,15 @@ export const useGetProductById = (id: string) => {
 
 export const useIsValidToOrder = () => {
 	const { products } = useGetAllProductsToOrder();
+	const moreThanOneSupplier =
+		new Set(products?.map(({ supplierId }) => supplierId)).size >
+		1;
+	const isValidToOrder = !!products?.length;
 
-	return !!products?.length;
+	return {
+		isValidToOrder,
+		moreThanOneSupplier,
+	};
 };
 
 export const useResetProductsOrderAmountByIds = (
