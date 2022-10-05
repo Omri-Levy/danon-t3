@@ -34,7 +34,7 @@
 	}
   },
   "include": [
-	"next-env.d.ts",
+    "src/common/types/next-env.d.ts",
 	"next-auth.d.ts",
 	"**/*.ts",
 	"**/*.tsx",

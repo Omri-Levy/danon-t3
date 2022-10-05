@@ -1,10 +1,20 @@
+// This file is required for next-auth
+
 import dynamic from 'next/dynamic';
+import { NextPage } from 'next';
 
 const DynamicSignIn = dynamic(
-	() => import('../../components/pages/SignIn/SignIn'),
+	async () => {
+		const { SignIn } = await import(
+			'../../auth/components/pages/SignIn/SignIn'
+		);
+
+		return SignIn;
+	},
 	{
 		ssr: false,
 	},
 );
+const SignIn: NextPage = () => <DynamicSignIn />;
 
-export default DynamicSignIn;
+export default SignIn;
