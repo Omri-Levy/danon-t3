@@ -6,7 +6,8 @@ import { PrintModal } from '../../../organisms/PrintModal/PrintModal';
 import { useToggle } from 'react-use';
 import {
 	useDeleteProductsByIds,
-	useGetAllProducts,
+	useGetAllProductsToOrder,
+	useIsValidToOrder,
 	useResetProductsOrderAmountByIds,
 } from '../../../../api/products-api';
 import { useCallback } from 'react';
@@ -19,10 +20,7 @@ export const HomeActions = ({ rowSelection, setRowSelection }) => {
 		useToggle(false);
 
 	// Queries
-	// const productsToOrderSelector = useProductsToOrder();
-	const { products: productsToOrder } = useGetAllProducts({
-		// select: productsToOrderSelector,
-	});
+	const { products: productsToOrder } = useGetAllProductsToOrder();
 
 	// Mutations
 	const { onResetOrderAmount } =
@@ -40,8 +38,7 @@ export const HomeActions = ({ rowSelection, setRowSelection }) => {
 	const moreThanOneSupplier =
 		new Set(productsToOrder?.map(({ supplierId }) => supplierId))
 			.size > 1;
-	// const isValidToOrder = useIsValidToOrder();
-	const isValidToOrder = false;
+	const isValidToOrder = useIsValidToOrder();
 	const disableDelete =
 		!productsToOrder?.length ||
 		!Object.keys(rowSelection)?.length;

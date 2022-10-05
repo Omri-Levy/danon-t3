@@ -1,9 +1,9 @@
 import {
-	SupplierGetAll,
+	SupplierGetAllOutput,
 	SupplierGetByIdOutput,
 	SupplierUpdateByIdOutput,
 } from '../../../../../../types';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEventHandler, useCallback, useState } from 'react';
 import { useSkipper } from '../../../../../../hooks/useSkipper/useSkipper';
 import {
 	ColumnDef,
@@ -57,7 +57,9 @@ declare module '@tanstack/react-table' {
 	}
 }
 
-export const useSuppliersTable = (suppliers: SupplierGetAll) => {
+export const useSuppliersTable = (
+	suppliers: SupplierGetAllOutput,
+) => {
 	const [globalFilter, setGlobalFilter] = useState('');
 	const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
 	const [sorting, setSorting] = useState<SortingState>([
@@ -113,46 +115,48 @@ export const useSuppliersTable = (suppliers: SupplierGetAll) => {
 	const defaultColumn = {
 		cell: DefaultCell,
 	};
-	const onGlobalFilter = (e: ChangeEvent<HTMLInputElement>) =>
-		setGlobalFilter(e.target.value);
-	const updateData = async (
-		rowIndex: number,
-		columnId: string,
-		value: any,
-	) => {
-		// Skip page index reset until after next rerender
-		skipAutoResetPageIndex();
+	const onGlobalFilter: ChangeEventHandler<HTMLInputElement> =
+		useCallback((e) => setGlobalFilter(e.target.value), []);
+	const updateData = useCallback(
+		async (rowIndex: number, columnId: string, value: any) => {
+			// Skip page index reset until after next rerender
+			skipAutoResetPageIndex();
 
-		const prevSupplier = suppliers?.[rowIndex];
+			const prevSupplier = suppliers?.[rowIndex];
 
-		if (!prevSupplier) return;
+			if (!prevSupplier) return;
 
-		const result = updateSupplierSchema
-			.pick({ [columnId]: true })
-			.safeParse({
+			const result = updateSupplierSchema
+				.pick({ [columnId]: true })
+				.safeParse({
+					[columnId]: value,
+				});
+
+			if (!result.success) {
+				const error = result.error.errors
+					.map(({ message }) => message)
+					.join('\n');
+
+				toast.error(`${locale.he.actions.error} ${error}`);
+
+				return;
+			}
+
+			await onUpdateById({
 				[columnId]: value,
+				id: prevSupplier?.id,
 			});
-
-		if (!result.success) {
-			const error = result.error.errors
-				.map(({ message }) => message)
-				.join('\n');
-
-			toast.error(`${locale.he.actions.error} ${error}`);
-
-			return;
-		}
-
-		await onUpdateById({
-			[columnId]: value,
-			id: prevSupplier?.id,
-		});
-	};
-	const format = (
-		rowIndex: number,
-		columnId: string,
-		table: Table<SupplierUpdateByIdOutput>,
-	) => ({ type: 'text' });
+		},
+		[suppliers?.length, skipAutoResetPageIndex, onUpdateById],
+	);
+	const format = useCallback(
+		(
+			rowIndex: number,
+			columnId: string,
+			table: Table<SupplierUpdateByIdOutput>,
+		) => ({ type: 'text' }),
+		[],
+	);
 	const table = useReactTable({
 		columns,
 		data: suppliers,

@@ -1,7 +1,7 @@
-import { AppRouter } from './server';
-import { GetInferenceHelpers } from '@trpc/server/dist';
-import { FunctionComponent } from 'react';
-import { WithChildren } from './interfaces';
+import type { AppRouter } from './server';
+import type { GetInferenceHelpers } from '@trpc/server';
+import type { FunctionComponent } from 'react';
+import type { WithChildren } from './interfaces';
 
 /**
  * tRPC

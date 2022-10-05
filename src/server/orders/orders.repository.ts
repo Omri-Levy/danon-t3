@@ -1,67 +1,78 @@
-import { Prisma, Supplier } from '@prisma/client';
 import { TSupplierIdForeignSchema } from '../suppliers/types';
 import { TOrderIdSchema, TOrderIdsSchema } from './types';
 import { suppliersRepository } from '../suppliers/suppliers.repository';
 import { TRPCError } from '@trpc/server';
-import { prisma } from '../db/client';
+import { db } from '../db/client';
+import cuid from 'cuid';
+import { Order, Supplier } from '../db/db';
+import { Insertable, Updateable } from 'kysely';
 
 class OrdersRepository {
-	private _repository = prisma.order;
+	private _repository = db;
 
-	async findMany({
-		where,
-		include,
-	}: {
-		where?: Prisma.OrderWhereInput;
-		include?: Prisma.OrderInclude;
-	} = {}) {
-		return this._repository.findMany({
-			orderBy: {
-				createdAt: 'asc',
-			},
-			include: {
+	async findMany() {
+		const orders = await this._repository
+			.selectFrom('order')
+			.innerJoin('supplier', 'supplier.id', 'order.supplierId')
+			.select([
+				'order.id',
+				'order.supplierId',
+				'order.orderNumber',
+				'order.s3Key',
+				'order.createdAt',
+				'order.updatedAt',
+				'supplier.name as supplierName',
+				'supplier.email',
+			])
+			.orderBy('order.createdAt', 'asc')
+			.execute();
+
+		return orders.map(
+			({ supplierId, supplierName, email, ...rest }) => ({
+				...rest,
+				supplierId,
 				supplier: {
-					select: {
-						name: true,
-					},
+					id: supplierId,
+					name: supplierName,
+					email,
 				},
-				...include,
-			},
-			where,
-		});
+			}),
+		);
 	}
 
 	async findById({ id }: TOrderIdSchema) {
-		return this._repository.findUnique({
-			where: {
-				id,
-			},
-		});
+		return this._repository
+			.selectFrom('order')
+			.selectAll()
+			.where('id', '=', id)
+			.executeTakeFirst();
 	}
 
 	async create({
 		supplierId,
 		data,
 	}: TSupplierIdForeignSchema & {
-		data: Prisma.OrderCreateWithoutSupplierInput;
+		data: Omit<Insertable<Order>, 'supplierId' | 'id'>;
 	}) {
-		return this._repository.create({
-			data: {
-				...data,
-				supplier: {
-					connect: {
-						id: supplierId,
-					},
-				},
-			},
-		});
+		const id = cuid();
+
+		await this._repository
+			.insertInto('order')
+			.values({ supplierId, id, ...data })
+			.execute();
+
+		return await this._repository
+			.selectFrom('order')
+			.selectAll()
+			.where('id', '=', id)
+			.executeTakeFirst();
 	}
 
 	async updateById({
 		id,
 		data,
 	}: TOrderIdSchema & {
-		data: Prisma.OrderUpdateInput & {
+		data: Updateable<Order> & {
 			supplier?: Supplier['name'];
 		};
 	}) {
@@ -78,43 +89,41 @@ class OrdersRepository {
 			});
 		}
 
-		return this._repository.update({
-			where: {
-				id,
-			},
-			data: {
+		await this._repository
+			.updateTable('order')
+			.where('id', '=', id)
+			.set({
+				supplierId:
+					supplier && supplierId ? supplierId : undefined,
 				...rest,
-				supplier:
-					supplier && supplierId
-						? {
-								connect: {
-									id: supplierId,
-								},
-						  }
-						: undefined,
-			},
-		});
+			})
+			.execute();
+
+		return this._repository
+			.selectFrom('order')
+			.selectAll()
+			.where('id', '=', id)
+			.executeTakeFirst();
 	}
 
 	async deleteManyByIds({ ids }: TOrderIdsSchema) {
-		return this._repository.deleteMany({
-			where: {
-				id: {
-					in: ids,
-				},
-			},
-		});
+		await this._repository
+			.deleteFrom('order')
+			.where('id', 'in', ids)
+			.execute();
+
+		return this._repository
+			.selectFrom('order')
+			.selectAll()
+			.execute();
 	}
 
 	async findS3KeyById({ id }: TOrderIdSchema) {
-		return this._repository.findUnique({
-			where: {
-				id,
-			},
-			select: {
-				s3Key: true,
-			},
-		});
+		return this._repository
+			.selectFrom('order')
+			.select('s3Key')
+			.where('id', '=', id)
+			.executeTakeFirst();
 	}
 }
 

@@ -2,7 +2,11 @@ import { locale } from '../../../translations';
 import { signOut, useSession } from 'next-auth/react';
 import clsx from 'clsx';
 import { Navigation } from '../../organisms/Navigation/Navigation';
-import { ChangeEventHandler, FunctionComponent } from 'react';
+import {
+	ChangeEventHandler,
+	FunctionComponent,
+	useCallback,
+} from 'react';
 
 export const TopBar: FunctionComponent<{
 	resource: string;
@@ -19,7 +23,8 @@ export const TopBar: FunctionComponent<{
 }) => {
 	const { status } = useSession();
 	const isLoadingSession = status === 'loading';
-	const onSignOut = () => signOut();
+	// Otherwise the input onChange event will be passed into signOut.
+	const onSignOut = useCallback(() => signOut(), []);
 
 	return (
 		<div className={`flex justify-between mb-1`}>

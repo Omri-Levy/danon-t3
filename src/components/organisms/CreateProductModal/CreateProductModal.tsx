@@ -2,7 +2,7 @@ import { locale } from '../../../translations';
 import { FormProvider, useForm } from 'react-hook-form';
 import { FormInput } from '../../molecules/FormInput/FormInput';
 import { FormSelect } from '../../molecules/FormSelect/FormSelect';
-import { Unit } from '@prisma/client';
+import { Unit } from '../../../enums';
 import { useCallback, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useCreateProduct } from '../../../api/products-api';

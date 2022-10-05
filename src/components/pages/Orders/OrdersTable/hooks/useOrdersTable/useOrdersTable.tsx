@@ -2,7 +2,7 @@ import {
 	OrderGetAllOutput,
 	OrderGetByIdOutput,
 } from '../../../../../../types';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEventHandler, useCallback, useState } from 'react';
 import { useSkipper } from '../../../../../../hooks/useSkipper/useSkipper';
 import {
 	ColumnDef,
@@ -17,6 +17,7 @@ import { IndeterminateCheckbox } from '../../../../../atoms/IndeterminateCheckbo
 import { locale } from '../../../../../../translations';
 import { useReactTable } from '@tanstack/react-table';
 import { fuzzyFilter } from '../../../../../../utils/fuzzy-filter/fuzzy-filter';
+import { ViewPDFButton } from './ViewPDFButton/ViewPDFButton';
 
 export const useOrdersTable = (
 	orders: OrderGetAllOutput,
@@ -67,41 +68,48 @@ export const useOrdersTable = (
 		},
 		{
 			header: locale.he.pdf,
-			cell: (props) => {
-				const id = orders?.[props?.row?.index]?.id ?? '';
-
-				return (
-					<button
-						className={`btn btn-ghost`}
-						onClick={() => {
-							onIdChange(id);
-							onOpen();
-						}}
-					>
-						{locale.he.view}
-					</button>
-				);
-			},
+			cell: (props) => (
+				<ViewPDFButton
+					orders={orders}
+					onIdChange={onIdChange}
+					onOpen={onOpen}
+					{...props}
+				/>
+			),
 		},
 		{
 			accessorKey: 'orderNumber',
 			header: locale.he.orderNumber,
-			cell: ({ cell }) =>
-				cell.getValue()?.toString().padStart(5, '0'),
+			cell: ({ getValue }) => {
+				const value = getValue();
+
+				if (typeof value !== 'number') {
+					return value;
+				}
+
+				value?.toString().padStart(5, '0');
+			},
 		},
 		{
 			accessorKey: 'createdAt',
 			header: locale.he.createdAt,
-			cell: ({ cell }) =>
-				new Date(cell.getValue()).toLocaleDateString(),
+			cell: ({ getValue }) => {
+				const value = getValue();
+
+				if (typeof value !== 'string') {
+					return value;
+				}
+
+				new Date(value).toLocaleDateString();
+			},
 		},
 		{
 			accessorKey: 'supplier.name',
 			header: locale.he.supplier,
 		},
 	];
-	const onGlobalFilter = (e: ChangeEvent<HTMLInputElement>) =>
-		setGlobalFilter(e.target.value);
+	const onGlobalFilter: ChangeEventHandler<HTMLInputElement> =
+		useCallback((e) => setGlobalFilter(e.target.value), []);
 	const table = useReactTable({
 		columns,
 		data: orders,

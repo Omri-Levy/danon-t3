@@ -5,9 +5,9 @@ import {
 	TSupplierIdsSchema,
 	TUpdateSupplierSchema,
 } from './types';
-import { Prisma } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import { locale } from '../../translations';
+import { isDuplicateEntryError } from '../../utils/is-duplicate-entry-error/is-duplicate-entry-error';
 
 class SuppliersService {
 	private _repository = suppliersRepository;
@@ -24,24 +24,18 @@ class SuppliersService {
 		try {
 			return await this._repository.create(input);
 		} catch (err) {
-			if (
-				!(err instanceof Prisma.PrismaClientKnownRequestError)
-			) {
-				throw err;
-			}
+			if (!isDuplicateEntryError(err)) throw err;
 
-			if (err.code === 'P2002') {
-				throw new TRPCError({
-					code: 'BAD_REQUEST',
-					message: (err as any).meta.target.includes('name')
-						? locale.he.validation.supplier.nameAlreadyExists(
-								input.name,
-						  )
-						: locale.he.validation.supplier.emailAlreadyExists(
-								input.email,
-						  ),
-				});
-			}
+			throw new TRPCError({
+				code: 'BAD_REQUEST',
+				message: (err as any).meta.target.includes('name')
+					? locale.he.validation.supplier.nameAlreadyExists(
+							input.name,
+					  )
+					: locale.he.validation.supplier.emailAlreadyExists(
+							input.email,
+					  ),
+			});
 		}
 	}
 

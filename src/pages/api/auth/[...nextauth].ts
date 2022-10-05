@@ -1,10 +1,8 @@
 import AzureADProvider from 'next-auth/providers/azure-ad';
 import NextAuth, { type NextAuthOptions } from 'next-auth';
-
-// Prisma adapter for NextAuth, optional and can be removed
-import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import { prisma } from '../../../server/db/client';
+import { db } from '../../../server/db/client';
 import { env } from 'src/env/server.mjs';
+import { KyselyAdapter } from '../../../server/db/KyselyAdapter';
 
 export const authOptions: NextAuthOptions = {
 	// Include user.id on session
@@ -20,7 +18,7 @@ export const authOptions: NextAuthOptions = {
 		},
 	},
 	// Configure one or more authentication providers
-	adapter: PrismaAdapter(prisma),
+	adapter: KyselyAdapter(db),
 	pages: {
 		signIn: '/auth/sign-in',
 	},
