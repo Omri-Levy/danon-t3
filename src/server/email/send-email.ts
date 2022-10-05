@@ -1,7 +1,7 @@
 import { createTransport } from 'nodemailer';
 import Mail from 'nodemailer/lib/mailer';
 import SMTPTransport from 'nodemailer/lib/smtp-transport';
-import { env } from 'src/env/server.mjs';
+import { env } from '../../env/server.mjs';
 
 export const sendEmail = async (
 	data: Mail.Options,

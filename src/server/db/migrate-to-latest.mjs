@@ -9,30 +9,28 @@ import {
 } from 'kysely';
 import {PlanetScaleDialect} from "kysely-planetscale";
 import {createPool} from "mysql2";
+import {fetch} from "undici";
 
 (async () => {
 	try {
-		const dialect =
-			process.env.NODE_ENV === 'production'
+		const db = new Kysely({
+			dialect: process.env.NODE_ENV === 'production'
 				? new PlanetScaleDialect({
 					url: process.env.DATABASE_URL,
+					fetch
 				})
 				: new MysqlDialect({
 					pool: createPool({
 						uri: process.env.DATABASE_URL,
 					}),
-				});
-
-		const db = new Kysely({
-			dialect,
+				}),
 		});
-
 		const migrator = new Migrator({
 			db,
 			provider: new FileMigrationProvider({
 				fs,
 				path,
-				migrationFolder: 'src/server/db/migrations',
+				migrationFolder: path.resolve('src/server/db/migrations'),
 			}),
 		});
 		const {error, results} = await migrator.migrateToLatest();

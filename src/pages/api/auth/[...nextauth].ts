@@ -1,7 +1,7 @@
 import AzureADProvider from 'next-auth/providers/azure-ad';
 import NextAuth, { type NextAuthOptions } from 'next-auth';
 import { db } from '../../../server/db/client';
-import { env } from 'src/env/server.mjs';
+import { env } from '../../../env/server.mjs';
 import { KyselyAdapter } from '../../../server/db/KyselyAdapter';
 
 export const authOptions: NextAuthOptions = {
