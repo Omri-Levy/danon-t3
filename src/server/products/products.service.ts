@@ -7,8 +7,8 @@ import {
 } from './types';
 import { suppliersRepository } from '../suppliers/suppliers.repository';
 import { TRPCError } from '@trpc/server';
-import { Prisma } from '@prisma/client';
 import { locale } from '../../translations';
+import { isDuplicateEntryError } from '../../utils/is-duplicate-entry-error/is-duplicate-entry-error';
 
 class ProductsService {
 	private _repository = productsRepository;
@@ -45,21 +45,14 @@ class ProductsService {
 				supplierId,
 			});
 		} catch (err) {
-			if (
-				!(err instanceof Prisma.PrismaClientKnownRequestError)
-			) {
-				throw err;
-			}
+			if (!isDuplicateEntryError(err)) throw err;
 
-			if (err.code === 'P2002') {
-				throw new TRPCError({
-					message:
-						locale.he.validation.product.alreadyExists(
-							input.sku,
-						),
-					code: 'BAD_REQUEST',
-				});
-			}
+			throw new TRPCError({
+				message: locale.he.validation.product.alreadyExists(
+					input.sku,
+				),
+				code: 'BAD_REQUEST',
+			});
 		}
 	}
 
@@ -72,21 +65,14 @@ class ProductsService {
 				data,
 			});
 		} catch (err) {
-			if (
-				!(err instanceof Prisma.PrismaClientKnownRequestError)
-			) {
-				throw err;
-			}
+			if (!isDuplicateEntryError(err) || !input.sku) throw err;
 
-			if (err.code === 'P2002' && input.sku) {
-				throw new TRPCError({
-					message:
-						locale.he.validation.product.alreadyExists(
-							input.sku,
-						),
-					code: 'BAD_REQUEST',
-				});
-			}
+			throw new TRPCError({
+				message: locale.he.validation.product.alreadyExists(
+					input.sku,
+				),
+				code: 'BAD_REQUEST',
+			});
 		}
 	}
 

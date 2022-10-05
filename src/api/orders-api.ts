@@ -3,58 +3,10 @@ import toast from 'react-hot-toast';
 import { locale } from '../translations';
 import { SubmitHandler } from 'react-hook-form';
 import {
-	OrderCreateInput,
 	OrderDeleteByIdsInput,
 	OrderGetAllOutput,
 	OrderSendInput,
 } from '../types';
-
-export const useCreateOrder = () => {
-	const ctx = trpc.useContext();
-	const { mutateAsync, ...mutation } =
-		trpc.orders.create.useMutation({
-			onMutate: async (newData) => {
-				ctx.orders.getAll.cancel();
-				const previousData = ctx.orders.getAll.getData();
-
-				ctx.orders.getAll.setData((prevData: any) => [
-					...prevData,
-					newData,
-				]);
-
-				return { previousData };
-			},
-			onSuccess: () => {
-				toast.success(
-					`${locale.he.actions.success} ${locale.he.actions.order.create}`,
-				);
-			},
-			onError: (err, newData, context) => {
-				if (!context?.previousData) return;
-				const message =
-					err.message ??
-					locale.he.actions['order']['create'];
-
-				toast.error(`${locale.he.actions.error} ${message}`);
-				ctx.orders.getAll.setData(context.previousData);
-			},
-			onSettled: () => {
-				ctx.orders.getAll.invalidate();
-			},
-		});
-	const onCreate: SubmitHandler<OrderCreateInput> = async (
-		data,
-	) => {
-		try {
-			return await mutateAsync(data);
-		} catch {}
-	};
-
-	return {
-		onCreate,
-		...mutation,
-	};
-};
 
 export const useDeleteOrdersByIds = (
 	setSelectedIds: (ids: Record<PropertyKey, boolean>) => void,

@@ -6,7 +6,7 @@ import {
 	supplierIdsSchema,
 	updateSupplierSchema,
 } from './validation';
-import { Supplier } from '@prisma/client';
+import { Supplier } from '../db/db';
 
 export type TSupplierIdSchema = z.infer<typeof supplierIdSchema>;
 export type TSupplierIdsSchema = z.infer<typeof supplierIdsSchema>;

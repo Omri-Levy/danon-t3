@@ -1,9 +1,8 @@
-// src/utils/trpc.ts
-import type {AppRouter} from '../server';
-import {createTRPCProxyClient, createTRPCReact} from '@trpc/react';
+import type { AppRouter } from '../server';
+import { createTRPCProxyClient, createTRPCReact } from '@trpc/react';
 import superjson from 'superjson';
-import {httpBatchLink} from '@trpc/client';
-import {QueryClient} from '@tanstack/react-query';
+import { httpBatchLink } from '@trpc/client';
+import { QueryClient } from '@tanstack/react-query';
 
 export const getBaseUrl = () => {
 	if (typeof window !== 'undefined') return ''; // browser should use relative url
@@ -22,5 +21,6 @@ export const trpcOptions = {
 };
 export const trpc = createTRPCReact<AppRouter>();
 export const trpcClient = trpc.createClient(trpcOptions);
-export const trpcProxyClient = createTRPCProxyClient<AppRouter>(trpcOptions);
+export const trpcProxyClient =
+	createTRPCProxyClient<AppRouter>(trpcOptions);
 export const queryClient = new QueryClient();

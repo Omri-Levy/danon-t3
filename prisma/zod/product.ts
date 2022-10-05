@@ -1,7 +1,7 @@
 import * as z from 'zod';
 import * as imports from '../../src/translations';
 import { Decimal } from 'decimal.js';
-import { Unit } from '@prisma/client';
+import { Unit } from '../../src/enums';
 import {
 	CompleteOrder,
 	CompleteSupplier,

@@ -2,6 +2,7 @@ import {
 	ChangeEvent,
 	FunctionComponent,
 	KeyboardEventHandler,
+	useCallback,
 	useRef,
 	useState,
 } from 'react';
@@ -12,25 +13,33 @@ export const EditableInput: FunctionComponent<
 > = ({ initialValue, onEdit, ...props }) => {
 	const ref = useRef<HTMLInputElement>(null);
 	const [value, setValue] = useState(initialValue);
-	const onChange = (e: ChangeEvent<HTMLInputElement>) =>
-		setValue(e.target.value);
-	const resetValue = () => setValue(initialValue);
-	const onKeyDown: KeyboardEventHandler<HTMLInputElement> = async (
-		e,
-	) => {
-		switch (e.key) {
-			case 'Enter':
-				await onEdit?.(value);
-				ref.current?.blur();
-				break;
-			case 'Escape':
-				resetValue();
-				ref.current?.blur();
-				break;
-			default:
-				break;
-		}
-	};
+	const onChange = useCallback(
+		(e: ChangeEvent<HTMLInputElement>) =>
+			setValue(e.target.value),
+		[],
+	);
+	const resetValue = useCallback(
+		() => setValue(initialValue),
+		[initialValue],
+	);
+	const onKeyDown: KeyboardEventHandler<HTMLInputElement> =
+		useCallback(
+			async (e) => {
+				switch (e.key) {
+					case 'Enter':
+						await onEdit?.(value);
+						ref.current?.blur();
+						break;
+					case 'Escape':
+						resetValue();
+						ref.current?.blur();
+						break;
+					default:
+						break;
+				}
+			},
+			[onEdit, ref.current?.blur],
+		);
 
 	return (
 		<input

@@ -1,21 +1,20 @@
 import { useSession } from 'next-auth/react';
-import { useLocation, useNavigate } from 'react-router-dom';
 import { ComponentWithChildren } from '../../../types';
+import { useRouter } from 'next/router';
 
 export const AuthLayout: ComponentWithChildren = ({ children }) => {
 	const { data: session, status } = useSession();
-	const { pathname } = useLocation();
+	const { pathname, replace } = useRouter();
 	const navigateToSignIn = !session && pathname !== `/auth/sign-in`;
 	const navigateToRoot = session && pathname === `/auth/sign-in`;
 	const path = navigateToSignIn ? `/auth/sign-in` : `/`;
-	const navigate = useNavigate();
 
 	if (status === `loading`) {
 		return null;
 	}
 
 	if (navigateToRoot || navigateToSignIn) {
-		navigate(path, { replace: true });
+		replace(path);
 
 		return null;
 	}

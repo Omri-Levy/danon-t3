@@ -12,25 +12,7 @@ import { env } from '../../env/server.mjs';
 import { s3Client } from '../s3/s3-client';
 import { sendEmail } from '../email/send-email';
 import { locale } from '../../translations';
-
-const appendOrdinal = (number: number) => {
-	const modulusOfTen = number % 10;
-	const modulusOfHundred = number % 100;
-
-	if (modulusOfTen === 1 && modulusOfHundred !== 11) {
-		return `${number}st`;
-	}
-
-	if (modulusOfTen === 2 && modulusOfHundred !== 12) {
-		return `${number}nd`;
-	}
-
-	if (modulusOfTen === 3 && modulusOfHundred !== 13) {
-		return `${number}rd`;
-	}
-
-	return `${number}th`;
-};
+import { appendOrdinal } from './utils/append-ordinal/append-ordinal';
 
 class OrdersService {
 	private _repository = ordersRepository;
@@ -60,20 +42,7 @@ class OrdersService {
 		const { pdf } = input;
 		const pdfAsString = pdf?.toString();
 		const productsToOrder = await productsRepository.findMany({
-			where: {
-				orderAmount: {
-					gt: 0,
-				},
-			},
-			include: {
-				supplier: {
-					select: {
-						id: true,
-						name: true,
-						email: true,
-					},
-				},
-			},
+			where: ['orderAmount', '>', '0'],
 		});
 		const moreThanOneSupplier =
 			new Set(
@@ -111,16 +80,6 @@ class OrdersService {
 			supplierId: supplier.id,
 			data: {
 				s3Key: 'key',
-				products: {
-					connect: productsToOrder.map(
-						({ supplierId, sku }) => ({
-							supplierId_sku: {
-								supplierId,
-								sku,
-							},
-						}),
-					),
-				},
 			},
 		});
 
@@ -130,6 +89,18 @@ class OrdersService {
 				message: 'Could not create order',
 			});
 		}
+
+		const ids = productsToOrder.map(({ supplierId, sku }) => ({
+			supplierId,
+			sku,
+		}));
+
+		await productsRepository.updateMany({
+			ids,
+			data: {
+				orderId: order.id,
+			},
+		});
 
 		const paddedOrderNumber = order.orderNumber
 			.toString()

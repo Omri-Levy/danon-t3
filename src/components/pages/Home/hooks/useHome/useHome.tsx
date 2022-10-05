@@ -12,9 +12,8 @@ export const useHome = () => {
 		>;
 
 	// Queries
-	const { products, isLoading } = useGetAllProducts({
-		initialData: initialProducts,
-	});
+	const { products, isLoading } =
+		useGetAllProducts(initialProducts);
 
 	useGetAllSupplierNames(initialSuppliers);
 

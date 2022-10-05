@@ -15,16 +15,10 @@ import { useCallback, useEffect } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import clsx from 'clsx';
 import { usePdfTable } from '../../../hooks/usePdfTable/usePdfTable';
-import {
-	useGetAllProducts,
-	useProductsToOrder,
-} from '../../../api/products-api';
+import { useGetAllProductsToOrder } from '../../../api/products-api';
 
 export const SendOrderModal = ({ disabled, isOpen, onOpen }) => {
-	const productsToOrderSelector = useProductsToOrder();
-	const { products } = useGetAllProducts({
-		select: productsToOrderSelector,
-	});
+	const { products } = useGetAllProductsToOrder();
 	const { onSend, isSuccess, isLoading } = useSendOrder();
 	const headers = [
 		{
