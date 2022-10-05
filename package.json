@@ -5,9 +5,9 @@
 	"scripts": {
 		"docker-start": "docker start danon-mysql",
 		"commit": "git add . && git-cz",
-		"kysely:generate": "kysely-codegen --dialect mysql --out-file ./src/server/db/db.d.ts",
-		"kysely:migrate:dev": "NODE_ENV=development node src/server/db/migrate-to-latest.mjs",
-		"kysely:migrate:prod": "NODE_ENV=production npx ts-node src/server/db/migrate-to-latest.mjs",
+		"kysely:generate": "kysely-codegen --dialect mysql --out-file src/db/db.d.ts",
+		"kysely:migrate:dev": "NODE_ENV=development node src/db/migrate-to-latest.mjs",
+		"kysely:migrate:prod": "NODE_ENV=production npx ts-node src/db/migrate-to-latest.mjs",
 		"dev": "pnpm docker-start && next dev",
 		"build": "next build",
 		"start": "next start",

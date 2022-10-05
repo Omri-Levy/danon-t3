@@ -2,7 +2,7 @@ import dynamic from 'next/dynamic';
 import { NextPage } from 'next';
 
 const DynamicRoutes = dynamic(
-	() => import('../components/templates/Routes/Routes'),
+	() => import('../common/components/templates/Routes/Routes'),
 	{
 		ssr: false,
 	},

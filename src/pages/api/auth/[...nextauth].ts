@@ -1,8 +1,8 @@
 import AzureADProvider from 'next-auth/providers/azure-ad';
 import NextAuth, { type NextAuthOptions } from 'next-auth';
-import { db } from '../../../server/db/client';
-import { env } from '../../../env/server.mjs';
-import { KyselyAdapter } from '../../../server/db/KyselyAdapter';
+import { db } from '../../../db/client';
+import { env } from '../../../common/env/server.mjs';
+import { KyselyAdapter } from '../../../db/KyselyAdapter';
 
 export const authOptions: NextAuthOptions = {
 	// Include user.id on session
