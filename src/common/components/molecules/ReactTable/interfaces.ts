@@ -5,9 +5,15 @@ import {
 	Row,
 	Table,
 } from '@tanstack/table-core';
-import { DetailedHTMLProps, HTMLAttributes, ReactNode } from 'react';
+import {
+	ComponentProps,
+	DetailedHTMLProps,
+	HTMLAttributes,
+	ReactNode,
+} from 'react';
 
-export interface IReactTableOptions<TItem> {
+export interface IReactTableProps<TItem>
+	extends ComponentProps<'table'> {
 	filter?: (row: Row<TItem>) => boolean;
 	tfoot?: ReactNode;
 	renderHeader: (

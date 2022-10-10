@@ -16,7 +16,7 @@ export const useDefaultCell = <TValue, TRowData extends RowData>(
 	// When the input is blurred, we'll call our table meta's updateData function
 	const updateValue = async (value: string) => {
 		try {
-			table.options.meta?.updateData(
+			table.options.meta?.updateData?.(
 				index,
 				id,
 				normalizeSpace(value),
@@ -28,7 +28,7 @@ export const useDefaultCell = <TValue, TRowData extends RowData>(
 		}
 	};
 	const { className = '', ...props } =
-		table.options.meta?.format(index, id, table) ?? {};
+		table.options.meta?.format?.(index, id, table) ?? {};
 
 	return {
 		updateValue,
