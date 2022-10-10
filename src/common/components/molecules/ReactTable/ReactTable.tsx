@@ -1,7 +1,7 @@
 import { PropsWithChildren } from 'react';
 import { flexRender } from '@tanstack/react-table';
 import { Map } from '../../atoms/Map/Map';
-import { IReactTableProps } from './types';
+import { IReactTableProps } from './interfaces';
 
 export const ReactTable = <TItem,>({
 	tfoot,

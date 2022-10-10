@@ -23,7 +23,7 @@ export const useProducts = () => {
 		onGlobalFilter,
 		rowSelection,
 		setRowSelection,
-	} = useProductsTable(products ?? []);
+	} = useProductsTable<typeof products>(products ?? []);
 
 	return {
 		rowSelection,

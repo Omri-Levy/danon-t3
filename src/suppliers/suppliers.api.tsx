@@ -9,7 +9,6 @@ import {
 } from '../common/types';
 import { Dispatch, SetStateAction } from 'react';
 import { trpc } from 'src/common/utils/trpc/trpc-clients';
-import { addRowIndex } from '../common/utils/add-row-index/add-row-index';
 
 export const useCreateSupplier = () => {
 	const ctx = trpc.useContext();
@@ -133,7 +132,7 @@ export const useDeleteSuppliersByIds = (
 			},
 			onSuccess: () => {
 				toast.success(
-					`${locale.he.actions.success} ${locale.he.actions.supplier.update}`,
+					`${locale.he.actions.success} ${locale.he.actions.supplier.delete}`,
 				);
 			},
 			onError: (err, newData, context) => {
@@ -169,7 +168,6 @@ export const useGetAllSuppliers = (
 		undefined,
 		{
 			initialData,
-			select: (suppliers) => suppliers.map(addRowIndex),
 		},
 	);
 

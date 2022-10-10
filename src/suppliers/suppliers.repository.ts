@@ -81,7 +81,10 @@ class SuppliersRepository {
 			.where('id', 'in', ids)
 			.execute();
 
-		return this._repository.selectFrom('supplier').selectAll();
+		return this._repository
+			.selectFrom('supplier')
+			.selectAll()
+			.execute();
 	}
 
 	async findIdByName({ name }: Pick<Supplier, 'name'>) {

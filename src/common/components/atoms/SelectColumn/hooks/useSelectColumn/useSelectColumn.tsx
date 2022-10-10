@@ -22,7 +22,7 @@ export const useSelectColumn = <
 	const [value, setValue] = useState(initialValue);
 	// When the input is blurred, we'll call our table meta's updateData function
 	const updateValue = useCallback(() => {
-		table.options.meta?.updateData(index, id, value);
+		table.options.meta?.updateData?.(index, id, value);
 	}, [index, id, value, table.options.meta?.updateData]);
 	const resetValue = useCallback(() => {
 		if (value === initialValue) return;
@@ -32,8 +32,6 @@ export const useSelectColumn = <
 	const onChange: ChangeEventHandler<HTMLSelectElement> =
 		useCallback(
 			(e) => {
-				if ((e.target.value as any) === value) return;
-
 				setValue(e.target.value as any);
 			},
 			[setValue, value],
