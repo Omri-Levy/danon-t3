@@ -1,24 +1,13 @@
-import {
-	TProductGetAllOutput,
-	TProductGetByIdOutput,
-} from '../../../../../common/types';
-import { ChangeEvent, useCallback, useState } from 'react';
-import { useSkipper } from '../../../../../common/hooks/useSkipper/useSkipper';
+import { TProductGetByIdOutput } from '../../../../../common/types';
+import { useCallback } from 'react';
 import {
 	ColumnDef,
 	createColumnHelper,
-	getCoreRowModel,
-	getFilteredRowModel,
-	getPaginationRowModel,
-	getSortedRowModel,
 	RowData,
-	RowSelectionState,
-	SortingState,
 	Table,
 } from '@tanstack/table-core';
 import { useGetAllSupplierNames } from '../../../../../suppliers/suppliers.api';
 import { useUpdateProductById } from '../../../../products.api';
-import { IndeterminateCheckbox } from '../../../../../common/components/atoms/IndeterminateCheckbox/IndeterminateCheckbox';
 import { locale } from '../../../../../common/translations';
 import { SelectColumn } from '../../../../../common/components/atoms/SelectColumn/SelectColumn';
 import { Unit } from '../../../../../common/enums';
@@ -28,9 +17,10 @@ import {
 	updateProductSchema,
 } from '../../../../validation';
 import { toast } from 'react-hot-toast';
-import { useReactTable } from '@tanstack/react-table';
-import { buildFuzzyFilter } from '../../../../../common/utils/build-fuzzy-filter/build-fuzzy-filter';
 import { zSupplierNamesEnum } from '../../../../../suppliers/utils/z-supplier-names-enum/z-supplier-names-enum';
+import { useTable } from '../../../../../common/hooks/useTable/useTable';
+import { useSearchParams } from 'react-router-dom';
+import { fallbackWhen } from '../../../../../common/utils/fallback-when/fallback-when';
 
 declare module '@tanstack/react-table' {
 	interface TableMeta<TData extends RowData> {
@@ -66,46 +56,12 @@ declare module '@tanstack/react-table' {
 
 export const columnHelper =
 	createColumnHelper<TProductGetByIdOutput>();
-export const useProductsTable = (products: TProductGetAllOutput) => {
-	const [globalFilter, setGlobalFilter] = useState('');
-	const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
-	const [sorting, setSorting] = useState<SortingState>([
-		{ id: 'name', desc: false },
-	]);
-	const [rowSelection, setRowSelection] =
-		useState<RowSelectionState>({});
+export const useProductsTable = (
+	products: Array<TProductGetByIdOutput>,
+) => {
 	const { supplierNames } = useGetAllSupplierNames();
 	const { onUpdateById } = useUpdateProductById();
 	const columns: Array<ColumnDef<TProductGetByIdOutput>> = [
-		{
-			id: 'select',
-			header: ({ table }) => (
-				<div
-					className={`bg-base-100 rounded p-px inline-flex`}
-				>
-					<IndeterminateCheckbox
-						{...{
-							checked: table.getIsAllRowsSelected(),
-							indeterminate:
-								table.getIsSomeRowsSelected(),
-							onChange:
-								table.getToggleAllRowsSelectedHandler(),
-						}}
-					/>
-				</div>
-			),
-			cell: ({ row }) => (
-				<div className={`pl-2`}>
-					<IndeterminateCheckbox
-						{...{
-							checked: row.getIsSelected(),
-							indeterminate: row.getIsSomeSelected(),
-							onChange: row.getToggleSelectedHandler(),
-						}}
-					/>
-				</div>
-			),
-		},
 		{
 			accessorKey: 'stock',
 			header: locale.he.stock,
@@ -146,89 +102,86 @@ export const useProductsTable = (products: TProductGetAllOutput) => {
 				/>
 			),
 		},
-		{
-			accessorKey: 'rowIndex',
-			header: '',
-			cell: ({ cell }) => (
-				<strong>{cell.getValue() as number}</strong>
-			),
-		},
 	];
 	const defaultColumn = {
 		cell: DefaultCell,
 	};
-	const onGlobalFilter = useCallback(
-		(e: ChangeEvent<HTMLInputElement>) => {
-			if (e.target.value === globalFilter) return;
-
-			setGlobalFilter(e.target.value);
-		},
-		[globalFilter, setGlobalFilter],
-	);
 	// Checks supplier name as an enum instead of string.
 	const runtimeSchema = updateProductSchema
 		.setKey('supplier', zSupplierNamesEnum(supplierNames ?? []))
 		.partial()
 		.setKey('id', productIdSchema.shape.id);
 	const updateData = useCallback(
-		async (rowIndex: number, columnId: string, value: any) => {
-			// Skip page index reset until after next rerender
-			skipAutoResetPageIndex();
+		(skipAutoResetPageIndex: () => void) =>
+			async (
+				rowIndex: number,
+				columnId: string,
+				value: any,
+			) => {
+				// Skip page index reset until after next rerender
+				skipAutoResetPageIndex();
 
-			const prevProduct = products?.[rowIndex];
+				const prevProduct = products?.[rowIndex];
 
-			if (!prevProduct) return;
+				if (!prevProduct) return;
 
-			const column =
-				columnId === 'supplier_name' ? 'supplier' : columnId;
-			const isNumeric = [
-				'stock',
-				'orderAmount',
-				'packageSize',
-			].some((col) => col === columnId);
-			const result = runtimeSchema.safeParse({
-				id: prevProduct.id,
-				[column]: isNumeric ? parseFloat(value) : value,
-			});
+				const column =
+					columnId === 'supplier_name'
+						? 'supplier'
+						: columnId;
+				const isNumeric = [
+					'stock',
+					'orderAmount',
+					'packageSize',
+				].some((col) => col === columnId);
+				const result = runtimeSchema.safeParse({
+					id: prevProduct.id,
+					[column]: isNumeric ? parseFloat(value) : value,
+				});
 
-			if (!result.success) {
-				const error = result.error.errors
-					.map(({ message }) => message)
-					.join('\n');
+				if (!result.success) {
+					const error = result.error.errors
+						.map(({ message }) => message)
+						.join('\n');
 
-				toast.error(`${locale.he.actions.error} ${error}`);
+					toast.error(
+						`${locale.he.actions.error} ${error}`,
+					);
 
-				return;
-			}
+					return;
+				}
 
-			const prevOrderAmount = prevProduct.orderAmount;
-			const prevPackageSize = prevProduct.packageSize;
-			const isOrderAmount = column === 'orderAmount';
-			const isPackageSize = column === 'packageSize';
-			const orderAmount = parseFloat(
-				isOrderAmount ? value : prevOrderAmount,
-			);
-			const packageSize = parseFloat(
-				isPackageSize ? value : prevPackageSize,
-			);
-			const isException =
-				orderAmount === 0 || packageSize === 1;
-			const isDivisible =
-				Math.round(orderAmount % packageSize) === 0;
-			const shouldUpdate = isException || isDivisible;
+				const prevOrderAmount = prevProduct.orderAmount;
+				const prevPackageSize = prevProduct.packageSize;
+				const isOrderAmount = column === 'orderAmount';
+				const isPackageSize = column === 'packageSize';
+				const orderAmount = parseFloat(
+					isOrderAmount ? value : prevOrderAmount,
+				);
+				const packageSize = parseFloat(
+					isPackageSize ? value : prevPackageSize,
+				);
+				const isException =
+					orderAmount === 0 || packageSize === 1;
+				const isDivisible =
+					Math.round(orderAmount % packageSize) === 0;
+				const shouldUpdate = isException || isDivisible;
 
-			if ((isOrderAmount || isPackageSize) && !shouldUpdate) {
-				toast.error(locale.he.mustBeDivisibleBy);
+				if (
+					(isOrderAmount || isPackageSize) &&
+					!shouldUpdate
+				) {
+					toast.error(locale.he.mustBeDivisibleBy);
 
-				return;
-			}
+					return;
+				}
 
-			await onUpdateById({
-				...result.data,
-				id: prevProduct.id,
-			});
-		},
-		[onUpdateById, products?.length, skipAutoResetPageIndex],
+				await onUpdateById({
+					...result.data,
+					id: prevProduct.id,
+				});
+			},
+		[onUpdateById, products?.length],
 	);
 	const format = useCallback(
 		(
@@ -255,45 +208,34 @@ export const useProductsTable = (products: TProductGetAllOutput) => {
 				  },
 		[],
 	);
-	const table = useReactTable({
+	const [searchParams] = useSearchParams();
+	const { limit = '', cursor = '' } = Object.fromEntries(
+		searchParams.entries(),
+	);
+	const table = useTable({
 		columns,
 		data: products,
-		getCoreRowModel: getCoreRowModel(),
 		defaultColumn,
-		onSortingChange: setSorting,
-		onGlobalFilterChange: setGlobalFilter,
-		getSortedRowModel: getSortedRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
-		onRowSelectionChange: setRowSelection,
-		autoResetPageIndex,
-		enableSortingRemoval: false,
-		globalFilterFn: buildFuzzyFilter(),
 		initialState: {
 			pagination: {
-				pageSize: 50,
+				// Lowest of 1, fallback to 50 if limit is falsy.
+				pageSize: Math.max(
+					fallbackWhen(Number(limit), 50, !limit),
+					1,
+				),
+				// Lowest of 0, fallback to 0 if cursor is falsy.
+				pageIndex: Math.max(
+					fallbackWhen(Number(cursor) - 1, 0, !cursor),
+					0,
+				),
 			},
 		},
-		state: {
-			rowSelection,
-			sorting,
-			globalFilter,
-		}, // Provide our updateData function to our table meta
+		initialSorting: [{ id: 'name', desc: false }],
 		meta: {
 			updateData,
 			format,
 		},
 	});
 
-	return {
-		table,
-		globalFilter,
-		onGlobalFilter,
-		sorting,
-		setSorting,
-		rowSelection,
-		setRowSelection,
-		autoResetPageIndex,
-		skipAutoResetPageIndex,
-	};
+	return table;
 };

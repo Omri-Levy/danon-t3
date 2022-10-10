@@ -9,7 +9,6 @@ import {
 import { Dispatch, SetStateAction } from 'react';
 import { trpc } from '../common/utils/trpc/trpc-clients';
 import { IUseGetOrderPresignedUrlByIdProps } from './interfaces';
-import { addRowIndex } from '../common/utils/add-row-index/add-row-index';
 
 export const useDeleteOrdersByIds = (
 	setSelectedIds: Dispatch<
@@ -34,7 +33,7 @@ export const useDeleteOrdersByIds = (
 			},
 			onSuccess: () => {
 				toast.success(
-					`${locale.he.actions.success} ${locale.he.actions.order.update}`,
+					`${locale.he.actions.success} ${locale.he.actions.order.delete}`,
 				);
 			},
 			onError: (err, newData, context) => {
@@ -66,7 +65,7 @@ export const useDeleteOrdersByIds = (
 export const useGetAllOrders = (initialData?: TOrderGetAllOutput) => {
 	const { data, ...query } = trpc.orders.getAll.useQuery(
 		undefined,
-		{ initialData, select: (orders) => orders.map(addRowIndex) },
+		{ initialData },
 	);
 
 	return {

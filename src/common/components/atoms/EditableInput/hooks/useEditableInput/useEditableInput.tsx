@@ -15,8 +15,6 @@ export const useEditableInput = (
 	const [value, setValue] = useState(initialValue);
 	const onChange = useCallback(
 		(e: ChangeEvent<HTMLInputElement>) => {
-			if (e.target.value === value) return;
-
 			setValue(e.target.value);
 		},
 		[setValue, value, initialValue],

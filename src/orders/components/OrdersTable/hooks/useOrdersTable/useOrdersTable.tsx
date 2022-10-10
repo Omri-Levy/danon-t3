@@ -2,66 +2,20 @@ import {
 	TOrderGetAllOutput,
 	TOrderGetByIdOutput,
 } from '../../../../../common/types';
-import { ChangeEventHandler, useCallback, useState } from 'react';
-import { useSkipper } from '../../../../../common/hooks/useSkipper/useSkipper';
-import {
-	ColumnDef,
-	getCoreRowModel,
-	getFilteredRowModel,
-	getPaginationRowModel,
-	getSortedRowModel,
-	RowSelectionState,
-	SortingState,
-} from '@tanstack/table-core';
-import { IndeterminateCheckbox } from '../../../../../common/components/atoms/IndeterminateCheckbox/IndeterminateCheckbox';
+import { ColumnDef } from '@tanstack/table-core';
 import { locale } from '../../../../../common/translations';
-import { useReactTable } from '@tanstack/react-table';
-import { buildFuzzyFilter } from '../../../../../common/utils/build-fuzzy-filter/build-fuzzy-filter';
 import { ViewPDFButton } from './ViewPDFButton/ViewPDFButton';
 import { isInstanceOfDate } from '../../../../common/utils/is-instance-of-date/is-instance-of-date';
+import { useTable } from '../../../../../common/hooks/useTable/useTable';
+import { useSearchParams } from 'react-router-dom';
+import { fallbackWhen } from '../../../../../common/utils/fallback-when/fallback-when';
 
 export const useOrdersTable = (
 	orders: TOrderGetAllOutput,
 	onIdChange: (id: string) => void,
 	onOpen: () => void,
 ) => {
-	const [globalFilter, setGlobalFilter] = useState('');
-	const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
-	const [sorting, setSorting] = useState<SortingState>([
-		{ id: 'createdAt', desc: false },
-	]);
-	const [rowSelection, setRowSelection] =
-		useState<RowSelectionState>({});
 	const columns: Array<ColumnDef<TOrderGetByIdOutput>> = [
-		{
-			id: 'select',
-			header: ({ table }) => (
-				<div
-					className={`bg-base-100 rounded p-px inline-flex`}
-				>
-					<IndeterminateCheckbox
-						{...{
-							checked: table.getIsAllRowsSelected(),
-							indeterminate:
-								table.getIsSomeRowsSelected(),
-							onChange:
-								table.getToggleAllRowsSelectedHandler(),
-						}}
-					/>
-				</div>
-			),
-			cell: ({ row }) => (
-				<div className={`pl-2`}>
-					<IndeterminateCheckbox
-						{...{
-							checked: row.getIsSelected(),
-							indeterminate: row.getIsSomeSelected(),
-							onChange: row.getToggleSelectedHandler(),
-						}}
-					/>
-				</div>
-			),
-		},
 		{
 			header: locale.he.pdf,
 			cell: (props) => (
@@ -83,7 +37,7 @@ export const useOrdersTable = (
 					return value;
 				}
 
-				value?.toString().padStart(5, '0');
+				return value?.toString().padStart(5, '0');
 			},
 		},
 		{
@@ -103,57 +57,30 @@ export const useOrdersTable = (
 			accessorKey: 'supplier.name',
 			header: locale.he.supplier,
 		},
-		{
-			accessorKey: 'rowIndex',
-			header: '',
-			cell: ({ cell }) => (
-				<strong>{cell.getValue() as number}</strong>
-			),
-		},
 	];
-	const onGlobalFilter: ChangeEventHandler<HTMLInputElement> =
-		useCallback(
-			(e) => {
-				if (e.target.value === globalFilter) return;
-
-				setGlobalFilter(e.target.value);
-			},
-			[globalFilter, setGlobalFilter],
-		);
-	const table = useReactTable({
+	const [searchParams] = useSearchParams();
+	const { limit = '', cursor = '' } = Object.fromEntries(
+		searchParams.entries(),
+	);
+	const table = useTable({
 		columns,
 		data: orders,
-		getCoreRowModel: getCoreRowModel(),
-		onSortingChange: setSorting,
-		onGlobalFilterChange: setGlobalFilter,
-		getSortedRowModel: getSortedRowModel(),
-		getPaginationRowModel: getPaginationRowModel(),
-		getFilteredRowModel: getFilteredRowModel(),
-		onRowSelectionChange: setRowSelection,
-		autoResetPageIndex,
-		enableSortingRemoval: false,
-		globalFilterFn: buildFuzzyFilter(),
 		initialState: {
 			pagination: {
-				pageSize: 50,
+				// Lowest of 1, fallback to 50 if limit is falsy.
+				pageSize: Math.max(
+					fallbackWhen(Number(limit), 50, !limit),
+					1,
+				),
+				// Lowest of 0, fallback to 0 if cursor is falsy.
+				pageIndex: Math.max(
+					fallbackWhen(Number(cursor) - 1, 0, !cursor),
+					0,
+				),
 			},
 		},
-		state: {
-			rowSelection,
-			sorting,
-			globalFilter,
-		},
+		initialSorting: [{ id: 'createdAt', desc: false }],
 	});
 
-	return {
-		table,
-		globalFilter,
-		onGlobalFilter,
-		sorting,
-		setSorting,
-		rowSelection,
-		setRowSelection,
-		autoResetPageIndex,
-		skipAutoResetPageIndex,
-	};
+	return table;
 };

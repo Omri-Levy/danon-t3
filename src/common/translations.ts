@@ -2,6 +2,7 @@ import { Unit } from './enums';
 
 export const locale = {
 	he: {
+		row: 'שורה',
 		view: `צפייה`,
 		pdf: `מסמך`,
 		orderNumber: `מספר הזמנה`,
@@ -123,6 +124,7 @@ export const locale = {
 		},
 	},
 	en: {
+		row: `Row`,
 		view: `View`,
 		pdf: `PDF`,
 		orderNumber: `Order number`,
