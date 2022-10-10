@@ -6,7 +6,12 @@ import {
 } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { TOrderSendInput } from '../../../common/types';
-import { FunctionComponent, useCallback, useEffect } from 'react';
+import {
+	FunctionComponent,
+	useCallback,
+	useEffect,
+	useMemo,
+} from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import clsx from 'clsx';
 import { usePdfTable } from '../../hooks/usePdfTable/usePdfTable';
@@ -17,48 +22,57 @@ import {
 import { useGetAllProductsToOrder } from '../../products.api';
 import { sendOrderSchema } from '../../../orders/validation';
 import { ISendOrderModalProps } from './interfaces';
+import { addRowIndex } from '../../../common/utils/add-row-index/add-row-index';
 
 export const SendOrderModal: FunctionComponent<
 	ISendOrderModalProps
 > = ({ disabled, isOpen, onOpen }) => {
 	const { products } = useGetAllProductsToOrder();
 	const { onSend, isSuccess, isLoading } = useSendOrder();
-	const headers = [
-		{
-			accessorKey: 'orderAmount',
-			header: locale.he.orderAmount,
-		},
-		{
-			accessorKey: 'packageSize',
-			header: locale.he.packageSize,
-		},
-		{
-			accessorKey: 'unit',
-			header: locale.he.unit,
-		},
-		{
-			accessorKey: 'name',
-			header: locale.he.productName,
-		},
-		{
-			accessorKey: 'sku',
-			header: locale.he.sku,
-		},
-		{
-			accessorKey: 'rowIndex',
-			header: '',
-		},
-	].map(({ header, ...rest }) => ({
-		header: header.split('').reverse().join(''),
-		...rest,
-	}));
+	const headers = useMemo(
+		() =>
+			[
+				{
+					accessorKey: 'orderAmount',
+					header: locale.he.orderAmount,
+				},
+				{
+					accessorKey: 'packageSize',
+					header: locale.he.packageSize,
+				},
+				{
+					accessorKey: 'unit',
+					header: locale.he.unit,
+				},
+				{
+					accessorKey: 'name',
+					header: locale.he.productName,
+				},
+				{
+					accessorKey: 'sku',
+					header: locale.he.sku,
+				},
+				{
+					accessorKey: 'rowIndex',
+					header: '',
+				},
+			].map(({ header, ...rest }) => ({
+				header: header.split('').reverse().join(''),
+				...rest,
+			})),
+		[],
+	);
 	const { orders } = useGetAllOrders();
 	const nextOrder = ((orders?.at(-1)?.orderNumber ?? 0) + 1)
 		.toString()
 		.padStart(5, '0');
+	const withRowIndex = useMemo(
+		() => products?.map(addRowIndex),
+		[products?.length],
+	);
 	const base64 = usePdfTable(
 		headers,
-		products ?? [],
+		withRowIndex ?? [],
 		`הזמנה מספר ${nextOrder}`.split('').reverse().join(''),
 	);
 	const onSendOrderSubmit: SubmitHandler<TOrderSendInput> =

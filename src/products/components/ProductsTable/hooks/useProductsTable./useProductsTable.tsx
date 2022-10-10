@@ -1,5 +1,5 @@
 import { TProductGetByIdOutput } from '../../../../../common/types';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import {
 	ColumnDef,
 	createColumnHelper,
@@ -61,48 +61,51 @@ export const useProductsTable = (
 ) => {
 	const { supplierNames } = useGetAllSupplierNames();
 	const { onUpdateById } = useUpdateProductById();
-	const columns: Array<ColumnDef<TProductGetByIdOutput>> = [
-		{
-			accessorKey: 'stock',
-			header: locale.he.stock,
-		},
-		{
-			accessorKey: 'orderAmount',
-			header: locale.he.orderAmount,
-		},
-		{
-			accessorKey: 'packageSize',
-			header: locale.he.packageSize,
-		},
-		{
-			accessorKey: 'unit',
-			header: locale.he.unit,
-			cell: (props) => (
-				<SelectColumn
-					options={Object.values(Unit)}
-					{...props}
-				/>
-			),
-		},
-		{
-			accessorKey: 'name',
-			header: locale.he.productName,
-		},
-		{
-			accessorKey: 'sku',
-			header: locale.he.sku,
-		},
-		{
-			accessorKey: 'supplier.name',
-			header: locale.he.supplier,
-			cell: (props) => (
-				<SelectColumn
-					options={supplierNames ?? []}
-					{...props}
-				/>
-			),
-		},
-	];
+	const columns: Array<ColumnDef<TProductGetByIdOutput>> = useMemo(
+		() => [
+			{
+				accessorKey: 'stock',
+				header: locale.he.stock,
+			},
+			{
+				accessorKey: 'orderAmount',
+				header: locale.he.orderAmount,
+			},
+			{
+				accessorKey: 'packageSize',
+				header: locale.he.packageSize,
+			},
+			{
+				accessorKey: 'unit',
+				header: locale.he.unit,
+				cell: (props) => (
+					<SelectColumn
+						options={Object.values(Unit)}
+						{...props}
+					/>
+				),
+			},
+			{
+				accessorKey: 'name',
+				header: locale.he.productName,
+			},
+			{
+				accessorKey: 'sku',
+				header: locale.he.sku,
+			},
+			{
+				accessorKey: 'supplier.name',
+				header: locale.he.supplier,
+				cell: (props) => (
+					<SelectColumn
+						options={supplierNames ?? []}
+						{...props}
+					/>
+				),
+			},
+		],
+		[supplierNames?.length],
+	);
 	const defaultColumn = {
 		cell: DefaultCell,
 	};
