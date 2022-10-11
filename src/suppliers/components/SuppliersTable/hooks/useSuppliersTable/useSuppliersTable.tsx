@@ -2,7 +2,7 @@ import {
 	TSupplierGetAllOutput,
 	TSupplierGetByIdOutput,
 } from '../../../../../common/types';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { ColumnDef, RowData, Table } from '@tanstack/table-core';
 import { useUpdateSupplierById } from '../../../../suppliers.api';
 import { locale } from '../../../../../common/translations';
@@ -48,18 +48,20 @@ declare module '@tanstack/react-table' {
 export const useSuppliersTable = (
 	suppliers: TSupplierGetAllOutput,
 ) => {
-	0;
 	const { onUpdateById } = useUpdateSupplierById();
-	const columns: Array<ColumnDef<TSupplierGetByIdOutput>> = [
-		{
-			accessorKey: 'email',
-			header: locale.he.email,
-		},
-		{
-			accessorKey: 'name',
-			header: locale.he.name,
-		},
-	];
+	const columns: Array<ColumnDef<TSupplierGetByIdOutput>> = useMemo(
+		() => [
+			{
+				accessorKey: 'email',
+				header: locale.he.email,
+			},
+			{
+				accessorKey: 'name',
+				header: locale.he.name,
+			},
+		],
+		[],
+	);
 	const defaultColumn = {
 		cell: DefaultCell,
 	};

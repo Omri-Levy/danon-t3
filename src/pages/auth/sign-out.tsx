@@ -1,16 +1,24 @@
+// This file is required for next-auth
+
 import dynamic from 'next/dynamic';
 import { GetServerSideProps, NextPage } from 'next';
 import { getSession } from 'next-auth/react';
 
-const DynamicRoutes = dynamic(
-	() => import('../common/components/templates/Routes/Routes'),
+const DynamicSignOut = dynamic(
+	async () => {
+		const { SignOut } = await import(
+			'../../auth/components/pages/SignOut/SignOut'
+		);
+
+		return SignOut;
+	},
 	{
 		ssr: false,
 	},
 );
-const Index: NextPage = () => <DynamicRoutes />;
+const SignOut: NextPage = () => <DynamicSignOut />;
 
-export default Index;
+export default SignOut;
 
 export const getServerSideProps: GetServerSideProps = async (
 	context,

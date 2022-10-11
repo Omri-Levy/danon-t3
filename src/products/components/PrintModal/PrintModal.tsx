@@ -3,48 +3,57 @@ import * as Dialog from '@radix-ui/react-dialog';
 import clsx from 'clsx';
 import { usePdfTable } from '../../hooks/usePdfTable/usePdfTable';
 import { useGetAllProducts } from '../../products.api';
-import { FunctionComponent } from 'react';
+import { FunctionComponent, useMemo } from 'react';
 import { IPrintModalProps } from './interfaces';
+import { addRowIndex } from '../../../common/utils/add-row-index/add-row-index';
 
 export const PrintModal: FunctionComponent<IPrintModalProps> = ({
 	isOpen,
 	onOpen,
 }) => {
 	const { products } = useGetAllProducts();
-	const headers = [
-		{
-			accessorKey: 'stock',
-			header: locale.he.stock,
-		},
-		{
-			accessorKey: 'packageSize',
-			header: locale.he.packageSize,
-		},
-		{
-			accessorKey: 'unit',
-			header: locale.he.unit,
-		},
-		{
-			accessorKey: 'name',
-			header: locale.he.productName,
-		},
-		{
-			accessorKey: 'sku',
-			header: locale.he.sku,
-		},
-		{
-			accessorKey: 'supplier.name',
-			header: locale.he.supplier,
-		},
-		{
-			accessorKey: 'rowIndex',
-			header: '',
-		},
-	].map(({ header, ...rest }) => ({
-		header: header.split('').reverse().join(''),
-		...rest,
-	}));
-	const base64 = usePdfTable(headers, products ?? []);
+	const headers = useMemo(
+		() =>
+			[
+				{
+					accessorKey: 'stock',
+					header: locale.he.stock,
+				},
+				{
+					accessorKey: 'packageSize',
+					header: locale.he.packageSize,
+				},
+				{
+					accessorKey: 'unit',
+					header: locale.he.unit,
+				},
+				{
+					accessorKey: 'name',
+					header: locale.he.productName,
+				},
+				{
+					accessorKey: 'sku',
+					header: locale.he.sku,
+				},
+				{
+					accessorKey: 'supplier.name',
+					header: locale.he.supplier,
+				},
+				{
+					accessorKey: 'rowIndex',
+					header: '',
+				},
+			].map(({ header, ...rest }) => ({
+				header: header.split('').reverse().join(''),
+				...rest,
+			})),
+		[],
+	);
+	const withRowIndex = useMemo(
+		() => products?.map(addRowIndex),
+		[products?.length],
+	);
+	const base64 = usePdfTable(headers, withRowIndex ?? []);
 
 	return (
 		<Dialog.Root open={isOpen} onOpenChange={onOpen}>
@@ -87,7 +96,7 @@ export const PrintModal: FunctionComponent<IPrintModalProps> = ({
 							>
 								{locale.he.print}
 							</Dialog.Title>
-							{!!products && (
+							{!!products?.length && (
 								<iframe
 									src={base64?.toString()}
 									className={`w-full h-[93%]`}

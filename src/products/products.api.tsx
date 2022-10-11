@@ -177,6 +177,30 @@ export const useGetAllProducts = (
 	};
 };
 
+export const useGetAllProductsBySupplierName = (
+	supplier: string,
+	initialData?: TProductGetAllOutput,
+) => {
+	const { data, ...query } = trpc.products.getAll.useQuery(
+		undefined,
+		{
+			initialData,
+			select: supplier
+				? (products) =>
+						products?.filter(
+							(product) =>
+								product.supplier.name === supplier,
+						)
+				: undefined,
+		},
+	);
+
+	return {
+		products: data,
+		...query,
+	};
+};
+
 export const useGetAllProductsToOrder = (
 	initialData?: TProductGetAllOutput,
 ) => {
