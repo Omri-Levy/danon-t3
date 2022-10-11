@@ -19,9 +19,9 @@ import {
 import { useSkipper } from '../useSkipper/useSkipper';
 import { useSearchParams } from 'react-router-dom';
 import { camelCase, snakeCase } from 'lodash';
-import { addRowIndex } from '../../utils/add-row-index/add-row-index';
 import { IndeterminateCheckbox } from '../../components/atoms/IndeterminateCheckbox/IndeterminateCheckbox';
 import { locale } from '../../translations';
+import { addRowIndex } from '../../utils/add-row-index/add-row-index';
 
 export interface ISearchParams {
 	supplier: string;
@@ -55,6 +55,10 @@ export const useTable = <TData extends RowData>({
 > & {
 	initialSorting?: SortingState;
 }) => {
+	const withRowIndex = useMemo(
+		() => data?.map(addRowIndex),
+		[data],
+	);
 	const [searchParams, setSearchParams] = useSearchParams();
 	const prevSearchParams = Object.fromEntries(
 		searchParams.entries(),
@@ -98,10 +102,6 @@ export const useTable = <TData extends RowData>({
 	]);
 	const [rowSelection, setRowSelection] =
 		useState<RowSelectionState>({});
-	const withRowIndex = useMemo(
-		() => data?.map(addRowIndex),
-		[data?.length],
-	);
 	const updateSortSearchParams = useCallback(
 		(old: SortingState) => {
 			const currentSort = old.at(0);
