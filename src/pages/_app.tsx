@@ -26,7 +26,7 @@ const MyApp: AppType = ({ Component, pageProps }) => {
 					duration: 1000 * 10,
 				}}
 			/>
-			<main className='flex flex-col items-center p-1 pt-[7vh] min-h-screen relative'>
+			<main className='flex flex-col items-center p-1 pt-[3vh] min-h-screen relative'>
 				<Spinner />
 				<Component {...pageProps} />
 			</main>

@@ -7,6 +7,7 @@ import { useTopBar } from './hooks/useTopBar/useTopBar';
 export const TopBar: FunctionComponent<{
 	resource: string;
 	Actions: JSX.Element;
+	TopBarEnd?: JSX.Element;
 	globalFilter: string;
 	onGlobalFilter: ChangeEventHandler<HTMLInputElement>;
 	resourceCount: number;
@@ -15,17 +16,27 @@ export const TopBar: FunctionComponent<{
 	onGlobalFilter,
 	resourceCount,
 	Actions,
+	TopBarEnd,
 	resource,
 }) => {
-	const { isLoadingSession, onSignOut } = useTopBar();
+	const { isLoadingSession } = useTopBar();
 
 	return (
 		<div className={`flex justify-between mb-1 gap-1 flex-wrap`}>
-			<div className={`space-x-2 flex items-center`}>
+			<div className={`space-x-2 flex items-end`}>
 				{Actions}
 				<Navigation />
 			</div>
-			<div className={`flex space-x-2 items-center`}>
+			<div className={`flex space-x-2 items-end`}>
+				<a
+					className={clsx([
+						`btn`,
+						{ loading: isLoadingSession },
+					])}
+					href={`/api/auth/federated-sign-out`}
+				>
+					{locale.he.signOut}
+				</a>
 				<div className='form-control'>
 					<div className='input-group'>
 						<input
@@ -59,15 +70,7 @@ export const TopBar: FunctionComponent<{
 						</div>
 					</div>
 				</div>
-				<button
-					className={clsx([
-						`btn`,
-						{ loading: isLoadingSession },
-					])}
-					onClick={onSignOut}
-				>
-					{locale.he.signOut}
-				</button>
+				{TopBarEnd}
 			</div>
 		</div>
 	);

@@ -9,55 +9,59 @@ import { isInstanceOfDate } from '../../../../common/utils/is-instance-of-date/i
 import { useTable } from '../../../../../common/hooks/useTable/useTable';
 import { useSearchParams } from 'react-router-dom';
 import { fallbackWhen } from '../../../../../common/utils/fallback-when/fallback-when';
+import { useMemo } from 'react';
 
 export const useOrdersTable = (
 	orders: TOrderGetAllOutput,
 	onIdChange: (id: string) => void,
 	onOpen: () => void,
 ) => {
-	const columns: Array<ColumnDef<TOrderGetByIdOutput>> = [
-		{
-			header: locale.he.pdf,
-			cell: (props) => (
-				<ViewPDFButton
-					orders={orders}
-					onIdChange={onIdChange}
-					onOpen={onOpen}
-					{...props}
-				/>
-			),
-		},
-		{
-			accessorKey: 'orderNumber',
-			header: locale.he.orderNumber,
-			cell: ({ getValue }) => {
-				const value = getValue();
-
-				if (typeof value !== 'number') {
-					return value;
-				}
-
-				return value?.toString().padStart(5, '0');
+	const columns: Array<ColumnDef<TOrderGetByIdOutput>> = useMemo(
+		() => [
+			{
+				header: locale.he.pdf,
+				cell: (props) => (
+					<ViewPDFButton
+						orders={orders}
+						onIdChange={onIdChange}
+						onOpen={onOpen}
+						{...props}
+					/>
+				),
 			},
-		},
-		{
-			accessorKey: 'createdAt',
-			header: locale.he.createdAt,
-			cell: ({ getValue }) => {
-				const value = getValue();
+			{
+				accessorKey: 'orderNumber',
+				header: locale.he.orderNumber,
+				cell: ({ getValue }) => {
+					const value = getValue();
 
-				if (!isInstanceOfDate(value)) {
-					return value;
-				}
+					if (typeof value !== 'number') {
+						return value;
+					}
 
-				return new Date(value).toLocaleDateString();
+					return value?.toString().padStart(5, '0');
+				},
 			},
-		},
-		{
-			accessorKey: 'supplier.name',
-			header: locale.he.supplier,
-		},
-	];
+			{
+				accessorKey: 'createdAt',
+				header: locale.he.createdAt,
+				cell: ({ getValue }) => {
+					const value = getValue();
+
+					if (!isInstanceOfDate(value)) {
+						return value;
+					}
+
+					return new Date(value).toLocaleDateString();
+				},
+			},
+			{
+				accessorKey: 'supplier.name',
+				header: locale.he.supplier,
+			},
+		],
+		[onOpen, onIdChange, orders?.length],
+	);
 	const [searchParams] = useSearchParams();
 	const { limit = '', cursor = '' } = Object.fromEntries(
 		searchParams.entries(),

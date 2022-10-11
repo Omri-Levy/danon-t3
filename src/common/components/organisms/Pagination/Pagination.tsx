@@ -1,4 +1,4 @@
-import { PropsWithChildren } from 'react';
+import { PropsWithChildren, useCallback } from 'react';
 import { RowData, Table } from '@tanstack/table-core';
 
 export const Pagination = <TRowData extends RowData>({
@@ -6,6 +6,13 @@ export const Pagination = <TRowData extends RowData>({
 }: PropsWithChildren<{
 	table: Table<TRowData>;
 }>) => {
+	const goToFirstPage = useCallback(() => {
+		table.setPageIndex(0);
+	}, [table.setPageIndex]);
+	const goToLastPage = useCallback(() => {
+		table.setPageIndex(table.getPageCount() - 1);
+	}, [table.setPageIndex, table.getPageCount]);
+
 	return (
 		<div className='flex flex-col mt-1'>
 			<strong className={`ml-auto`}>
@@ -15,7 +22,7 @@ export const Pagination = <TRowData extends RowData>({
 			<div className='btn-group justify-end mt-1'>
 				<button
 					className='btn'
-					onClick={() => table.setPageIndex(0)}
+					onClick={goToFirstPage}
 					disabled={!table.getCanPreviousPage()}
 				>
 					<svg
@@ -76,9 +83,7 @@ export const Pagination = <TRowData extends RowData>({
 				<button
 					disabled={!table.getCanNextPage()}
 					className='btn'
-					onClick={() =>
-						table.setPageIndex(table.getPageCount() - 1)
-					}
+					onClick={goToLastPage}
 				>
 					<svg
 						xmlns='http://www.w3.org/2000/svg'

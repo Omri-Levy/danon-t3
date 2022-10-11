@@ -1,6 +1,5 @@
 import { QueryClientProvider } from '@tanstack/react-query';
 import { SessionProvider } from 'next-auth/react';
-import { AuthLayout } from '../../../../auth/components/templates/AuthLayout/AuthLayout';
 import { TComponentWithChildren } from '../../../types';
 import { IProvidersProps } from './interfaces';
 import { queryClient } from '../../../utils/trpc/query-client';
@@ -14,7 +13,7 @@ export const Providers: TComponentWithChildren<IProvidersProps> = ({
 		<trpc.Provider queryClient={queryClient} client={trpcClient}>
 			<QueryClientProvider client={queryClient}>
 				<SessionProvider session={session}>
-					<AuthLayout>{children}</AuthLayout>
+					{children}
 				</SessionProvider>
 			</QueryClientProvider>
 		</trpc.Provider>
