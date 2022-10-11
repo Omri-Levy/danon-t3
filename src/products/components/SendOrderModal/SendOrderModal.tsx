@@ -68,7 +68,7 @@ export const SendOrderModal: FunctionComponent<
 		.padStart(5, '0');
 	const withRowIndex = useMemo(
 		() => products?.map(addRowIndex),
-		[products?.length],
+		[products],
 	);
 	const base64 = usePdfTable(
 		headers,

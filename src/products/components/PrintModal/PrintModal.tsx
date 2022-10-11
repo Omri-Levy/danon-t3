@@ -51,7 +51,7 @@ export const PrintModal: FunctionComponent<IPrintModalProps> = ({
 	);
 	const withRowIndex = useMemo(
 		() => products?.map(addRowIndex),
-		[products?.length],
+		[products],
 	);
 	const base64 = usePdfTable(headers, withRowIndex ?? []);
 
