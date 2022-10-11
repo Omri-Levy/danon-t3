@@ -16,6 +16,9 @@ export const Products: NextPage = () => {
 		onGlobalFilter,
 		rowSelection,
 		setRowSelection,
+		supplierNames,
+		supplier,
+		onUpdateSupplier,
 	} = useProducts();
 
 	return (
@@ -28,6 +31,29 @@ export const Products: NextPage = () => {
 						rowSelection={rowSelection}
 						setRowSelection={setRowSelection}
 					/>
+				}
+				TopBarEnd={
+					<div>
+						<label className={`label block text-right`}>
+							<span className={`label-text`}>
+								{locale.he.supplier}
+							</span>
+						</label>
+						<select
+							className='select select-bordered'
+							value={supplier ?? supplierNames?.[0]}
+							onChange={onUpdateSupplier}
+						>
+							{supplierNames?.map((o) => (
+								<option
+									key={`${o}-select-option`}
+									disabled={supplier === o}
+								>
+									{o}
+								</option>
+							))}
+						</select>
+					</div>
 				}
 				globalFilter={globalFilter}
 				onGlobalFilter={onGlobalFilter}

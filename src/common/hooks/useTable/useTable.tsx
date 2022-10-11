@@ -24,6 +24,7 @@ import { IndeterminateCheckbox } from '../../components/atoms/IndeterminateCheck
 import { locale } from '../../translations';
 
 export interface ISearchParams {
+	supplier: string;
 	search: string;
 	sort_by: string;
 	sort_dir: string;
@@ -55,29 +56,21 @@ export const useTable = <TData extends RowData>({
 	initialSorting?: SortingState;
 }) => {
 	const [searchParams, setSearchParams] = useSearchParams();
-	const {
-		search = '',
-		sort_by = '',
-		sort_dir = '',
-		cursor = '',
-		limit = '',
-	} = Object.fromEntries(
+	const prevSearchParams = Object.fromEntries(
 		searchParams.entries(),
 	) as unknown as ISearchParams;
+	const { search, sort_by, sort_dir, cursor, limit } =
+		prevSearchParams;
 	const camelCasedSortBy = camelCase(sort_by);
 	const [globalFilter, setGlobalFilter] = useState(search ?? '');
 	const onSearchParams = useCallback(
 		(params: Partial<ISearchParams>) => {
 			setSearchParams(() => ({
-				search,
-				sort_by,
-				sort_dir,
-				cursor,
-				limit,
+				...prevSearchParams,
 				...params,
 			}));
 		},
-		[setSearchParams, search, sort_by, sort_dir, cursor, limit],
+		[setSearchParams],
 	);
 	const isDesc = sort_dir === 'desc';
 	const onGlobalFilter: ChangeEventHandler<HTMLInputElement> =
@@ -184,10 +177,14 @@ export const useTable = <TData extends RowData>({
 			rowSelection,
 			sorting,
 			globalFilter,
+			...options?.state,
 		},
+		...options,
 		meta: {
 			...options?.meta,
-			updateData: options?.updateData?.(skipAutoResetPageIndex),
+			updateData: options?.meta?.updateData?.(
+				skipAutoResetPageIndex,
+			),
 		},
 		initialState: {
 			pagination: {
@@ -197,7 +194,6 @@ export const useTable = <TData extends RowData>({
 			},
 			...options?.initialState,
 		},
-		...options,
 	});
 	const pageIndex = table.getState().pagination.pageIndex;
 	const pageSize = table.getState().pagination.pageSize;
