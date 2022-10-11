@@ -17,7 +17,7 @@ export const TopBar: FunctionComponent<{
 	Actions,
 	resource,
 }) => {
-	const { isLoadingSession, onSignOut } = useTopBar();
+	const { isLoadingSession } = useTopBar();
 
 	return (
 		<div className={`flex justify-between mb-1 gap-1 flex-wrap`}>
@@ -59,15 +59,15 @@ export const TopBar: FunctionComponent<{
 						</div>
 					</div>
 				</div>
-				<button
+				<a
 					className={clsx([
 						`btn`,
 						{ loading: isLoadingSession },
 					])}
-					onClick={onSignOut}
+					href={`/api/auth/federated-sign-out`}
 				>
 					{locale.he.signOut}
-				</button>
+				</a>
 			</div>
 		</div>
 	);

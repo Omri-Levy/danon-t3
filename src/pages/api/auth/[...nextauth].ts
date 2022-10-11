@@ -5,7 +5,6 @@ import { env } from '../../../common/env/server.mjs';
 import { KyselyAdapter } from '../../../db/KyselyAdapter';
 
 export const authOptions: NextAuthOptions = {
-	// Include user.id on session
 	callbacks: {
 		session({ session, user }) {
 			if (session.user) {
@@ -13,14 +12,21 @@ export const authOptions: NextAuthOptions = {
 			}
 			return session;
 		},
-		signIn({ profile }) {
-			return profile.email === env.EMAIL;
+		redirect({ url, baseUrl }) {
+			// Allows relative callback URLs
+			if (url.startsWith('/')) return `${baseUrl}${url}`;
+
+			// Allows callback URLs on the same origin
+			if (new URL(url).origin === baseUrl) return url;
+
+			return baseUrl;
 		},
 	},
 	// Configure one or more authentication providers
 	adapter: KyselyAdapter(db),
 	pages: {
 		signIn: '/auth/sign-in',
+		error: '/auth/error',
 	},
 	providers: [
 		AzureADProvider({
