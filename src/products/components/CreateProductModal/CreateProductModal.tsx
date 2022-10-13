@@ -9,13 +9,12 @@ import { createProductSchema } from '../../validation';
 import clsx from 'clsx';
 import { useCreateProduct } from '../../products.api';
 import { useGetAllSupplierNames } from '../../../suppliers/suppliers.api';
-import { ICreateProductModalProps } from './interfaces';
 import { zSupplierNamesEnum } from '../../../suppliers/utils/z-supplier-names-enum/z-supplier-names-enum';
 import { Modal } from '../../../common/components/molecules/Modal/Modal';
+import { useModalsStore } from '../../../common/stores/modals/modals';
 
-export const CreateProductModal: FunctionComponent<
-	ICreateProductModalProps
-> = ({ isOpen, onOpen }) => {
+export const CreateProductModal: FunctionComponent = () => {
+	const { isOpen, onToggleIsCreatingProduct } = useModalsStore();
 	const { supplierNames } = useGetAllSupplierNames();
 	const createProductMethods = useForm({
 		mode: 'all',
@@ -64,7 +63,7 @@ export const CreateProductModal: FunctionComponent<
 	return (
 		<Modal
 			isOpen={isOpen}
-			onOpen={onOpen}
+			onOpen={onToggleIsCreatingProduct}
 			title={locale.he.createProduct}
 		>
 			<FormProvider {...createProductMethods}>

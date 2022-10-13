@@ -15,7 +15,7 @@ export const SelectSupplier: FunctionComponent = () => {
 			</label>
 			<select
 				className='select select-bordered'
-				value={supplier ?? supplierNames?.[0]}
+				value={supplier}
 				onChange={onUpdateSupplier}
 			>
 				{supplierNames?.map((o) => (

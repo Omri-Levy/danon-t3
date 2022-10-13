@@ -20,13 +20,12 @@ import {
 } from '../../../orders/orders.api';
 import { useGetAllProductsToOrder } from '../../products.api';
 import { sendOrderSchema } from '../../../orders/validation';
-import { ISendOrderModalProps } from './interfaces';
 import { addRowIndex } from '../../../common/utils/add-row-index/add-row-index';
 import { Modal } from '../../../common/components/molecules/Modal/Modal';
+import { useModalsStore } from '../../../common/stores/modals/modals';
 
-export const SendOrderModal: FunctionComponent<
-	ISendOrderModalProps
-> = ({ isOpen, onOpen }) => {
+export const SendOrderModal: FunctionComponent = () => {
+	const { isOpen, onToggleIsSendingOrder } = useModalsStore();
 	const { products } = useGetAllProductsToOrder();
 	const { onSend, isSuccess, isLoading } = useSendOrder();
 	const headers = useMemo(
@@ -95,13 +94,13 @@ export const SendOrderModal: FunctionComponent<
 	useEffect(() => {
 		if (!isSuccess) return;
 
-		onOpen(false);
+		onToggleIsSendingOrder(false);
 	}, [isSuccess]);
 
 	return (
 		<Modal
 			isOpen={isOpen}
-			onOpen={onOpen}
+			onOpen={onToggleIsSendingOrder}
 			title={locale.he.order}
 			contentProps={{
 				className: `2xl:w-6/12 max-w-[70%] h-full

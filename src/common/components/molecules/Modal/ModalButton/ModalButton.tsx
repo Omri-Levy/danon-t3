@@ -1,12 +1,9 @@
 import { TComponentWithChildren } from '../../../../types';
-import { ComponentProps } from 'react';
+import { IModalButtonProps } from './interfaces';
 
 export const ModalButton: TComponentWithChildren<
-	{
-		isOpen: boolean;
-		onOpen: () => void;
-	} & ComponentProps<'button'>
-> = ({ isOpen, onOpen, children, ...rest }) => {
+	IModalButtonProps
+> = ({ onOpen, isOpen, children, ...rest }) => {
 	return (
 		<button
 			aria-haspopup={`dialog`}

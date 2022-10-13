@@ -43,6 +43,7 @@
 		"decimal.js": "^10.4.0",
 		"dotenv": "^16.0.3",
 		"googleapis": "^105.0.0",
+		"immer": "^9.0.15",
 		"jspdf": "^2.5.1",
 		"jspdf-autotable": "^3.5.25",
 		"kysely": "^0.22.0",
@@ -63,7 +64,9 @@
 		"react-use": "^17.4.0",
 		"superjson": "^1.9.1",
 		"undici": "^5.11.0",
-		"zod": "^3.18.0"
+		"use-immer": "^0.7.0",
+		"zod": "^3.18.0",
+		"zustand": "^4.1.2"
 	},
 	"devDependencies": {
 		"@commitlint/cli": "^17.0.3",

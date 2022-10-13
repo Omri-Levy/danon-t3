@@ -1,8 +1,5 @@
-import { SendOrderModal } from '../SendOrderModal/SendOrderModal';
 import clsx from 'clsx';
 import { locale } from '../../../common/translations';
-import { CreateProductModal } from '../CreateProductModal/CreateProductModal';
-import { PrintModal } from '../PrintModal/PrintModal';
 import { FunctionComponent } from 'react';
 import { useProductsActions } from './hooks/useProductsActions/useProductsActions';
 import { IProductsActionsProps } from './interfaces';
@@ -14,8 +11,7 @@ export const ProductsActions: FunctionComponent<
 	const {
 		disableOrder,
 		moreThanOneSupplier,
-		isSendingOrder,
-		toggleIsSendingOrder,
+		onToggleIsSendingOrder,
 		selectedProducts,
 		disableResetOrderAmount,
 		isLoadingResetOrderAmount,
@@ -23,10 +19,9 @@ export const ProductsActions: FunctionComponent<
 		disableDelete,
 		isLoadingDeleteByIds,
 		onDeleteSelectedProducts,
-		isCreatingProduct,
-		isPrinting,
-		toggleIsPrinting,
-		toggleIsCreatingProduct,
+		isOpen,
+		onToggleIsPrinting,
+		onToggleIsCreatingProduct,
 	} = useProductsActions(rowSelection, setRowSelection);
 
 	return (
@@ -39,14 +34,10 @@ export const ProductsActions: FunctionComponent<
 						: `לא ניתן לבצע הזמנה ללא מוצרים עם כמות הזמנה מעל ל0`
 				}
 			>
-				<SendOrderModal
-					isOpen={isSendingOrder}
-					onOpen={toggleIsSendingOrder}
-				/>
 				<ModalButton
 					disabled={disableOrder}
-					isOpen={isSendingOrder}
-					onOpen={toggleIsSendingOrder}
+					onOpen={onToggleIsSendingOrder}
+					isOpen={isOpen}
 				>
 					{locale.he.order}
 				</ModalButton>
@@ -93,24 +84,13 @@ export const ProductsActions: FunctionComponent<
 					{locale.he.delete}
 				</button>
 			</div>
-			<CreateProductModal
-				isOpen={isCreatingProduct}
-				onOpen={toggleIsCreatingProduct}
-			/>
 			<ModalButton
-				onOpen={toggleIsCreatingProduct}
-				isOpen={isCreatingProduct}
+				onOpen={onToggleIsCreatingProduct}
+				isOpen={isOpen}
 			>
 				{locale.he.createProduct}
 			</ModalButton>
-			<PrintModal
-				isOpen={isPrinting}
-				onOpen={toggleIsPrinting}
-			/>
-			<ModalButton
-				isOpen={isPrinting}
-				onOpen={toggleIsPrinting}
-			>
+			<ModalButton onOpen={onToggleIsPrinting} isOpen={isOpen}>
 				{locale.he.print}
 			</ModalButton>
 		</>

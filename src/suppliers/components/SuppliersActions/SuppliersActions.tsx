@@ -1,19 +1,17 @@
-import { useToggle } from 'react-use';
 import {
 	useDeleteSuppliersByIds,
 	useGetAllSuppliers,
 } from '../../suppliers.api';
-import { CreateSupplierModal } from '../CreateSupplierModal/CreateSupplierModal';
 import clsx from 'clsx';
 import { locale } from '../../../common/translations';
 import { FunctionComponent } from 'react';
 import { ISuppliersActionsProps } from './interfaces';
 import { ModalButton } from '../../../common/components/molecules/Modal/ModalButton/ModalButton';
+import { useModalsStore } from '../../../common/stores/modals/modals';
 
 export const SuppliersActions: FunctionComponent<
 	ISuppliersActionsProps
 > = ({ rowSelection, setRowSelection }) => {
-	const [isOpen, toggleIsOpen] = useToggle(false);
 	const { suppliers } = useGetAllSuppliers();
 	const selectedSuppliers = suppliers
 		?.filter((_, index) => rowSelection[index])
@@ -27,14 +25,14 @@ export const SuppliersActions: FunctionComponent<
 			ids: selectedSuppliers,
 		});
 	};
+	const { onToggleIsCreatingSupplier, isOpen } = useModalsStore();
 
 	return (
 		<>
-			<CreateSupplierModal
+			<ModalButton
+				onOpen={onToggleIsCreatingSupplier}
 				isOpen={isOpen}
-				onOpen={toggleIsOpen}
-			/>
-			<ModalButton onOpen={toggleIsOpen} isOpen={isOpen}>
+			>
 				{locale.he.createSupplier}
 			</ModalButton>
 			<button

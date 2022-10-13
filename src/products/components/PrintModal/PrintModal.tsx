@@ -2,14 +2,12 @@ import { locale } from '../../../common/translations';
 import { usePdfTable } from '../../hooks/usePdfTable/usePdfTable';
 import { useGetAllProducts } from '../../products.api';
 import { FunctionComponent, useMemo } from 'react';
-import { IPrintModalProps } from './interfaces';
 import { addRowIndex } from '../../../common/utils/add-row-index/add-row-index';
 import { Modal } from '../../../common/components/molecules/Modal/Modal';
+import { useModalsStore } from '../../../common/stores/modals/modals';
 
-export const PrintModal: FunctionComponent<IPrintModalProps> = ({
-	isOpen,
-	onOpen,
-}) => {
+export const PrintModal: FunctionComponent = () => {
+	const { isOpen, onToggleIsPrinting } = useModalsStore();
 	const { products } = useGetAllProducts();
 	const headers = useMemo(
 		() =>
@@ -57,7 +55,7 @@ export const PrintModal: FunctionComponent<IPrintModalProps> = ({
 	return (
 		<Modal
 			isOpen={isOpen}
-			onOpen={onOpen}
+			onOpen={onToggleIsPrinting}
 			title={locale.he.print}
 			contentProps={{
 				className:

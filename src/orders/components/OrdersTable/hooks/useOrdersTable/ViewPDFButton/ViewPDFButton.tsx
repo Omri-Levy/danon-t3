@@ -2,31 +2,34 @@ import { CellContext, RowData } from '@tanstack/table-core';
 import { PropsWithChildren, useCallback } from 'react';
 import { TOrderGetAllOutput } from '../../../../../../common/types';
 import { locale } from '../../../../../../common/translations';
+import { ModalButton } from '../../../../../../common/components/molecules/Modal/ModalButton/ModalButton';
+import { useModalsStore } from '../../../../../../common/stores/modals/modals';
+
+export interface IViewPDFButtonProps<TRowData extends RowData, TValue>
+	extends CellContext<TRowData, TValue> {
+	orders: TOrderGetAllOutput;
+	onIdChange: (id: string) => void;
+}
 
 export const ViewPDFButton = <TRowData extends RowData, TValue>({
 	orders,
 	row: { index },
 	onIdChange,
-	onOpen,
-}: PropsWithChildren<{
-	orders: TOrderGetAllOutput;
-	onIdChange: (id: string) => void;
-	onOpen: () => void;
-}> &
-	CellContext<TRowData, TValue>) => {
+}: PropsWithChildren<IViewPDFButtonProps<TRowData, TValue>>) => {
+	const { onToggleIsViewingPDF, isOpen } = useModalsStore();
 	const id = orders?.[index]?.id ?? '';
-	const handleIdChange = useCallback(() => {
+	const onToggle = useCallback(() => {
 		onIdChange(id);
-		onOpen();
-	}, [onIdChange, onOpen, id]);
+		onToggleIsViewingPDF();
+	}, [onIdChange, id, onToggleIsViewingPDF]);
 
 	return (
-		<button
+		<ModalButton
 			className={`btn btn-ghost`}
-			onClick={handleIdChange}
-			type={`button`}
+			onOpen={onToggle}
+			isOpen={isOpen}
 		>
 			{locale.he.view}
-		</button>
+		</ModalButton>
 	);
 };

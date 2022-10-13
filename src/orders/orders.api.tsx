@@ -82,10 +82,13 @@ export const useGetAllOrdersBySupplierName = (
 		undefined,
 		{
 			initialData,
-			select: (orders) =>
-				orders.filter(
-					(order) => order.supplier.name === supplier,
-				),
+			select: supplier
+				? (orders) =>
+						orders?.filter(
+							(order) =>
+								order.supplier.name === supplier,
+						)
+				: undefined,
 		},
 	);
 

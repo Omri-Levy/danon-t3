@@ -1,41 +1,51 @@
-import { useLoaderData, useSearchParams } from 'react-router-dom';
-import { useToggle } from 'react-use';
-import { useCallback, useState } from 'react';
+import {
+	useLoaderData,
+	useNavigate,
+	useParams,
+} from 'react-router-dom';
+import { useCallback, useEffect } from 'react';
 import { useOrdersTable } from '../../components/OrdersTable/hooks/useOrdersTable/useOrdersTable';
 import { ordersLoader } from '../../orders.loader';
-import {
-	useGetAllOrdersBySupplierName,
-	useGetOrderPresignedUrlById,
-} from '../../orders.api';
+import { useGetAllOrdersBySupplierName } from '../../orders.api';
+import { useModalsStore } from '../../../common/stores/modals/modals';
+import { useSearchParams } from '../../../common/hooks/useSearchParams/useSearchParams';
 
 export const useOrders = () => {
+	const { isOpen, onToggleIsViewingPDF } = useModalsStore();
+	const { orderId } = useParams();
 	const initialOrders = useLoaderData() as Awaited<
 		ReturnType<ReturnType<typeof ordersLoader>>
 	>;
-	const [isOpen, toggleIsOpen] = useToggle(false);
-	const [searchParams] = useSearchParams();
-	const supplier = searchParams.get('filter') ?? '';
+	const [{ filter: supplier = '' }, , search] = useSearchParams();
 	const { orders, isLoading } = useGetAllOrdersBySupplierName(
 		supplier,
 		initialOrders,
 	);
-	const [id, setId] = useState('');
+	const navigate = useNavigate();
 	const onIdChange = useCallback(
-		(id: string) => setId(id),
-		[setId],
+		(id: string) => {
+			navigate({
+				pathname: `/orders/${id}`,
+				search,
+			});
+		},
+		[navigate, search],
 	);
-	const { data: presignedUrl } = useGetOrderPresignedUrlById({
-		id,
-		enabled: !!id && isOpen,
-	});
 	const {
 		table,
 		globalFilter,
 		onGlobalFilter,
 		rowSelection,
 		setRowSelection,
-	} = useOrdersTable(orders, onIdChange, toggleIsOpen);
+	} = useOrdersTable(orders, onIdChange);
 	const ordersCount = orders?.length ?? 0;
+
+	// Reopen the modal on page reload
+	useEffect(() => {
+		if (!orderId || isOpen) return;
+
+		onToggleIsViewingPDF(true);
+	}, [orderId, isOpen]);
 
 	return {
 		isLoading,
@@ -46,8 +56,5 @@ export const useOrders = () => {
 		onGlobalFilter,
 		rowSelection,
 		setRowSelection,
-		isOpen,
-		toggleIsOpen,
-		presignedUrl,
 	};
 };

@@ -4,12 +4,15 @@ import { trpcProxyClient } from '../common/utils/trpc/trpc-clients';
 
 export const ordersLoader =
 	(queryClient: QueryClient) => async () => {
-		return (
+		const orders =
 			queryClient.getQueryData<TOrderGetAllOutput>([
 				'orders.getAll',
 			]) ??
-			(await queryClient.fetchQuery(['orders.getAll'], () =>
+			queryClient.fetchQuery(['orders.getAll'], () =>
 				trpcProxyClient.orders.getAll.query(),
-			))
-		);
+			);
+
+		return {
+			orders,
+		};
 	};
