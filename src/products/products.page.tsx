@@ -6,6 +6,7 @@ import { TopBar } from '../common/components/molecules/TopBar/TopBar';
 import { locale } from '../common/translations';
 import { Pagination } from '../common/components/organisms/Pagination/Pagination';
 import { useProducts } from './hooks/useProducts/useProducts';
+import { SelectSupplier } from '../common/components/atoms/SelectSupplier/SelectSupplier';
 
 export const Products: NextPage = () => {
 	const {
@@ -16,9 +17,6 @@ export const Products: NextPage = () => {
 		onGlobalFilter,
 		rowSelection,
 		setRowSelection,
-		supplierNames,
-		supplier,
-		onUpdateSupplier,
 	} = useProducts();
 
 	return (
@@ -32,29 +30,7 @@ export const Products: NextPage = () => {
 						setRowSelection={setRowSelection}
 					/>
 				}
-				TopBarEnd={
-					<div>
-						<label className={`label block text-right`}>
-							<span className={`label-text`}>
-								{locale.he.supplier}
-							</span>
-						</label>
-						<select
-							className='select select-bordered'
-							value={supplier ?? supplierNames?.[0]}
-							onChange={onUpdateSupplier}
-						>
-							{supplierNames?.map((o) => (
-								<option
-									key={`${o}-select-option`}
-									disabled={supplier === o}
-								>
-									{o}
-								</option>
-							))}
-						</select>
-					</div>
-				}
+				TopBarEnd={<SelectSupplier />}
 				globalFilter={globalFilter}
 				onGlobalFilter={onGlobalFilter}
 				resourceCount={

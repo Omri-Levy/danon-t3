@@ -74,6 +74,27 @@ export const useGetAllOrders = (initialData?: TOrderGetAllOutput) => {
 	};
 };
 
+export const useGetAllOrdersBySupplierName = (
+	supplier: string,
+	initialData?: TOrderGetAllOutput,
+) => {
+	const { data, ...query } = trpc.orders.getAll.useQuery(
+		undefined,
+		{
+			initialData,
+			select: (orders) =>
+				orders.filter(
+					(order) => order.supplier.name === supplier,
+				),
+		},
+	);
+
+	return {
+		orders: data,
+		...query,
+	};
+};
+
 export const useGetOrderById = (id: string) => {
 	const { data, ...query } = trpc.orders.getById.useQuery({
 		id,
