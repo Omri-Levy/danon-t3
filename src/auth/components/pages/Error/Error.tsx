@@ -29,7 +29,10 @@ export const Error: NextPage = () => {
 								</a>{' '}
 								are correct.
 							</p>
-							<button className='btn btn-primary'>
+							<button
+								className='btn btn-primary'
+								type={`button`}
+							>
 								Get Started
 							</button>
 						</div>
@@ -71,7 +74,10 @@ export const Error: NextPage = () => {
 									redirect callback
 								</a>
 							</p>
-							<button className='btn btn-primary'>
+							<button
+								className='btn btn-primary'
+								type={`button`}
+							>
 								Get Started
 							</button>
 						</div>
@@ -99,7 +105,10 @@ export const Error: NextPage = () => {
 								token has expired or has already been
 								used
 							</p>
-							<button className='btn btn-primary'>
+							<button
+								className='btn btn-primary'
+								type={`button`}
+							>
 								Get Started
 							</button>
 						</div>
@@ -125,7 +134,10 @@ export const Error: NextPage = () => {
 							Catch all, will apply, if none of the
 							above matched
 						</p>
-						<button className='btn btn-primary'>
+						<button
+							className='btn btn-primary'
+							type={`button`}
+						>
 							Get Started
 						</button>
 					</div>

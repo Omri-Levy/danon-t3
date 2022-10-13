@@ -6,6 +6,7 @@ import { PrintModal } from '../PrintModal/PrintModal';
 import { FunctionComponent } from 'react';
 import { useProductsActions } from './hooks/useProductsActions/useProductsActions';
 import { IProductsActionsProps } from './interfaces';
+import { ModalButton } from '../../../common/components/molecules/Modal/ModalButton/ModalButton';
 
 export const ProductsActions: FunctionComponent<
 	IProductsActionsProps
@@ -39,10 +40,16 @@ export const ProductsActions: FunctionComponent<
 				}
 			>
 				<SendOrderModal
-					disabled={disableOrder}
 					isOpen={isSendingOrder}
 					onOpen={toggleIsSendingOrder}
 				/>
+				<ModalButton
+					disabled={disableOrder}
+					isOpen={isSendingOrder}
+					onOpen={toggleIsSendingOrder}
+				>
+					{locale.he.order}
+				</ModalButton>
 			</div>
 			<div
 				className={
@@ -81,6 +88,7 @@ export const ProductsActions: FunctionComponent<
 						{ loading: isLoadingDeleteByIds },
 					])}
 					onClick={onDeleteSelectedProducts}
+					type={`button`}
 				>
 					{locale.he.delete}
 				</button>
@@ -89,10 +97,22 @@ export const ProductsActions: FunctionComponent<
 				isOpen={isCreatingProduct}
 				onOpen={toggleIsCreatingProduct}
 			/>
+			<ModalButton
+				onOpen={toggleIsCreatingProduct}
+				isOpen={isCreatingProduct}
+			>
+				{locale.he.createProduct}
+			</ModalButton>
 			<PrintModal
 				isOpen={isPrinting}
 				onOpen={toggleIsPrinting}
 			/>
+			<ModalButton
+				isOpen={isPrinting}
+				onOpen={toggleIsPrinting}
+			>
+				{locale.he.print}
+			</ModalButton>
 		</>
 	);
 };

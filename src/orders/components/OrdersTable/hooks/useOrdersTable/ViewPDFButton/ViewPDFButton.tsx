@@ -21,7 +21,11 @@ export const ViewPDFButton = <TRowData extends RowData, TValue>({
 	}, [onIdChange, onOpen, id]);
 
 	return (
-		<button className={`btn btn-ghost`} onClick={handleIdChange}>
+		<button
+			className={`btn btn-ghost`}
+			onClick={handleIdChange}
+			type={`button`}
+		>
 			{locale.he.view}
 		</button>
 	);

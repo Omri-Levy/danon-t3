@@ -25,6 +25,7 @@ export const OrdersActions: FunctionComponent<
 					{ loading: isLoadingDeleteByIds },
 				])}
 				onClick={onDeleteSelectedOrders}
+				type={`button`}
 			>
 				{locale.he.delete}
 			</button>

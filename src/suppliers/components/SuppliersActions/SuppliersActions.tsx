@@ -8,6 +8,7 @@ import clsx from 'clsx';
 import { locale } from '../../../common/translations';
 import { FunctionComponent } from 'react';
 import { ISuppliersActionsProps } from './interfaces';
+import { ModalButton } from '../../../common/components/molecules/Modal/ModalButton/ModalButton';
 
 export const SuppliersActions: FunctionComponent<
 	ISuppliersActionsProps
@@ -33,6 +34,9 @@ export const SuppliersActions: FunctionComponent<
 				isOpen={isOpen}
 				onOpen={toggleIsOpen}
 			/>
+			<ModalButton onOpen={toggleIsOpen} isOpen={isOpen}>
+				{locale.he.createSupplier}
+			</ModalButton>
 			<button
 				disabled={
 					!suppliers?.length ||
@@ -44,6 +48,7 @@ export const SuppliersActions: FunctionComponent<
 					{ loading: isLoadingDeleteByIds },
 				])}
 				onClick={onDeleteSelectedSuppliers}
+				type={`button`}
 			>
 				{locale.he.delete}
 			</button>

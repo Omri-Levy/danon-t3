@@ -24,6 +24,7 @@ export const Pagination = <TRowData extends RowData>({
 					className='btn'
 					onClick={goToFirstPage}
 					disabled={!table.getCanPreviousPage()}
+					type={`button`}
 				>
 					<svg
 						xmlns='http://www.w3.org/2000/svg'
@@ -44,6 +45,7 @@ export const Pagination = <TRowData extends RowData>({
 					disabled={!table.getCanPreviousPage()}
 					className='btn'
 					onClick={table.previousPage}
+					type={`button`}
 				>
 					<svg
 						xmlns='http://www.w3.org/2000/svg'
@@ -64,6 +66,7 @@ export const Pagination = <TRowData extends RowData>({
 					className='btn'
 					disabled={!table.getCanNextPage()}
 					onClick={table.nextPage}
+					type={`button`}
 				>
 					<svg
 						xmlns='http://www.w3.org/2000/svg'
@@ -84,6 +87,7 @@ export const Pagination = <TRowData extends RowData>({
 					disabled={!table.getCanNextPage()}
 					className='btn'
 					onClick={goToLastPage}
+					type={`button`}
 				>
 					<svg
 						xmlns='http://www.w3.org/2000/svg'
