@@ -2,6 +2,7 @@ import {
 	createBrowserRouter,
 	Outlet,
 	RouterProvider,
+	useMatches,
 } from 'react-router-dom';
 import { FunctionComponent, Suspense } from 'react';
 import { products } from '../../../../products';
@@ -12,10 +13,14 @@ import { Spinner } from '../../atoms/Spinner/Spinner';
 import { Toaster } from 'react-hot-toast';
 import { Modal } from '../../molecules/Modal/Modal';
 import { useModalsStore } from '../../../stores/modals/modals';
+import { useConsole } from '../../../hooks/useConsole/useConsole';
 
 export const Root = () => {
 	const { getModal } = useModalsStore();
 	const Modal = getModal();
+	const matches = useMatches();
+
+	useConsole({ matches });
 
 	return (
 		<Suspense>

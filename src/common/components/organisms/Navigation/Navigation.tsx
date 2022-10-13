@@ -5,9 +5,7 @@ import { FunctionComponent } from 'react';
 
 export const Navigation: FunctionComponent = () => {
 	const { pathname } = useLocation();
-	const nonIndexRoutes = [`/suppliers`, `/orders`];
 
-	// isActive results in more than one active link
 	return (
 		<>
 			<NavLink
@@ -26,13 +24,12 @@ export const Navigation: FunctionComponent = () => {
 			</NavLink>
 			<NavLink
 				to={'/'}
+				end
 				className={({ isActive, isPending }) =>
 					clsx([
 						'btn',
 						{
-							'btn-primary btn-active':
-								isActive &&
-								!nonIndexRoutes.includes(pathname),
+							'btn-primary btn-active': isActive,
 						},
 						{ loading: isPending },
 					])
