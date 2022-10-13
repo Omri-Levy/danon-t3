@@ -2,22 +2,21 @@ import { locale } from '../../../common/translations';
 import { FormProvider } from 'react-hook-form';
 import { FormInput } from '../../../common/components/molecules/Form/FormInput/FormInput';
 import clsx from 'clsx';
-import { ICreateSupplierModalProps } from './interfaces';
 import { useCreateSupplierModal } from './hooks/useCreateSupplierModal/useCreateSupplierModal';
 import { Modal } from '../../../common/components/molecules/Modal/Modal';
+import { useModalsStore } from '../../../common/stores/modals/modals';
+import { FunctionComponent } from 'react';
 
-export const CreateSupplierModal = ({
-	isOpen,
-	onOpen,
-}: ICreateSupplierModalProps) => {
+export const CreateSupplierModal: FunctionComponent = () => {
 	const { createSupplierMethods, isLoading, onCreate } =
 		useCreateSupplierModal();
+	const { isOpen, onToggleIsCreatingSupplier } = useModalsStore();
 
 	return (
 		<Modal
 			title={locale.he.createSupplier}
 			isOpen={isOpen}
-			onOpen={onOpen}
+			onOpen={onToggleIsCreatingSupplier}
 		>
 			<FormProvider {...createSupplierMethods}>
 				<form

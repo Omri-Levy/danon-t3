@@ -2,7 +2,7 @@ import { NextPage } from 'next';
 import { locale } from '../common/translations';
 import { Pagination } from '../common/components/organisms/Pagination/Pagination';
 import { OrdersTable } from './components/OrdersTable/OrdersTable';
-import { ViewPDF } from './components/ViewPDF/ViewPDF';
+import { ViewPDFModal } from './components/ViewPDFModal/ViewPDFModal';
 import { useOrders } from './hooks/useOrders/useOrders';
 import { TopBar } from '../common/components/molecules/TopBar/TopBar';
 import { OrdersActions } from './components/OrdersActions/OrdersActions';
@@ -16,20 +16,13 @@ export const Orders: NextPage = () => {
 		isLoading,
 		orders,
 		ordersCount,
-		isOpen,
-		toggleIsOpen,
-		presignedUrl,
 		rowSelection,
 		setRowSelection,
 	} = useOrders();
 
 	return (
 		<section className={'w-fit xl:w-full xl:max-w-[1536px]'}>
-			<ViewPDF
-				presignedUrl={presignedUrl ?? ''}
-				isOpen={isOpen}
-				onOpen={toggleIsOpen}
-			/>
+			<ViewPDFModal />
 			<TopBar
 				resource={locale.he.orders}
 				TopBarEnd={<SelectSupplier />}

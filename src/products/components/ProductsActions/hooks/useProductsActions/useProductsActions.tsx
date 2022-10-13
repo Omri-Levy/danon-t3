@@ -1,4 +1,3 @@
-import { useToggle } from 'react-use';
 import {
 	useDeleteProductsByIds,
 	useGetAllProducts,
@@ -6,6 +5,7 @@ import {
 	useResetProductsOrderAmountByIds,
 } from '../../../../products.api';
 import { Dispatch, SetStateAction, useCallback } from 'react';
+import { useModalsStore } from '../../../../../common/stores/modals/modals';
 
 export const useProductsActions = (
 	rowSelection: Record<PropertyKey, boolean>,
@@ -14,10 +14,12 @@ export const useProductsActions = (
 	>,
 ) => {
 	// Modal toggles
-	const [isSendingOrder, toggleIsSendingOrder] = useToggle(false);
-	const [isPrinting, toggleIsPrinting] = useToggle(false);
-	const [isCreatingProduct, toggleIsCreatingProduct] =
-		useToggle(false);
+	const {
+		onToggleIsCreatingProduct,
+		onToggleIsSendingOrder,
+		onToggleIsPrinting,
+		isOpen,
+	} = useModalsStore();
 
 	// Queries
 	const { products } = useGetAllProducts();
@@ -65,8 +67,7 @@ export const useProductsActions = (
 	return {
 		disableOrder,
 		moreThanOneSupplier,
-		isSendingOrder,
-		toggleIsSendingOrder,
+		onToggleIsSendingOrder,
 		selectedProducts,
 		disableResetOrderAmount,
 		isLoadingResetOrderAmount,
@@ -74,9 +75,8 @@ export const useProductsActions = (
 		disableDelete,
 		isLoadingDeleteByIds,
 		onDeleteSelectedProducts,
-		isCreatingProduct,
-		isPrinting,
-		toggleIsPrinting,
-		toggleIsCreatingProduct,
+		onToggleIsPrinting,
+		onToggleIsCreatingProduct,
+		isOpen,
 	};
 };

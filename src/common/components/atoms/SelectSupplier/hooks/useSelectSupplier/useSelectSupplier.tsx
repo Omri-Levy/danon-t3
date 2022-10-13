@@ -1,14 +1,17 @@
-import { useSearchParams } from 'react-router-dom';
-import { ChangeEventHandler, useCallback, useState } from 'react';
+import {
+	ChangeEventHandler,
+	useCallback,
+	useEffect,
+	useState,
+} from 'react';
 import { useGetAllSupplierNames } from '../../../../../../suppliers/suppliers.api';
+import { useSearchParams } from '../../../../../hooks/useSearchParams/useSearchParams';
 
 export const useSelectSupplier = () => {
 	const [searchParams, setSearchParams] = useSearchParams();
-	const prevSearchParams = Object.fromEntries(
-		searchParams.entries(),
-	);
+	const { supplierNames } = useGetAllSupplierNames();
 	const [supplier, setSupplier] = useState(
-		prevSearchParams?.filter ?? '',
+		searchParams?.filter || supplierNames?.[0],
 	);
 	const onUpdateSupplier: ChangeEventHandler<HTMLSelectElement> =
 		useCallback(
@@ -16,16 +19,16 @@ export const useSelectSupplier = () => {
 				if (!e.target.value) return;
 
 				setSupplier(e.target.value);
-				setSearchParams({
-					...prevSearchParams,
-					filter_by: 'supplier',
-					filter: e.target.value,
-				});
 			},
-			[setSupplier, setSearchParams],
+			[setSupplier],
 		);
 
-	const { supplierNames } = useGetAllSupplierNames();
+	useEffect(() => {
+		setSearchParams({
+			filter_by: 'supplier',
+			filter: supplier,
+		});
+	}, [supplier]);
 
 	return {
 		supplierNames,

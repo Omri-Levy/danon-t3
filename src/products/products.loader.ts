@@ -11,16 +11,16 @@ export const productsLoader =
 			queryClient.getQueryData<TProductGetAllOutput>([
 				'products.getAll',
 			]) ??
-			(await queryClient.fetchQuery(['products.getAll'], () =>
+			queryClient.fetchQuery(['products.getAll'], () =>
 				trpcProxyClient.products.getAll.query(),
-			));
+			);
 		const suppliers =
 			queryClient.getQueryData<TSupplierGetAllOutput>([
 				'suppliers.getAll',
 			]) ??
-			(await queryClient.fetchQuery(['suppliers.getAll'], () =>
+			queryClient.fetchQuery(['suppliers.getAll'], () =>
 				trpcProxyClient.suppliers.getAll.query(),
-			));
+			);
 
 		return {
 			products,

@@ -1,14 +1,15 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import clsx from 'clsx';
-import { ComponentProps } from 'react';
 import { TComponentWithChildren } from '../../../types';
+import { IModalProps } from './interfaces';
 
-export const Modal: TComponentWithChildren<{
-	title: string;
-	isOpen: boolean;
-	onOpen: () => void;
-	contentProps?: ComponentProps<typeof Dialog.Content>;
-}> = ({ title, isOpen, onOpen, children, contentProps }) => {
+export const Modal: TComponentWithChildren<IModalProps> = ({
+	title,
+	isOpen,
+	onOpen,
+	children,
+	contentProps,
+}) => {
 	return (
 		<Dialog.Root open={isOpen} onOpenChange={onOpen}>
 			<Dialog.Portal>
