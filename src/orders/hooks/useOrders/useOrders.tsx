@@ -1,10 +1,10 @@
-import { useLoaderData } from 'react-router-dom';
+import { useLoaderData, useSearchParams } from 'react-router-dom';
 import { useToggle } from 'react-use';
 import { useCallback, useState } from 'react';
 import { useOrdersTable } from '../../components/OrdersTable/hooks/useOrdersTable/useOrdersTable';
 import { ordersLoader } from '../../orders.loader';
 import {
-	useGetAllOrders,
+	useGetAllOrdersBySupplierName,
 	useGetOrderPresignedUrlById,
 } from '../../orders.api';
 
@@ -13,7 +13,12 @@ export const useOrders = () => {
 		ReturnType<ReturnType<typeof ordersLoader>>
 	>;
 	const [isOpen, toggleIsOpen] = useToggle(false);
-	const { orders, isLoading } = useGetAllOrders(initialOrders);
+	const [searchParams] = useSearchParams();
+	const supplier = searchParams.get('filter') ?? '';
+	const { orders, isLoading } = useGetAllOrdersBySupplierName(
+		supplier,
+		initialOrders,
+	);
 	const [id, setId] = useState('');
 	const onIdChange = useCallback(
 		(id: string) => setId(id),

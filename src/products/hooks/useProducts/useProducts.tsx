@@ -3,7 +3,6 @@ import { useProductsTable } from '../../components/ProductsTable/hooks/useProduc
 import { productsLoader } from '../../products.loader';
 import { useGetAllSupplierNames } from '../../../suppliers/suppliers.api';
 import { useGetAllProductsBySupplierName } from '../../products.api';
-import { ChangeEventHandler, useCallback, useState } from 'react';
 
 export const useProducts = () => {
 	// For router loader initial data
@@ -11,31 +10,12 @@ export const useProducts = () => {
 		useLoaderData() as Awaited<
 			ReturnType<ReturnType<typeof productsLoader>>
 		>;
-	const { supplierNames } =
-		useGetAllSupplierNames(initialSuppliers);
-	const [searchParams, setSearchParams] = useSearchParams();
-	const prevSearchParams = Object.fromEntries(
-		searchParams.entries(),
-	);
-	const [supplier, setSupplier] = useState(
-		prevSearchParams?.filter ?? '',
-	);
-	const onUpdateSupplier: ChangeEventHandler<HTMLSelectElement> =
-		useCallback(
-			(e) => {
-				if (!e.target.value) return;
-
-				setSupplier(e.target.value);
-				setSearchParams(() => ({
-					...prevSearchParams,
-					filter_by: 'supplier',
-					filter: e.target.value,
-				}));
-			},
-			[setSupplier, setSearchParams],
-		);
+	const [searchParams] = useSearchParams();
+	const supplier = searchParams.get('filter') ?? '';
 
 	// Queries
+	useGetAllSupplierNames(initialSuppliers);
+
 	const { products, isLoading } = useGetAllProductsBySupplierName(
 		supplier,
 		initialProducts,
@@ -57,8 +37,5 @@ export const useProducts = () => {
 		table,
 		globalFilter,
 		onGlobalFilter,
-		supplierNames,
-		supplier,
-		onUpdateSupplier,
 	};
 };
