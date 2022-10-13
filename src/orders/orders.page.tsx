@@ -6,6 +6,7 @@ import { ViewPDF } from './components/ViewPDF/ViewPDF';
 import { useOrders } from './hooks/useOrders/useOrders';
 import { TopBar } from '../common/components/molecules/TopBar/TopBar';
 import { OrdersActions } from './components/OrdersActions/OrdersActions';
+import { SelectSupplier } from '../common/components/atoms/SelectSupplier/SelectSupplier';
 
 export const Orders: NextPage = () => {
 	const {
@@ -31,6 +32,7 @@ export const Orders: NextPage = () => {
 			/>
 			<TopBar
 				resource={locale.he.orders}
+				TopBarEnd={<SelectSupplier />}
 				Actions={
 					<OrdersActions
 						rowSelection={rowSelection}

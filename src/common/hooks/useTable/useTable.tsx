@@ -69,10 +69,10 @@ export const useTable = <TData extends RowData>({
 	const [globalFilter, setGlobalFilter] = useState(search ?? '');
 	const onSearchParams = useCallback(
 		(params: Partial<ISearchParams>) => {
-			setSearchParams(() => ({
+			setSearchParams({
 				...prevSearchParams,
 				...params,
-			}));
+			});
 		},
 		[setSearchParams],
 	);

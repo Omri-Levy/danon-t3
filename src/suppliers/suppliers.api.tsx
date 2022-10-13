@@ -78,11 +78,11 @@ export const useUpdateSupplierById = () => {
 
 				return { previousData };
 			},
-			onSuccess: () => {
-				toast.success(
-					`${locale.he.actions.success} ${locale.he.actions.supplier.update}`,
-				);
-			},
+			// onSuccess: () => {
+			// 	toast.success(
+			// 		`${locale.he.actions.success} ${locale.he.actions.supplier.update}`,
+			// 	);
+			// },
 			onError: (err, newData, context) => {
 				if (!context?.previousData) return;
 				const message =
