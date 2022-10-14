@@ -6,18 +6,27 @@ import {
 	useModalsStore,
 } from '../../../common/stores/modals/modals';
 import { useGetOrderPresignedUrlById } from '../../orders.api';
-import { useNavigate, useParams } from 'react-router-dom';
-import { useSearchParams } from '../../../common/hooks/useSearchParams/useSearchParams';
+import {
+	useLocation,
+	useNavigate,
+	useParams,
+} from 'react-router-dom';
 
 export const ViewPDFModal: FunctionComponent = () => {
-	const { isOpen, onToggleIsViewingPDF, type } = useModalsStore();
+	const { isOpen, onToggleIsViewingPDF, type } = useModalsStore(
+		(state) => ({
+			isOpen: state.isOpen,
+			onToggleIsViewingPDF: state.onToggleIsViewingPDF,
+			type: state.type,
+		}),
+	);
 	const { orderId = '' } = useParams();
 	const { data: presignedUrl } = useGetOrderPresignedUrlById({
 		id: orderId,
 		enabled: !!orderId && isOpen && type === EModalType.VIEW_PDF,
 	});
 	const navigate = useNavigate();
-	const [, , search] = useSearchParams();
+	const location = useLocation();
 	// Remove the order id param from the url when closing the modal
 	const onToggle = useCallback(
 		(nextState?: boolean) => {
@@ -25,12 +34,9 @@ export const ViewPDFModal: FunctionComponent = () => {
 
 			if (nextState) return;
 
-			navigate({
-				pathname: '/orders',
-				search,
-			});
+			navigate(`/orders${location.search}`);
 		},
-		[isOpen, navigate, onToggleIsViewingPDF, search],
+		[onToggleIsViewingPDF, navigate, location.search],
 	);
 
 	return (

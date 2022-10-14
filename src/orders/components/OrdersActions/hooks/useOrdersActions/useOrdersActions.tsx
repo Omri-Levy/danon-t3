@@ -1,8 +1,10 @@
 import { Dispatch, SetStateAction } from 'react';
 import {
 	useDeleteOrdersByIds,
-	useGetAllOrders,
+	useGetAllOrdersBySupplierName,
 } from '../../../../orders.api';
+import { useSearchParams } from 'react-router-dom';
+import { parseSearchParams } from '../../../../../products/components/ProductsTable/hooks/useProductsTable./useProductsTable';
 
 export const useOrdersActions = (
 	rowSelection: Record<PropertyKey, boolean>,
@@ -10,7 +12,9 @@ export const useOrdersActions = (
 		SetStateAction<Record<PropertyKey, boolean>>
 	>,
 ) => {
-	const { orders } = useGetAllOrders();
+	const [searchParams] = useSearchParams();
+	const { filter: supplier = '' } = parseSearchParams(searchParams);
+	const { orders } = useGetAllOrdersBySupplierName(supplier);
 	const selectedOrders = orders
 		?.filter((_, index) => rowSelection[index])
 		.map(({ id }) => id);

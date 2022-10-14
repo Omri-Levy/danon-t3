@@ -10,10 +10,10 @@ import { SelectSupplier } from '../common/components/atoms/SelectSupplier/Select
 
 export const Orders: NextPage = () => {
 	const {
+		isLoading,
 		table,
 		globalFilter,
 		onGlobalFilter,
-		isLoading,
 		orders,
 		ordersCount,
 		rowSelection,
@@ -21,7 +21,7 @@ export const Orders: NextPage = () => {
 	} = useOrders();
 
 	return (
-		<section className={'w-fit xl:w-full xl:max-w-[1536px]'}>
+		<>
 			<ViewPDFModal />
 			<TopBar
 				resource={locale.he.orders}
@@ -36,10 +36,12 @@ export const Orders: NextPage = () => {
 				onGlobalFilter={onGlobalFilter}
 				resourceCount={ordersCount}
 			/>
-			<div className={`overflow-auto h-[78vh]`}>
+			<div
+				className={`overflow-auto h-[78vh] flex flex-col justify-between`}
+			>
 				{!isLoading && <OrdersTable table={table} />}
+				{!!orders?.length && <Pagination table={table} />}
 			</div>
-			{!!orders?.length && <Pagination table={table} />}
-		</section>
+		</>
 	);
 };

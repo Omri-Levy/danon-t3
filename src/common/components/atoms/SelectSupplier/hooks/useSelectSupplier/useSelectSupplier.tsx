@@ -5,13 +5,16 @@ import {
 	useState,
 } from 'react';
 import { useGetAllSupplierNames } from '../../../../../../suppliers/suppliers.api';
-import { useSearchParams } from '../../../../../hooks/useSearchParams/useSearchParams';
+import { useSearchParams } from 'react-router-dom';
+import { parseSearchParams } from '../../../../../../products/components/ProductsTable/hooks/useProductsTable./useProductsTable';
 
 export const useSelectSupplier = () => {
-	const [searchParams, setSearchParams] = useSearchParams();
 	const { supplierNames } = useGetAllSupplierNames();
+	const [searchParams, setSearchParams] = useSearchParams();
+	const { filter, search, sort_by, sort_dir, cursor, limit } =
+		parseSearchParams(searchParams);
 	const [supplier, setSupplier] = useState(
-		searchParams?.filter || supplierNames?.[0],
+		filter || supplierNames?.[0],
 	);
 	const onUpdateSupplier: ChangeEventHandler<HTMLSelectElement> =
 		useCallback(
@@ -24,11 +27,13 @@ export const useSelectSupplier = () => {
 		);
 
 	useEffect(() => {
-		setSearchParams({
-			filter_by: 'supplier',
-			filter: supplier,
-		});
-	}, [supplier]);
+		searchParams.set('filter_by', 'supplier');
+		searchParams.set('filter', supplier);
+
+		setSearchParams(searchParams);
+
+		// Without all of these all search params but filter_by and filter work.
+	}, [search, sort_by, sort_dir, cursor, limit]);
 
 	return {
 		supplierNames,

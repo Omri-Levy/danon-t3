@@ -8,9 +8,9 @@ export const suppliersLoader =
 			queryClient.getQueryData<TSupplierGetAllOutput>([
 				'suppliers.getAll',
 			]) ??
-			queryClient.fetchQuery(['suppliers.getAll'], () =>
+			(await queryClient.fetchQuery(['suppliers.getAll'], () =>
 				trpcProxyClient.suppliers.getAll.query(),
-			);
+			));
 
 		return {
 			suppliers,

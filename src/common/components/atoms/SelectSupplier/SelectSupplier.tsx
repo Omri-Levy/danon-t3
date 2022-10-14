@@ -8,7 +8,7 @@ export const SelectSupplier: FunctionComponent = () => {
 
 	return (
 		<div>
-			<label className={`label block text-right`}>
+			<label className={`label block text-right font-bold`}>
 				<span className={`label-text`}>
 					{locale.he.supplier}
 				</span>

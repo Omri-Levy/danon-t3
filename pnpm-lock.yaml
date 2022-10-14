@@ -22,6 +22,7 @@ specifiers:
   '@types/lodash': ^4.14.182
   '@types/node': 18.0.0
   '@types/nodemailer': ^6.4.6
+  '@types/nprogress': ^0.2.0
   '@types/react': 18.0.14
   '@types/react-dom': 18.0.5
   '@typescript-eslint/eslint-plugin': ^5.33.0
@@ -51,6 +52,7 @@ specifiers:
   next: 12.2.5
   next-auth: ^4.10.2
   nodemailer: ^6.7.8
+  nprogress: ^0.2.0
   postcss: ^8.4.14
   prettier: ^2.7.1
   prettier-plugin-tailwindcss: ^0.1.13
@@ -102,6 +104,7 @@ dependencies:
   next: 12.2.5_ir3quccc6i62x6qn6jjhyjjiey
   next-auth: 4.10.3_br325yun545l5vwdnneu6tztxq
   nodemailer: 6.7.8
+  nprogress: 0.2.0
   puppeteer: 16.2.0
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
@@ -126,6 +129,7 @@ devDependencies:
   '@types/lodash': 4.14.185
   '@types/node': 18.0.0
   '@types/nodemailer': 6.4.6
+  '@types/nprogress': 0.2.0
   '@types/react': 18.0.14
   '@types/react-dom': 18.0.5
   '@typescript-eslint/eslint-plugin': 5.37.0_4l4dgaqcgkuejcmwlz7lpv6e2i
@@ -1664,6 +1668,10 @@ packages:
 
   /@types/normalize-package-data/2.4.1:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
+    dev: true
+
+  /@types/nprogress/0.2.0:
+    resolution: {integrity: sha512-1cYJrqq9GezNFPsWTZpFut/d4CjpZqA0vhqDUPFWYKF1oIyBz5qnoYMzR+0C/T96t3ebLAC1SSnwrVOm5/j74A==}
     dev: true
 
   /@types/parse-json/4.0.0:
@@ -5468,6 +5476,10 @@ packages:
     dependencies:
       path-key: 3.1.1
     dev: true
+
+  /nprogress/0.2.0:
+    resolution: {integrity: sha512-I19aIingLgR1fmhftnbWWO3dXc0hSxqHQHQb3H8m+K3TnEn/iSeTZZOyvKXWqQESMwuUVnatlCnZdLBZZt2VSA==}
+    dev: false
 
   /oauth/0.9.15:
     resolution: {integrity: sha512-a5ERWK1kh38ExDEfoO6qUHJb32rd7aYmPHuyCu3Fta/cnICvYmgd2uhuKXvPD+PXB+gCEYYEaQdIRAjCOwAKNA==}

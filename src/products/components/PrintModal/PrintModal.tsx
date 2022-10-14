@@ -7,7 +7,12 @@ import { Modal } from '../../../common/components/molecules/Modal/Modal';
 import { useModalsStore } from '../../../common/stores/modals/modals';
 
 export const PrintModal: FunctionComponent = () => {
-	const { isOpen, onToggleIsPrinting } = useModalsStore();
+	const { isOpen, onToggleIsPrinting } = useModalsStore(
+		(state) => ({
+			isOpen: state.isOpen,
+			onToggleIsPrinting: state.onToggleIsPrinting,
+		}),
+	);
 	const { products } = useGetAllProducts();
 	const headers = useMemo(
 		() =>

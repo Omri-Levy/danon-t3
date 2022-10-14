@@ -47,7 +47,7 @@ export const Modal: TComponentWithChildren<IModalProps> = ({
 							</div>
 							<Dialog.Title
 								dir={`rtl`}
-								className={`font-bold text-center`}
+								className={`font-bold text-center text-2xl`}
 							>
 								{title}
 							</Dialog.Title>

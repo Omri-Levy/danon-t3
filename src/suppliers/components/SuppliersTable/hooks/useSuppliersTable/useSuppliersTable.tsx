@@ -11,8 +11,8 @@ import { updateSupplierSchema } from '../../../../validation';
 import { toast } from 'react-hot-toast';
 import { useTable } from '../../../../../common/hooks/useTable/useTable';
 import { fallbackWhen } from '../../../../../common/utils/fallback-when/fallback-when';
-import { useSearchParams } from '../../../../../common/hooks/useSearchParams/useSearchParams';
-import { ISearchParams } from '../../../../../common/interfaces';
+import { useSearchParams } from 'react-router-dom';
+import { parseSearchParams } from '../../../../../products/components/ProductsTable/hooks/useProductsTable./useProductsTable';
 
 declare module '@tanstack/react-table' {
 	interface TableMeta<TData extends RowData> {
@@ -105,8 +105,9 @@ export const useSuppliersTable = (
 			},
 		[suppliers?.length, onUpdateById],
 	);
-	const [{ limit = '', cursor = '' }] =
-		useSearchParams<ISearchParams>();
+	const [searchParams] = useSearchParams();
+	const { limit = '', cursor = '' } =
+		parseSearchParams(searchParams);
 	const table = useTable({
 		columns,
 		data: suppliers,

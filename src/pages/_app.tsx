@@ -1,4 +1,5 @@
 import '../common/styles/globals.css';
+import '../common/styles/nprogress.css';
 import type { AppType } from 'next/dist/shared/lib/utils';
 import Head from 'next/head';
 import { SessionProvider } from 'next-auth/react';

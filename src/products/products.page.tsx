@@ -20,7 +20,7 @@ export const Products: NextPage = () => {
 	} = useProducts();
 
 	return (
-		<section className={'w-fit 2xl:w-full 2xl:max-w-[1536px]'}>
+		<>
 			<NoSuppliersDialog />
 			<TopBar
 				resource={locale.he.products}
@@ -34,13 +34,15 @@ export const Products: NextPage = () => {
 				globalFilter={globalFilter}
 				onGlobalFilter={onGlobalFilter}
 				resourceCount={
-					table.getPreFilteredRowModel()?.rows.length
+					table.getPreFilteredRowModel()?.rows?.length
 				}
 			/>
-			<div className={`overflow-auto h-[78vh]`}>
+			<div
+				className={`overflow-auto flex flex-col justify-between h-[78vh]`}
+			>
 				{!isLoading && <ProductsTable table={table} />}
+				{!!products?.length && <Pagination table={table} />}
 			</div>
-			{!!products?.length && <Pagination table={table} />}
-		</section>
+		</>
 	);
 };

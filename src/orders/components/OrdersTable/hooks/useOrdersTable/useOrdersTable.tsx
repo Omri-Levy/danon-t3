@@ -9,8 +9,8 @@ import { isInstanceOfDate } from '../../../../common/utils/is-instance-of-date/i
 import { useTable } from '../../../../../common/hooks/useTable/useTable';
 import { fallbackWhen } from '../../../../../common/utils/fallback-when/fallback-when';
 import { useMemo } from 'react';
-import { useSearchParams } from '../../../../../common/hooks/useSearchParams/useSearchParams';
-import { ISearchParams } from '../../../../../common/interfaces';
+import { useSearchParams } from 'react-router-dom';
+import { parseSearchParams } from '../../../../../products/components/ProductsTable/hooks/useProductsTable./useProductsTable';
 
 export const useOrdersTable = (
 	orders: TOrderGetAllOutput,
@@ -61,8 +61,9 @@ export const useOrdersTable = (
 		],
 		[onIdChange, orders?.length],
 	);
-	const [{ limit = '', cursor = '' }] =
-		useSearchParams<ISearchParams>();
+	const [searchParams] = useSearchParams();
+	const { limit = '', cursor = '' } =
+		parseSearchParams(searchParams);
 	const table = useTable({
 		columns,
 		data: orders,

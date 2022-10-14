@@ -1,22 +1,26 @@
 import {
 	useLoaderData,
+	useLocation,
 	useNavigate,
 	useParams,
+	useSearchParams,
 } from 'react-router-dom';
 import { useCallback, useEffect } from 'react';
 import { useOrdersTable } from '../../components/OrdersTable/hooks/useOrdersTable/useOrdersTable';
 import { ordersLoader } from '../../orders.loader';
 import { useGetAllOrdersBySupplierName } from '../../orders.api';
 import { useModalsStore } from '../../../common/stores/modals/modals';
-import { useSearchParams } from '../../../common/hooks/useSearchParams/useSearchParams';
+import { parseSearchParams } from '../../../products/components/ProductsTable/hooks/useProductsTable./useProductsTable';
 
 export const useOrders = () => {
 	const { isOpen, onToggleIsViewingPDF } = useModalsStore();
 	const { orderId } = useParams();
-	const initialOrders = useLoaderData() as Awaited<
+	const { orders: initialOrders } = useLoaderData() as Awaited<
 		ReturnType<ReturnType<typeof ordersLoader>>
 	>;
-	const [{ filter: supplier = '' }, , search] = useSearchParams();
+	const [searchParams] = useSearchParams();
+	const { filter: supplier = '' } = parseSearchParams(searchParams);
+	const location = useLocation();
 	const { orders, isLoading } = useGetAllOrdersBySupplierName(
 		supplier,
 		initialOrders,
@@ -24,12 +28,9 @@ export const useOrders = () => {
 	const navigate = useNavigate();
 	const onIdChange = useCallback(
 		(id: string) => {
-			navigate({
-				pathname: `/orders/${id}`,
-				search,
-			});
+			navigate(`/orders/${id}${location.search}`);
 		},
-		[navigate, search],
+		[navigate, isOpen, location.search],
 	);
 	const {
 		table,
@@ -37,7 +38,7 @@ export const useOrders = () => {
 		onGlobalFilter,
 		rowSelection,
 		setRowSelection,
-	} = useOrdersTable(orders, onIdChange);
+	} = useOrdersTable(orders ?? [], onIdChange);
 	const ordersCount = orders?.length ?? 0;
 
 	// Reopen the modal on page reload

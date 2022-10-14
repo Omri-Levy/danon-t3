@@ -20,8 +20,10 @@ import { toast } from 'react-hot-toast';
 import { zSupplierNamesEnum } from '../../../../../suppliers/utils/z-supplier-names-enum/z-supplier-names-enum';
 import { useTable } from '../../../../../common/hooks/useTable/useTable';
 import { fallbackWhen } from '../../../../../common/utils/fallback-when/fallback-when';
-import { useSearchParams } from '../../../../../common/hooks/useSearchParams/useSearchParams';
-import { ISearchParams } from '../../../../../common/interfaces';
+import { useSearchParams } from 'react-router-dom';
+
+export const parseSearchParams = (searchParams: URLSearchParams) =>
+	Object.fromEntries(searchParams.entries());
 
 declare module '@tanstack/react-table' {
 	interface TableMeta<TData extends RowData> {
@@ -212,8 +214,9 @@ export const useProductsTable = (
 				  },
 		[],
 	);
-	const [{ limit = '', cursor = '' }] =
-		useSearchParams<ISearchParams>();
+	const [searchParams] = useSearchParams();
+	const { limit = '', cursor = '' } =
+		parseSearchParams(searchParams);
 	const table = useTable({
 		columns,
 		data: products,

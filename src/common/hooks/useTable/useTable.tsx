@@ -21,9 +21,10 @@ import { camelCase, snakeCase } from 'lodash';
 import { IndeterminateCheckbox } from '../../components/atoms/IndeterminateCheckbox/IndeterminateCheckbox';
 import { locale } from '../../translations';
 import { addRowIndex } from '../../utils/add-row-index/add-row-index';
-import { useSearchParams } from '../useSearchParams/useSearchParams';
+import { isInstanceOfFunction } from '../../utils/is-instance-of-function/is-instance-of-function';
+import { useSearchParams } from 'react-router-dom';
+import { parseSearchParams } from '../../../products/components/ProductsTable/hooks/useProductsTable./useProductsTable';
 import produce from 'immer';
-import { ISearchParams } from '../../interfaces';
 
 export const useTable = <TData extends RowData>({
 	columns,
@@ -48,12 +49,20 @@ export const useTable = <TData extends RowData>({
 		() => data?.map(addRowIndex),
 		[data],
 	);
-	const [searchParams, setSearchParams] =
-		useSearchParams<ISearchParams>();
-	const { search, sort_by, sort_dir, cursor, limit } = searchParams;
+	const [searchParams, setSearchParams] = useSearchParams();
+	const {
+		search,
+		filter,
+		filter_by,
+		sort_by,
+		sort_dir,
+		cursor,
+		limit,
+	} = parseSearchParams(searchParams);
 	const camelCasedSortBy = camelCase(sort_by);
-	const [globalFilter, setGlobalFilter] = useState(search ?? '');
 	const isDesc = sort_dir === 'desc';
+	const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
+	const [globalFilter, setGlobalFilter] = useState(search ?? '');
 	const onGlobalFilter: ChangeEventHandler<HTMLInputElement> =
 		useCallback(
 			(e) => {
@@ -61,7 +70,6 @@ export const useTable = <TData extends RowData>({
 			},
 			[setGlobalFilter],
 		);
-	const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
 	const [sorting, setSorting] = useState<SortingState>([
 		{
 			id:
@@ -71,9 +79,26 @@ export const useTable = <TData extends RowData>({
 			desc:
 				sort_dir === ''
 					? initialSorting?.[0]?.desc ?? false
-					: !isDesc,
+					: isDesc,
 		},
 	]);
+	const updateSortSearchParams = useCallback(
+		(old: SortingState) => {
+			const currentSorting = old.at(0);
+
+			searchParams.set(
+				'sort_by',
+				snakeCase(currentSorting?.id),
+			);
+			searchParams.set(
+				'sort_dir',
+				currentSorting?.desc ? 'asc' : 'desc',
+			);
+
+			setSearchParams(searchParams);
+		},
+		[setSorting],
+	);
 	const [rowSelection, setRowSelection] =
 		useState<RowSelectionState>({});
 	const tableOptions: TableOptions<TData> = {
@@ -120,7 +145,13 @@ export const useTable = <TData extends RowData>({
 		],
 		data: withRowIndex,
 		getCoreRowModel: getCoreRowModel(),
-		onSortingChange: setSorting,
+		onSortingChange: (updaterOrValue) => {
+			setSorting(updaterOrValue);
+
+			if (!isInstanceOfFunction(updaterOrValue)) return;
+
+			updateSortSearchParams(updaterOrValue(sorting));
+		},
 		onGlobalFilterChange: setGlobalFilter,
 		getSortedRowModel: getSortedRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
@@ -135,7 +166,6 @@ export const useTable = <TData extends RowData>({
 			sorting,
 			globalFilter,
 		},
-		...options,
 		initialState: {
 			pagination: {
 				pageSize: limit ? Number(limit) : undefined,
@@ -160,6 +190,7 @@ export const useTable = <TData extends RowData>({
 			};
 			draft.meta = {
 				...draft.meta,
+				...options?.meta,
 			};
 			draft.meta.updateData = options?.meta?.updateData?.(
 				skipAutoResetPageIndex,
@@ -169,14 +200,19 @@ export const useTable = <TData extends RowData>({
 	const pageIndex = table.getState().pagination.pageIndex;
 	const pageSize = table.getState().pagination.pageSize;
 
-	// Sync state with search params
+	// Protects against updating or deleting a row that is not visible
+	useEffect(() => {
+		setRowSelection({});
+	}, [filter, filter_by, search]);
+
 	useEffect(() => {
 		setSearchParams({
+			...parseSearchParams(searchParams),
 			search: globalFilter,
-			sort_by: snakeCase(sorting.at(0)?.id),
+			sort_by: snakeCase(sorting?.at(0)?.id),
 			sort_dir: sorting?.at(0)?.desc ? 'asc' : 'desc',
-			cursor: Math.max(pageIndex + 1, 1),
-			limit: Math.max(pageSize, 1),
+			limit: Math.max(pageSize, 1).toString(),
+			cursor: Math.max(pageIndex + 1, 1).toString(),
 		});
 	}, [
 		globalFilter,

@@ -8,9 +8,9 @@ export const ordersLoader =
 			queryClient.getQueryData<TOrderGetAllOutput>([
 				'orders.getAll',
 			]) ??
-			queryClient.fetchQuery(['orders.getAll'], () =>
+			(await queryClient.fetchQuery(['orders.getAll'], () =>
 				trpcProxyClient.orders.getAll.query(),
-			);
+			));
 
 		return {
 			orders,
