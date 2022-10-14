@@ -17,24 +17,14 @@ import {
 	useState,
 } from 'react';
 import { useSkipper } from '../useSkipper/useSkipper';
-import { useSearchParams } from 'react-router-dom';
 import { camelCase, snakeCase } from 'lodash';
 import { IndeterminateCheckbox } from '../../components/atoms/IndeterminateCheckbox/IndeterminateCheckbox';
 import { locale } from '../../translations';
 import { addRowIndex } from '../../utils/add-row-index/add-row-index';
-
-export interface ISearchParams {
-	supplier: string;
-	search: string;
-	sort_by: string;
-	sort_dir: string;
-	cursor: string;
-	limit: string;
-}
-
-const i = 1;
-export const isInstanceOfFunction = (value: any): value is Function =>
-	value instanceof Function;
+import { isInstanceOfFunction } from '../../utils/is-instance-of-function/is-instance-of-function';
+import { useSearchParams } from 'react-router-dom';
+import { parseSearchParams } from '../../../products/components/ProductsTable/hooks/useProductsTable./useProductsTable';
+import produce from 'immer';
 
 export const useTable = <TData extends RowData>({
 	columns,
@@ -60,34 +50,26 @@ export const useTable = <TData extends RowData>({
 		[data],
 	);
 	const [searchParams, setSearchParams] = useSearchParams();
-	const prevSearchParams = Object.fromEntries(
-		searchParams.entries(),
-	) as unknown as ISearchParams;
-	const { search, sort_by, sort_dir, cursor, limit } =
-		prevSearchParams;
+	const {
+		search,
+		filter,
+		filter_by,
+		sort_by,
+		sort_dir,
+		cursor,
+		limit,
+	} = parseSearchParams(searchParams);
 	const camelCasedSortBy = camelCase(sort_by);
-	const [globalFilter, setGlobalFilter] = useState(search ?? '');
-	const onSearchParams = useCallback(
-		(params: Partial<ISearchParams>) => {
-			setSearchParams({
-				...prevSearchParams,
-				...params,
-			});
-		},
-		[setSearchParams],
-	);
 	const isDesc = sort_dir === 'desc';
+	const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
+	const [globalFilter, setGlobalFilter] = useState(search ?? '');
 	const onGlobalFilter: ChangeEventHandler<HTMLInputElement> =
 		useCallback(
 			(e) => {
 				setGlobalFilter(e.target.value);
-				onSearchParams({
-					search: e.target.value,
-				});
 			},
-			[onSearchParams, globalFilter, setGlobalFilter],
+			[setGlobalFilter],
 		);
-	const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
 	const [sorting, setSorting] = useState<SortingState>([
 		{
 			id:
@@ -97,23 +79,29 @@ export const useTable = <TData extends RowData>({
 			desc:
 				sort_dir === ''
 					? initialSorting?.[0]?.desc ?? false
-					: !isDesc,
+					: isDesc,
 		},
 	]);
-	const [rowSelection, setRowSelection] =
-		useState<RowSelectionState>({});
 	const updateSortSearchParams = useCallback(
 		(old: SortingState) => {
-			const currentSort = old.at(0);
+			const currentSorting = old.at(0);
 
-			onSearchParams({
-				sort_by: snakeCase(currentSort?.id),
-				sort_dir: currentSort?.desc ? 'asc' : 'desc',
-			});
+			searchParams.set(
+				'sort_by',
+				snakeCase(currentSorting?.id),
+			);
+			searchParams.set(
+				'sort_dir',
+				currentSorting?.desc ? 'asc' : 'desc',
+			);
+
+			setSearchParams(searchParams);
 		},
-		[onSearchParams],
+		[setSorting],
 	);
-	const table = useReactTable({
+	const [rowSelection, setRowSelection] =
+		useState<RowSelectionState>({});
+	const tableOptions: TableOptions<TData> = {
 		columns: [
 			{
 				id: 'select',
@@ -177,36 +165,62 @@ export const useTable = <TData extends RowData>({
 			rowSelection,
 			sorting,
 			globalFilter,
-			...options?.state,
-		},
-		...options,
-		meta: {
-			...options?.meta,
-			updateData: options?.meta?.updateData?.(
-				skipAutoResetPageIndex,
-			),
 		},
 		initialState: {
 			pagination: {
 				pageSize: limit ? Number(limit) : undefined,
 				pageIndex: cursor ? Number(cursor) - 1 : undefined,
-				...options?.initialState?.pagination,
 			},
-			...options?.initialState,
 		},
-	});
+	};
+	const table = useReactTable(
+		// Merge passed options with default options, using produce reduces levels of nesting and keeps all spreads in one, easy to read place.
+		produce(tableOptions, (draft) => {
+			draft.state = {
+				...draft.state,
+				...options?.state,
+			};
+			draft.initialState = {
+				...draft.initialState,
+				...options?.initialState,
+			};
+			draft.initialState.pagination = {
+				...draft.initialState.pagination,
+				...options?.initialState?.pagination,
+			};
+			draft.meta = {
+				...draft.meta,
+				...options?.meta,
+			};
+			draft.meta.updateData = options?.meta?.updateData?.(
+				skipAutoResetPageIndex,
+			);
+		}),
+	);
 	const pageIndex = table.getState().pagination.pageIndex;
 	const pageSize = table.getState().pagination.pageSize;
-	const updatePaginationSearchParams = useCallback(() => {
-		onSearchParams({
-			cursor: Math.max(pageIndex + 1, 1).toString(),
-			limit: Math.max(pageSize, 1).toString(),
-		});
-	}, [onSearchParams, pageIndex, pageSize]);
+
+	// Protects against updating or deleting a row that is not visible
+	useEffect(() => {
+		setRowSelection({});
+	}, [filter, filter_by, search]);
 
 	useEffect(() => {
-		updatePaginationSearchParams();
-	}, [updatePaginationSearchParams]);
+		setSearchParams({
+			...parseSearchParams(searchParams),
+			search: globalFilter,
+			sort_by: snakeCase(sorting?.at(0)?.id),
+			sort_dir: sorting?.at(0)?.desc ? 'asc' : 'desc',
+			limit: Math.max(pageSize, 1).toString(),
+			cursor: Math.max(pageIndex + 1, 1).toString(),
+		});
+	}, [
+		globalFilter,
+		sorting?.at(0)?.id,
+		sorting?.at(0)?.desc,
+		pageIndex,
+		pageSize,
+	]);
 
 	return {
 		table,

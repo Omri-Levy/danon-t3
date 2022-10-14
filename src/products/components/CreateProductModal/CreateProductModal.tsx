@@ -6,16 +6,21 @@ import { Unit } from '../../../common/enums';
 import { FunctionComponent, useCallback, useEffect } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createProductSchema } from '../../validation';
-import * as Dialog from '@radix-ui/react-dialog';
 import clsx from 'clsx';
 import { useCreateProduct } from '../../products.api';
 import { useGetAllSupplierNames } from '../../../suppliers/suppliers.api';
-import { ICreateProductModalProps } from './interfaces';
 import { zSupplierNamesEnum } from '../../../suppliers/utils/z-supplier-names-enum/z-supplier-names-enum';
+import { Modal } from '../../../common/components/molecules/Modal/Modal';
+import { useModalsStore } from '../../../common/stores/modals/modals';
 
-export const CreateProductModal: FunctionComponent<
-	ICreateProductModalProps
-> = ({ isOpen, onOpen }) => {
+export const CreateProductModal: FunctionComponent = () => {
+	const { isOpen, onToggleIsCreatingProduct } = useModalsStore(
+		(state) => ({
+			isOpen: state.isOpen,
+			onToggleIsCreatingProduct:
+				state.onToggleIsCreatingProduct,
+		}),
+	);
 	const { supplierNames } = useGetAllSupplierNames();
 	const createProductMethods = useForm({
 		mode: 'all',
@@ -62,106 +67,75 @@ export const CreateProductModal: FunctionComponent<
 	}, [handleFocus]);
 
 	return (
-		<Dialog.Root open={isOpen} onOpenChange={onOpen}>
-			<Dialog.Trigger className={`btn`}>
-				{locale.he.createProduct}
-			</Dialog.Trigger>
-			<Dialog.Portal>
-				<Dialog.Overlay>
-					<div
+		<Modal
+			isOpen={isOpen}
+			onOpen={onToggleIsCreatingProduct}
+			title={locale.he.createProduct}
+		>
+			<FormProvider {...createProductMethods}>
+				<form
+					noValidate
+					className='grid grid-cols-2 gap-x-2'
+					dir={`rtl`}
+					onSubmit={createProductMethods.handleSubmit(
+						onCreate,
+					)}
+				>
+					<FormSelect
+						options={supplierNames ?? []}
+						label={locale.he.supplier}
+						name='supplier'
+						autoFocus
+					/>
+					<FormInput label={locale.he.sku} name='sku' />
+					<FormInput
+						label={locale.he.productName}
+						name='name'
+					/>
+					<FormInput
+						label={locale.he.packageSize}
+						name='packageSize'
+						type={`number`}
+						min={0.1}
+					/>
+					<FormSelect
+						label={locale.he.unit}
+						name='unit'
+						options={Object.values(Unit)}
+					/>
+					<FormInput
+						label={locale.he.orderAmount}
+						name='orderAmount'
+						type={`number`}
+						min={0}
+					/>
+					<FormInput
+						label={locale.he.stock}
+						name='stock'
+						type={`number`}
+						min={0}
+					/>
+					<button
+						dir={`ltr`}
 						className={clsx([
-							`modal`,
-							{
-								[`modal-open`]: isOpen,
-							},
+							'btn mt-2 mr-auto col-span-full gap-2',
+							{ loading: isLoading },
 						])}
+						disabled={isLoading}
+						type={`submit`}
 					>
-						<Dialog.Content className={`modal-box`}>
-							<div className={`flex justify-end`}>
-								<Dialog.Close>
-									<svg
-										xmlns='http://www.w3.org/2000/svg'
-										viewBox='0 0 24 24'
-										fill='currentColor'
-										className='w-6 h-6'
-									>
-										<path
-											fillRule='evenodd'
-											d='M5.47 5.47a.75.75 0 011.06 0L12 10.94l5.47-5.47a.75.75 0 111.06 1.06L13.06 12l5.47 5.47a.75.75 0 11-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 01-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 010-1.06z'
-											clipRule='evenodd'
-										/>
-									</svg>
-								</Dialog.Close>
-							</div>
-							<Dialog.Title
-								dir={`rtl`}
-								className={`font-bold text-center`}
-							>
-								{locale.he.createProduct}
-							</Dialog.Title>
-							<FormProvider {...createProductMethods}>
-								<form
-									noValidate
-									className='grid grid-cols-2 gap-x-2'
-									dir={`rtl`}
-									onSubmit={createProductMethods.handleSubmit(
-										onCreate,
-									)}
-								>
-									<FormSelect
-										options={supplierNames ?? []}
-										label={locale.he.supplier}
-										name='supplier'
-										autoFocus
-									/>
-									<FormInput
-										label={locale.he.sku}
-										name='sku'
-									/>
-									<FormInput
-										label={locale.he.productName}
-										name='name'
-									/>
-									<FormInput
-										label={locale.he.packageSize}
-										name='packageSize'
-										type={`number`}
-										min={0.1}
-									/>
-									<FormSelect
-										label={locale.he.unit}
-										name='unit'
-										options={Object.values(Unit)}
-									/>
-									<FormInput
-										label={locale.he.orderAmount}
-										name='orderAmount'
-										type={`number`}
-										min={0}
-									/>
-									<FormInput
-										label={locale.he.stock}
-										name='stock'
-										type={`number`}
-										min={0}
-									/>
-									<button
-										dir={`ltr`}
-										className={clsx([
-											'btn mt-2 mr-auto col-span-full',
-											{ loading: isLoading },
-										])}
-										disabled={isLoading}
-										type={`submit`}
-									>
-										{locale.he.create}
-									</button>
-								</form>
-							</FormProvider>
-						</Dialog.Content>
-					</div>
-				</Dialog.Overlay>
-			</Dialog.Portal>
-		</Dialog.Root>
+						{locale.he.create}
+						<svg
+							xmlns='http://www.w3.org/2000/svg'
+							viewBox='0 0 20 20'
+							fill='currentColor'
+							className='w-5 h-5'
+						>
+							<path d='M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z' />
+						</svg>
+					</button>
+				</form>
+			</FormProvider>
+		</Modal>
 	);
 };

@@ -1,5 +1,8 @@
 import { useLoaderData, useSearchParams } from 'react-router-dom';
-import { useProductsTable } from '../../components/ProductsTable/hooks/useProductsTable./useProductsTable';
+import {
+	parseSearchParams,
+	useProductsTable,
+} from '../../components/ProductsTable/hooks/useProductsTable./useProductsTable';
 import { productsLoader } from '../../products.loader';
 import { useGetAllSupplierNames } from '../../../suppliers/suppliers.api';
 import { useGetAllProductsBySupplierName } from '../../products.api';
@@ -11,7 +14,7 @@ export const useProducts = () => {
 			ReturnType<ReturnType<typeof productsLoader>>
 		>;
 	const [searchParams] = useSearchParams();
-	const supplier = searchParams.get('filter') ?? '';
+	const { filter: supplier = '' } = parseSearchParams(searchParams);
 
 	// Queries
 	useGetAllSupplierNames(initialSuppliers);
@@ -27,7 +30,7 @@ export const useProducts = () => {
 		onGlobalFilter,
 		rowSelection,
 		setRowSelection,
-	} = useProductsTable(products);
+	} = useProductsTable(products ?? []);
 
 	return {
 		rowSelection,

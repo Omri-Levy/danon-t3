@@ -1,13 +1,14 @@
 import * as Dialog from '@radix-ui/react-dialog';
 import clsx from 'clsx';
-import { locale } from '../../../common/translations';
-import { FunctionComponent } from 'react';
-import { IViewPDFProps } from './interfaces';
+import { TComponentWithChildren } from '../../../types';
+import { IModalProps } from './interfaces';
 
-export const ViewPDF: FunctionComponent<IViewPDFProps> = ({
-	presignedUrl,
+export const Modal: TComponentWithChildren<IModalProps> = ({
+	title,
 	isOpen,
 	onOpen,
+	children,
+	contentProps,
 }) => {
 	return (
 		<Dialog.Root open={isOpen} onOpenChange={onOpen}>
@@ -22,8 +23,11 @@ export const ViewPDF: FunctionComponent<IViewPDFProps> = ({
 						])}
 					>
 						<Dialog.Content
-							className={`modal-box 2xl:w-6/12 max-w-[70%] h-full
-							 max-h-960px:p-2 max-h-960px:max-h-[calc(100%-0.5em)]`}
+							{...contentProps}
+							className={clsx([
+								`modal-box`,
+								contentProps?.className,
+							])}
 						>
 							<div className={`flex justify-end`}>
 								<Dialog.Close>
@@ -43,14 +47,11 @@ export const ViewPDF: FunctionComponent<IViewPDFProps> = ({
 							</div>
 							<Dialog.Title
 								dir={`rtl`}
-								className={`font-bold text-center`}
+								className={`font-bold text-center text-2xl`}
 							>
-								{locale.he.order}
+								{title}
 							</Dialog.Title>
-							<iframe
-								className={`w-full h-full max-h-[600px]`}
-								src={presignedUrl}
-							/>
+							{children}
 						</Dialog.Content>
 					</div>
 				</Dialog.Overlay>

@@ -1,11 +1,13 @@
-import { useToggle } from 'react-use';
 import {
 	useDeleteProductsByIds,
-	useGetAllProducts,
+	useGetAllProductsBySupplierName,
 	useIsValidToOrder,
 	useResetProductsOrderAmountByIds,
 } from '../../../../products.api';
 import { Dispatch, SetStateAction, useCallback } from 'react';
+import { useModalsStore } from '../../../../../common/stores/modals/modals';
+import { useSearchParams } from 'react-router-dom';
+import { parseSearchParams } from '../../../ProductsTable/hooks/useProductsTable./useProductsTable';
 
 export const useProductsActions = (
 	rowSelection: Record<PropertyKey, boolean>,
@@ -14,13 +16,22 @@ export const useProductsActions = (
 	>,
 ) => {
 	// Modal toggles
-	const [isSendingOrder, toggleIsSendingOrder] = useToggle(false);
-	const [isPrinting, toggleIsPrinting] = useToggle(false);
-	const [isCreatingProduct, toggleIsCreatingProduct] =
-		useToggle(false);
+	const {
+		onToggleIsCreatingProduct,
+		onToggleIsSendingOrder,
+		onToggleIsPrinting,
+		isOpen,
+	} = useModalsStore((state) => ({
+		isOpen: state.isOpen,
+		onToggleIsCreatingProduct: state.onToggleIsCreatingProduct,
+		onToggleIsSendingOrder: state.onToggleIsSendingOrder,
+		onToggleIsPrinting: state.onToggleIsPrinting,
+	}));
 
+	const [searchParams] = useSearchParams();
+	const { filter: supplier = '' } = parseSearchParams(searchParams);
 	// Queries
-	const { products } = useGetAllProducts();
+	const { products } = useGetAllProductsBySupplierName(supplier);
 
 	// Mutations
 	const { onResetOrderAmount } =
@@ -49,7 +60,7 @@ export const useProductsActions = (
 	// Callbacks
 	const onDeleteSelectedProducts = useCallback(async () => {
 		if (!selectedProducts?.length) return;
-		//
+
 		await onDeleteByIds({
 			ids: selectedProducts,
 		});
@@ -65,8 +76,7 @@ export const useProductsActions = (
 	return {
 		disableOrder,
 		moreThanOneSupplier,
-		isSendingOrder,
-		toggleIsSendingOrder,
+		onToggleIsSendingOrder,
 		selectedProducts,
 		disableResetOrderAmount,
 		isLoadingResetOrderAmount,
@@ -74,9 +84,8 @@ export const useProductsActions = (
 		disableDelete,
 		isLoadingDeleteByIds,
 		onDeleteSelectedProducts,
-		isCreatingProduct,
-		isPrinting,
-		toggleIsPrinting,
-		toggleIsCreatingProduct,
+		onToggleIsPrinting,
+		onToggleIsCreatingProduct,
+		isOpen,
 	};
 };

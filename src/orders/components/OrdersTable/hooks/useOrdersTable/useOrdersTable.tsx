@@ -7,14 +7,14 @@ import { locale } from '../../../../../common/translations';
 import { ViewPDFButton } from './ViewPDFButton/ViewPDFButton';
 import { isInstanceOfDate } from '../../../../common/utils/is-instance-of-date/is-instance-of-date';
 import { useTable } from '../../../../../common/hooks/useTable/useTable';
-import { useSearchParams } from 'react-router-dom';
 import { fallbackWhen } from '../../../../../common/utils/fallback-when/fallback-when';
 import { useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
+import { parseSearchParams } from '../../../../../products/components/ProductsTable/hooks/useProductsTable./useProductsTable';
 
 export const useOrdersTable = (
 	orders: TOrderGetAllOutput,
 	onIdChange: (id: string) => void,
-	onOpen: () => void,
 ) => {
 	const columns: Array<ColumnDef<TOrderGetByIdOutput>> = useMemo(
 		() => [
@@ -24,7 +24,6 @@ export const useOrdersTable = (
 					<ViewPDFButton
 						orders={orders}
 						onIdChange={onIdChange}
-						onOpen={onOpen}
 						{...props}
 					/>
 				),
@@ -60,12 +59,11 @@ export const useOrdersTable = (
 				header: locale.he.supplier,
 			},
 		],
-		[onOpen, onIdChange, orders?.length],
+		[onIdChange, orders?.length],
 	);
 	const [searchParams] = useSearchParams();
-	const { limit = '', cursor = '' } = Object.fromEntries(
-		searchParams.entries(),
-	);
+	const { limit = '', cursor = '' } =
+		parseSearchParams(searchParams);
 	const table = useTable({
 		columns,
 		data: orders,

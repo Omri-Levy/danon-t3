@@ -19,7 +19,7 @@ export const Suppliers: NextPage = () => {
 	} = useSuppliers();
 
 	return (
-		<section className={'w-fit xl:w-full xl:max-w-[1536px]'}>
+		<>
 			<TopBar
 				resource={locale.he.suppliers}
 				Actions={
@@ -32,10 +32,12 @@ export const Suppliers: NextPage = () => {
 				onGlobalFilter={onGlobalFilter}
 				resourceCount={suppliersCount}
 			/>
-			<div className={`overflow-auto h-[78vh]`}>
+			<div
+				className={`overflow-auto h-[78vh] flex flex-col justify-between`}
+			>
 				{!isLoading && <SuppliersTable table={table} />}
+				{!!suppliers?.length && <Pagination table={table} />}
 			</div>
-			{!!suppliers?.length && <Pagination table={table} />}
-		</section>
+		</>
 	);
 };
