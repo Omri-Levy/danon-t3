@@ -37,9 +37,10 @@ export const useProductsActions = (
 	const { onResetOrderAmount } =
 		useResetProductsOrderAmountByIds(setRowSelection);
 	const { onDeleteByIds } = useDeleteProductsByIds(setRowSelection);
-	const selectedProducts = products
-		?.filter((_, index) => rowSelection[index])
-		.map(({ id }) => id);
+	const selectedProducts = products?.filter(
+		(_, index) => rowSelection[index],
+	);
+	const selectedProductsIds = selectedProducts?.map(({ id }) => id);
 	const { isLoading: isLoadingDeleteByIds } =
 		useDeleteProductsByIds(setRowSelection);
 	const { isLoading: isLoadingResetOrderAmount } =
@@ -55,29 +56,32 @@ export const useProductsActions = (
 		!isValidToOrder,
 		isLoadingResetOrderAmount,
 		!Object.keys(rowSelection)?.length,
+		!selectedProducts?.filter(
+			({ orderAmount }) => parseFloat(orderAmount) > 0,
+		)?.length,
 	].some(Boolean);
 
 	// Callbacks
 	const onDeleteSelectedProducts = useCallback(async () => {
-		if (!selectedProducts?.length) return;
+		if (!selectedProductsIds?.length) return;
 
 		await onDeleteByIds({
-			ids: selectedProducts,
+			ids: selectedProductsIds,
 		});
-	}, [onDeleteByIds, selectedProducts?.length]);
+	}, [onDeleteByIds, selectedProductsIds?.length]);
 	const resetOrderAmount = useCallback(() => {
-		if (!selectedProducts?.length) return;
+		if (!selectedProductsIds?.length) return;
 		//
 		return onResetOrderAmount({
-			ids: selectedProducts,
+			ids: selectedProductsIds,
 		});
-	}, [selectedProducts?.length, onResetOrderAmount]);
+	}, [selectedProductsIds?.length, onResetOrderAmount]);
 
 	return {
 		disableOrder,
 		moreThanOneSupplier,
 		onToggleIsSendingOrder,
-		selectedProducts,
+		selectedProductsIds,
 		disableResetOrderAmount,
 		isLoadingResetOrderAmount,
 		resetOrderAmount,

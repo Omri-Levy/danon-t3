@@ -1,5 +1,3 @@
-import toast from 'react-hot-toast';
-import { locale } from '../common/translations';
 import { SubmitHandler } from 'react-hook-form';
 import {
 	TProductCreateInput,
@@ -23,20 +21,15 @@ export const useCreateProduct = () => {
 					newData,
 				]);
 
-				return { previousData };
-			},
-			onSuccess: () => {
-				toast.success(
-					`${locale.he.actions.success} ${locale.he.actions.product.create}`,
-				);
+				return {
+					previousData,
+					resource: 'product',
+					action: 'create',
+				};
 			},
 			onError: (err, newData, context) => {
 				if (!context?.previousData) return;
-				const message =
-					err.message ??
-					locale.he.actions['product']['create'];
 
-				toast.error(`${locale.he.actions.error} ${message}`);
 				ctx.products.getAll.setData(context.previousData);
 			},
 			onSettled: () => {
@@ -76,19 +69,15 @@ export const useUpdateProductById = () => {
 					),
 				);
 
-				return { previousData };
-			},
-			onSuccess: () => {
-				toast.success(
-					`${locale.he.actions.success} ${locale.he.actions.product.update}`,
-				);
+				return {
+					previousData,
+					resource: 'product',
+					action: 'update',
+				};
 			},
 			onError: (err, newData, context) => {
 				if (!context?.previousData) return;
-				const message =
-					err.message ?? locale.he.actions.product.update;
 
-				toast.error(`${locale.he.actions.error} ${message}`);
 				ctx.products.getAll.setData(context.previousData);
 			},
 			onSettled: () => {
@@ -128,19 +117,15 @@ export const useDeleteProductsByIds = (
 
 				setSelectedIds({});
 
-				return { previousData };
-			},
-			onSuccess: () => {
-				toast.success(
-					`${locale.he.actions.success} ${locale.he.actions.product.delete}`,
-				);
+				return {
+					previousData,
+					resource: 'product',
+					action: 'delete',
+				};
 			},
 			onError: (err, newData, context) => {
 				if (!context?.previousData) return;
-				const message =
-					err.message ?? locale.he.actions.product.update;
 
-				toast.error(`${locale.he.actions.error} ${message}`);
 				ctx.products.getAll.setData(context.previousData);
 			},
 			onSettled: () => {
@@ -269,29 +254,30 @@ export const useResetProductsOrderAmountByIds = (
 				);
 				setSelectedIds({});
 
-				return { previousData };
+				return {
+					previousData,
+					resource: 'product',
+					action: 'resetOrderAmount',
+				};
 			},
 			onError: (err, variables, context) => {
 				if (!context?.previousData) return;
 
-				toast.error(
-					`${locale.he.actions.error} ${locale.he.actions.product.resetOrderAmount}`,
-				);
 				ctx.products.getAll.setData(context.previousData);
 				setSelectedIds?.(variables.ids as any);
 			},
 			onSettled: () => {
 				ctx.products.getAll.invalidate();
 			},
-			onSuccess: () => {
-				toast.success(
-					`${locale.he.actions.success} ${locale.he.actions.product.resetOrderAmount}`,
-				);
-			},
 		});
+	const onResetOrderAmount = async (data: { ids: string[] }) => {
+		try {
+			return await mutateAsync(data);
+		} catch {}
+	};
 
 	return {
-		onResetOrderAmount: mutateAsync,
+		onResetOrderAmount,
 		...mutation,
 	};
 };

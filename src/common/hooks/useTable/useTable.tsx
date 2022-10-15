@@ -172,6 +172,7 @@ export const useTable = <TData extends RowData>({
 				pageIndex: cursor ? Number(cursor) - 1 : undefined,
 			},
 		},
+		...options,
 	};
 	const table = useReactTable(
 		// Merge passed options with default options, using produce reduces levels of nesting and keeps all spreads in one, easy to read place.
