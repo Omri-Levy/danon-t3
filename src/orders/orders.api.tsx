@@ -1,5 +1,3 @@
-import toast from 'react-hot-toast';
-import { locale } from '../common/translations';
 import { SubmitHandler } from 'react-hook-form';
 import {
 	TOrderDeleteByIdsInput,
@@ -29,19 +27,15 @@ export const useDeleteOrdersByIds = (
 
 				setSelectedIds({});
 
-				return { previousData };
-			},
-			onSuccess: () => {
-				toast.success(
-					`${locale.he.actions.success} ${locale.he.actions.order.delete}`,
-				);
+				return {
+					previousData,
+					resource: 'order',
+					action: 'delete',
+				};
 			},
 			onError: (err, newData, context) => {
 				if (!context?.previousData) return;
-				const message =
-					err.message ?? locale.he.actions.order.update;
 
-				toast.error(`${locale.he.actions.error} ${message}`);
 				ctx.orders.getAll.setData(context.previousData);
 			},
 			onSettled: () => {
@@ -115,16 +109,11 @@ export const useSendOrder = () => {
 		{
 			onMutate: async () => {
 				ctx.products.getAll.cancel();
-			},
-			onError: () => {
-				toast.error(
-					`${locale.he.actions.error} ${locale.he.actions.order.send}`,
-				);
-			},
-			onSuccess: () => {
-				toast.success(
-					`${locale.he.actions.success} ${locale.he.actions.order.send}`,
-				);
+
+				return {
+					resource: 'order',
+					action: 'delete',
+				};
 			},
 			onSettled: () => {
 				ctx.products.getAll.invalidate();
@@ -147,15 +136,18 @@ export const useGetOrderPresignedUrlById = ({
 	id,
 	enabled,
 }: IUseGetOrderPresignedUrlByIdProps) => {
-	return trpc.orders.getPresignedUrlById.useQuery(
-		{
-			id,
-		},
-		{
-			enabled,
-			onError: (err) => {
-				toast.error(err.message);
+	const { data, ...query } =
+		trpc.orders.getPresignedUrlById.useQuery(
+			{
+				id,
 			},
-		},
-	);
+			{
+				enabled,
+			},
+		);
+
+	return {
+		presignedUrl: data,
+		...query,
+	};
 };

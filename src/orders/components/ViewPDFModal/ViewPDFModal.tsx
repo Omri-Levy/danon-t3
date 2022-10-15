@@ -21,7 +21,7 @@ export const ViewPDFModal: FunctionComponent = () => {
 		}),
 	);
 	const { orderId = '' } = useParams();
-	const { data: presignedUrl } = useGetOrderPresignedUrlById({
+	const { presignedUrl } = useGetOrderPresignedUrlById({
 		id: orderId,
 		enabled: !!orderId && isOpen && type === EModalType.VIEW_PDF,
 	});

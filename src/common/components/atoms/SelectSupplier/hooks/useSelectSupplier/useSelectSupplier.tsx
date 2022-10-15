@@ -33,7 +33,7 @@ export const useSelectSupplier = () => {
 		setSearchParams(searchParams);
 
 		// Without all of these all search params but filter_by and filter work.
-	}, [search, sort_by, sort_dir, cursor, limit]);
+	}, [search, sort_by, sort_dir, cursor, limit, supplier]);
 
 	return {
 		supplierNames,

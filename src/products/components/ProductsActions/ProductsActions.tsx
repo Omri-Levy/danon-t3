@@ -12,7 +12,7 @@ export const ProductsActions: FunctionComponent<
 		disableOrder,
 		moreThanOneSupplier,
 		onToggleIsSendingOrder,
-		selectedProducts,
+		selectedProductsIds,
 		disableResetOrderAmount,
 		isLoadingResetOrderAmount,
 		resetOrderAmount,
@@ -54,7 +54,7 @@ export const ProductsActions: FunctionComponent<
 			</div>
 			<div
 				className={
-					!selectedProducts?.length ||
+					!selectedProductsIds?.length ||
 					disableResetOrderAmount
 						? `tooltip`
 						: `inline`

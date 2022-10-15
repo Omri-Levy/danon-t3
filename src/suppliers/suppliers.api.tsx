@@ -1,5 +1,3 @@
-import toast from 'react-hot-toast';
-import { locale } from '../common/translations';
 import { SubmitHandler } from 'react-hook-form';
 import {
 	TSupplierCreateInput,
@@ -23,20 +21,15 @@ export const useCreateSupplier = () => {
 					newData,
 				]);
 
-				return { previousData };
-			},
-			onSuccess: () => {
-				toast.success(
-					`${locale.he.actions.success} ${locale.he.actions.supplier.create}`,
-				);
+				return {
+					previousData,
+					resource: 'supplier',
+					action: 'create',
+				};
 			},
 			onError: (err, newData, context) => {
 				if (!context?.previousData) return;
-				const message =
-					err.message ??
-					locale.he.actions['supplier']['create'];
 
-				toast.error(`${locale.he.actions.error} ${message}`);
 				ctx.suppliers.getAll.setData(context.previousData);
 			},
 			onSettled: () => {
@@ -76,19 +69,15 @@ export const useUpdateSupplierById = () => {
 					),
 				);
 
-				return { previousData };
+				return {
+					previousData,
+					resource: 'supplier',
+					action: 'update',
+				};
 			},
-			// onSuccess: () => {
-			// 	toast.success(
-			// 		`${locale.he.actions.success} ${locale.he.actions.supplier.update}`,
-			// 	);
-			// },
 			onError: (err, newData, context) => {
 				if (!context?.previousData) return;
-				const message =
-					err.message ?? locale.he.actions.supplier.update;
 
-				toast.error(`${locale.he.actions.error} ${message}`);
 				ctx.suppliers.getAll.setData(context.previousData);
 			},
 			onSettled: () => {
@@ -128,19 +117,15 @@ export const useDeleteSuppliersByIds = (
 
 				setSelectedIds({});
 
-				return { previousData };
-			},
-			onSuccess: () => {
-				toast.success(
-					`${locale.he.actions.success} ${locale.he.actions.supplier.delete}`,
-				);
+				return {
+					previousData,
+					resource: 'supplier',
+					action: 'delete',
+				};
 			},
 			onError: (err, newData, context) => {
 				if (!context?.previousData) return;
-				const message =
-					err.message ?? locale.he.actions.supplier.update;
 
-				toast.error(`${locale.he.actions.error} ${message}`);
 				ctx.suppliers.getAll.setData(context.previousData);
 			},
 			onSettled: () => {
