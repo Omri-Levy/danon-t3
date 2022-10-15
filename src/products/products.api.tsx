@@ -1,4 +1,9 @@
-import { SubmitHandler } from 'react-hook-form';
+import {
+	DefaultValues,
+	FieldValues,
+	KeepStateOptions,
+	SubmitHandler,
+} from 'react-hook-form';
 import {
 	TProductCreateInput,
 	TProductDeleteByIdsInput,
@@ -36,13 +41,23 @@ export const useCreateProduct = () => {
 				ctx.products.getAll.invalidate();
 			},
 		});
-	const onCreate: SubmitHandler<TProductCreateInput> = async (
-		data,
-	) => {
-		try {
-			return await mutateAsync(data);
-		} catch {}
-	};
+	const onCreate: (
+		reset: (
+			values?: DefaultValues<FieldValues> | FieldValues,
+			keepStateOptions?: KeepStateOptions,
+		) => void,
+		focus: () => void,
+	) => SubmitHandler<TProductCreateInput> =
+		(reset, focus) => async (data) => {
+			try {
+				return await mutateAsync(data, {
+					onSuccess: () => {
+						focus();
+						reset();
+					},
+				});
+			} catch {}
+		};
 
 	return {
 		onCreate,

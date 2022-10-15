@@ -1,4 +1,9 @@
-import { SubmitHandler } from 'react-hook-form';
+import {
+	DefaultValues,
+	FieldValues,
+	KeepStateOptions,
+	SubmitHandler,
+} from 'react-hook-form';
 import {
 	TSupplierCreateInput,
 	TSupplierDeleteByIdsInput,
@@ -36,13 +41,23 @@ export const useCreateSupplier = () => {
 				ctx.suppliers.getAll.invalidate();
 			},
 		});
-	const onCreate: SubmitHandler<TSupplierCreateInput> = async (
-		data,
-	) => {
-		try {
-			return await mutateAsync(data);
-		} catch {}
-	};
+	const onCreate: (
+		reset: (
+			values?: DefaultValues<FieldValues> | FieldValues,
+			keepStateOptions?: KeepStateOptions,
+		) => void,
+		focus: () => void,
+	) => SubmitHandler<TSupplierCreateInput> =
+		(reset, focus) => async (data) => {
+			try {
+				return await mutateAsync(data, {
+					onSuccess: () => {
+						focus();
+						reset();
+					},
+				});
+			} catch {}
+		};
 
 	return {
 		onCreate,

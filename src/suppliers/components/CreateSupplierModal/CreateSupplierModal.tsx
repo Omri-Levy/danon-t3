@@ -8,7 +8,7 @@ import { useModalsStore } from '../../../common/stores/modals/modals';
 import { FunctionComponent } from 'react';
 
 export const CreateSupplierModal: FunctionComponent = () => {
-	const { createSupplierMethods, isLoading, onCreate } =
+	const { createSupplierMethods, isLoading, handleSubmit } =
 		useCreateSupplierModal();
 	const { isOpen, onToggleIsCreatingSupplier } = useModalsStore(
 		(state) => ({
@@ -29,9 +29,7 @@ export const CreateSupplierModal: FunctionComponent = () => {
 					noValidate
 					className='grid grid-cols-1 gap-x-2'
 					dir={`rtl`}
-					onSubmit={createSupplierMethods.handleSubmit(
-						onCreate,
-					)}
+					onSubmit={handleSubmit}
 				>
 					<FormInput
 						label={locale.he.name}

@@ -3,7 +3,11 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { FormInput } from '../../../common/components/molecules/Form/FormInput/FormInput';
 import { FormSelect } from '../../../common/components/molecules/Form/FormSelect/FormSelect';
 import { Unit } from '../../../common/enums';
-import { FunctionComponent, useCallback, useEffect } from 'react';
+import {
+	FormEventHandler,
+	FunctionComponent,
+	useCallback,
+} from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createProductSchema } from '../../validation';
 import clsx from 'clsx';
@@ -41,30 +45,31 @@ export const CreateProductModal: FunctionComponent = () => {
 			stock: 0,
 		},
 	});
-	const { onCreate, isLoading, isSuccess } = useCreateProduct();
-	const handleReset = useCallback(() => {
-		if (!isSuccess) return;
-
-		createProductMethods?.reset();
-	}, [isSuccess, createProductMethods?.reset]);
-	const handleFocus = useCallback(() => {
-		if (!isSuccess || createProductMethods?.formState?.isDirty)
-			return;
-
-		createProductMethods?.setFocus('supplier');
-	}, [
-		isSuccess,
-		createProductMethods?.setFocus,
-		createProductMethods?.formState?.isDirty,
-	]);
-
-	useEffect(() => {
-		handleReset();
-	}, [handleReset]);
-
-	useEffect(() => {
-		handleFocus();
-	}, [handleFocus]);
+	const { onCreate, isLoading } = useCreateProduct();
+	const handleFocus = useCallback(
+		() => createProductMethods?.setFocus('supplier'),
+		[
+			createProductMethods?.setFocus,
+			createProductMethods?.formState?.isDirty,
+		],
+	);
+	const handleSubmit: FormEventHandler<HTMLFormElement> =
+		useCallback(
+			(e) => {
+				createProductMethods.handleSubmit(
+					onCreate(
+						createProductMethods?.reset,
+						handleFocus,
+					),
+				)(e);
+			},
+			[
+				createProductMethods.handleSubmit,
+				createProductMethods.reset,
+				handleFocus,
+				onCreate,
+			],
+		);
 
 	return (
 		<Modal
@@ -77,9 +82,7 @@ export const CreateProductModal: FunctionComponent = () => {
 					noValidate
 					className='grid grid-cols-2 gap-x-2'
 					dir={`rtl`}
-					onSubmit={createProductMethods.handleSubmit(
-						onCreate,
-					)}
+					onSubmit={handleSubmit}
 				>
 					<FormSelect
 						options={supplierNames ?? []}
