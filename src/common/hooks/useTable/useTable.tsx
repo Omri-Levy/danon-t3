@@ -24,7 +24,6 @@ import { addRowIndex } from '../../utils/add-row-index/add-row-index';
 import { isInstanceOfFunction } from '../../utils/is-instance-of-function/is-instance-of-function';
 import { useSearchParams } from 'react-router-dom';
 import { parseSearchParams } from '../../../products/components/ProductsTable/hooks/useProductsTable./useProductsTable';
-import produce from 'immer';
 
 export const useTable = <TData extends RowData>({
 	columns,
@@ -101,7 +100,10 @@ export const useTable = <TData extends RowData>({
 	);
 	const [rowSelection, setRowSelection] =
 		useState<RowSelectionState>({});
-	const tableOptions: TableOptions<TData> = {
+	const { state, initialState, meta, ...restOptions } = options;
+	const { pagination, ...restInitialState } = initialState ?? {};
+	const { updateData, ...restMeta } = meta ?? {};
+	const table = useReactTable({
 		columns: [
 			{
 				id: 'select',
@@ -161,43 +163,30 @@ export const useTable = <TData extends RowData>({
 		enableSortingRemoval: false,
 		sortDescFirst: true,
 		globalFilterFn: buildFuzzyFilter(),
+		meta: {
+			updateData: updateData?.(skipAutoResetPageIndex),
+			...restMeta,
+		},
 		state: {
 			rowSelection,
 			sorting,
 			globalFilter,
+			...state,
 		},
 		initialState: {
 			pagination: {
-				pageSize: limit ? Number(limit) : undefined,
-				pageIndex: cursor ? Number(cursor) - 1 : undefined,
+				...pagination,
+				pageSize: limit
+					? Number(limit)
+					: pagination?.pageSize,
+				pageIndex: cursor
+					? Number(cursor) - 1
+					: pagination?.pageIndex,
 			},
+			...restInitialState,
 		},
-		...options,
-	};
-	const table = useReactTable(
-		// Merge passed options with default options, using produce reduces levels of nesting and keeps all spreads in one, easy to read place.
-		produce(tableOptions, (draft) => {
-			draft.state = {
-				...draft.state,
-				...options?.state,
-			};
-			draft.initialState = {
-				...draft.initialState,
-				...options?.initialState,
-			};
-			draft.initialState.pagination = {
-				...draft.initialState.pagination,
-				...options?.initialState?.pagination,
-			};
-			draft.meta = {
-				...draft.meta,
-				...options?.meta,
-			};
-			draft.meta.updateData = options?.meta?.updateData?.(
-				skipAutoResetPageIndex,
-			);
-		}),
-	);
+		...restOptions,
+	});
 	const pageIndex = table.getState().pagination.pageIndex;
 	const pageSize = table.getState().pagination.pageSize;
 
