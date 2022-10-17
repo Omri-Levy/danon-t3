@@ -2,7 +2,6 @@ import { NextPage } from 'next';
 import { locale } from '../common/translations';
 import { Pagination } from '../common/components/organisms/Pagination/Pagination';
 import { OrdersTable } from './components/OrdersTable/OrdersTable';
-import { ViewPDFModal } from './components/ViewPDFModal/ViewPDFModal';
 import { useOrders } from './hooks/useOrders/useOrders';
 import { TopBar } from '../common/components/molecules/TopBar/TopBar';
 import { OrdersActions } from './components/OrdersActions/OrdersActions';
@@ -17,31 +16,24 @@ export const Orders: NextPage = () => {
 		orders,
 		ordersCount,
 		rowSelection,
-		setRowSelection,
 	} = useOrders();
 
 	return (
 		<>
-			<ViewPDFModal />
 			<TopBar
 				resource={locale.he.orders}
 				TopBarEnd={<SelectSupplier />}
 				Actions={
-					<OrdersActions
-						rowSelection={rowSelection}
-						setRowSelection={setRowSelection}
-					/>
+					<OrdersActions rowSelection={rowSelection} />
 				}
 				globalFilter={globalFilter}
 				onGlobalFilter={onGlobalFilter}
 				resourceCount={ordersCount}
 			/>
-			<div
-				className={`overflow-auto h-[78vh] flex flex-col justify-between`}
-			>
+			<div className={`overflow-auto h-[70vh]`}>
 				{!isLoading && <OrdersTable table={table} />}
-				{!!orders?.length && <Pagination table={table} />}
 			</div>
+			{!!orders?.length && <Pagination table={table} />}
 		</>
 	);
 };

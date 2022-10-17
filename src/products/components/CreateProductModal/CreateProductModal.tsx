@@ -4,6 +4,7 @@ import { FunctionComponent } from 'react';
 import clsx from 'clsx';
 import { Modal } from '../../../common/components/molecules/Modal/Modal';
 import { useCreateProductModal } from './hooks/useCreateProductModal/useCreateProductModal';
+import { Form } from '../../../common/components/molecules/Form/Form';
 
 export const CreateProductModal: FunctionComponent = () => {
 	const {
@@ -13,7 +14,6 @@ export const CreateProductModal: FunctionComponent = () => {
 		handleSubmit,
 		supplierNames,
 		isLoading,
-		Form,
 	} = useCreateProductModal();
 
 	return (

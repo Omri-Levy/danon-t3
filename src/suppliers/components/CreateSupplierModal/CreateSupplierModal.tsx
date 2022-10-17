@@ -1,13 +1,10 @@
 import { locale } from '../../../common/translations';
 import clsx from 'clsx';
-import {
-	ICreateSupplierFormFields,
-	useCreateSupplierModal,
-} from './hooks/useCreateSupplierModal/useCreateSupplierModal';
+import { useCreateSupplierModal } from './hooks/useCreateSupplierModal/useCreateSupplierModal';
 import { Modal } from '../../../common/components/molecules/Modal/Modal';
 import { useModalsStore } from '../../../common/stores/modals/modals';
 import { FunctionComponent } from 'react';
-import { getForm } from '../../../common/components/molecules/Form/get-form';
+import { Form } from '../../../common/components/molecules/Form/Form';
 
 export const CreateSupplierModal: FunctionComponent = () => {
 	const { createSupplierMethods, isLoading, handleSubmit } =
@@ -19,7 +16,6 @@ export const CreateSupplierModal: FunctionComponent = () => {
 				state.onToggleIsCreatingSupplier,
 		}),
 	);
-	const Form = getForm<ICreateSupplierFormFields>();
 
 	return (
 		<Modal

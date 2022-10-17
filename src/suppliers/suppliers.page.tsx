@@ -15,7 +15,6 @@ export const Suppliers: NextPage = () => {
 		globalFilter,
 		onGlobalFilter,
 		rowSelection,
-		setRowSelection,
 	} = useSuppliers();
 
 	return (
@@ -23,21 +22,18 @@ export const Suppliers: NextPage = () => {
 			<TopBar
 				resource={locale.he.suppliers}
 				Actions={
-					<SuppliersActions
-						rowSelection={rowSelection}
-						setRowSelection={setRowSelection}
-					/>
+					<SuppliersActions rowSelection={rowSelection} />
 				}
 				globalFilter={globalFilter}
 				onGlobalFilter={onGlobalFilter}
 				resourceCount={suppliersCount}
 			/>
 			<div
-				className={`overflow-auto h-[78vh] flex flex-col justify-between`}
+				className={`overflow-auto h-[70vh] flex flex-col justify-between`}
 			>
 				{!isLoading && <SuppliersTable table={table} />}
-				{!!suppliers?.length && <Pagination table={table} />}
 			</div>
+			{!!suppliers?.length && <Pagination table={table} />}
 		</>
 	);
 };

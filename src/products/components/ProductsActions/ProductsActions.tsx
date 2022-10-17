@@ -7,7 +7,7 @@ import { ModalButton } from '../../../common/components/molecules/Modal/ModalBut
 
 export const ProductsActions: FunctionComponent<
 	IProductsActionsProps
-> = ({ rowSelection, setRowSelection }) => {
+> = ({ rowSelection }) => {
 	const {
 		disableOrder,
 		moreThanOneSupplier,
@@ -18,11 +18,11 @@ export const ProductsActions: FunctionComponent<
 		resetOrderAmount,
 		disableDelete,
 		isLoadingDeleteByIds,
-		onDeleteSelectedProducts,
+		onToggleIsDeletingSelectedProducts,
 		isOpen,
 		onToggleIsPrinting,
 		onToggleIsCreatingProduct,
-	} = useProductsActions(rowSelection, setRowSelection);
+	} = useProductsActions(rowSelection);
 
 	return (
 		<>
@@ -94,14 +94,14 @@ export const ProductsActions: FunctionComponent<
 				className={disableDelete ? `tooltip` : `inline`}
 				data-tip={`לא ניתן לבצע מחיקת מוצרים עם 0 מוצרים מסומנים`}
 			>
-				<button
+				<ModalButton
 					disabled={disableDelete}
 					className={clsx([
 						`btn gap-2`,
 						{ loading: isLoadingDeleteByIds },
 					])}
-					onClick={onDeleteSelectedProducts}
-					type={`button`}
+					onOpen={onToggleIsDeletingSelectedProducts}
+					isOpen={isOpen}
 				>
 					{locale.he.delete}
 					<svg
@@ -116,7 +116,7 @@ export const ProductsActions: FunctionComponent<
 							clipRule='evenodd'
 						/>
 					</svg>
-				</button>
+				</ModalButton>
 			</div>
 			<ModalButton
 				onOpen={onToggleIsCreatingProduct}

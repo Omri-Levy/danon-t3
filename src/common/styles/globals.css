@@ -3,19 +3,20 @@
 @tailwind utilities;
 
 /* Chrome */
-.scroll::-webkit-scrollbar {
-	width: theme('spacing.2');
+::-webkit-scrollbar {
+	width: theme('spacing.4');
 }
 
-.scroll::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
 	background: theme('colors.gray.300');
 }
 
-.scroll::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb {
 	background: theme('colors.primary');
+	border: 1px solid theme('colors.gray.300');
 }
 
 /* Firefox */
-.scroll {
+* {
 	scrollbar-color: theme('colors.primary') theme('colors.neutral');
 }

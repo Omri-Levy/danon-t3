@@ -11,8 +11,15 @@ import { parseSearchParams } from '../../../../../../products/components/Product
 export const useSelectSupplier = () => {
 	const { supplierNames } = useGetAllSupplierNames();
 	const [searchParams, setSearchParams] = useSearchParams();
-	const { filter, search, sort_by, sort_dir, cursor, limit } =
-		parseSearchParams(searchParams);
+	const {
+		filter,
+		search,
+		sort_by,
+		sort_dir,
+		cursor,
+		limit,
+		selected,
+	} = parseSearchParams(searchParams);
 	const [supplier, setSupplier] = useState(
 		filter || supplierNames?.[0],
 	);
@@ -21,9 +28,12 @@ export const useSelectSupplier = () => {
 			(e) => {
 				if (!e.target.value) return;
 
+				searchParams.set('selected', '');
+
 				setSupplier(e.target.value);
+				setSearchParams(searchParams);
 			},
-			[setSupplier],
+			[setSupplier, setSearchParams],
 		);
 
 	useEffect(() => {
@@ -33,7 +43,15 @@ export const useSelectSupplier = () => {
 		setSearchParams(searchParams);
 
 		// Without all of these all search params but filter_by and filter work.
-	}, [search, sort_by, sort_dir, cursor, limit, supplier]);
+	}, [
+		search,
+		sort_by,
+		sort_dir,
+		cursor,
+		limit,
+		supplier,
+		selected,
+	]);
 
 	return {
 		supplierNames,

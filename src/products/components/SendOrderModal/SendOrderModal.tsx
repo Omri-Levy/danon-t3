@@ -3,6 +3,7 @@ import { FunctionComponent } from 'react';
 import clsx from 'clsx';
 import { Modal } from '../../../common/components/molecules/Modal/Modal';
 import { useSendOrderModal } from './hooks/useSendOrderModal/useSendOrderModal';
+import { Form } from '../../../common/components/molecules/Form/Form';
 
 export const SendOrderModal: FunctionComponent = () => {
 	const {
@@ -13,7 +14,6 @@ export const SendOrderModal: FunctionComponent = () => {
 		sendOrderMethods,
 		onSendOrderSubmit,
 		isLoading,
-		Form,
 	} = useSendOrderModal();
 
 	return (

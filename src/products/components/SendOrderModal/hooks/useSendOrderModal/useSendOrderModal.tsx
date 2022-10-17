@@ -12,8 +12,6 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { TOrderSendInput } from '../../../../../common/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { sendOrderSchema } from '../../../../../orders/validation';
-import { getForm } from '../../../../../common/components/molecules/Form/get-form';
-import { ISendOrderFormFields } from '../../interfaces';
 
 export const useSendOrderModal = () => {
 	const { isOpen, onToggleIsSendingOrder } = useModalsStore(
@@ -92,7 +90,6 @@ export const useSendOrderModal = () => {
 
 		onToggleIsSendingOrder(false);
 	}, [isSuccess]);
-	const Form = getForm<ISendOrderFormFields>();
 
 	return {
 		isOpen,
@@ -102,6 +99,5 @@ export const useSendOrderModal = () => {
 		sendOrderMethods,
 		onSendOrderSubmit,
 		isLoading,
-		Form,
 	};
 };
