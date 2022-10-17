@@ -43,7 +43,6 @@ class OrdersRepository {
 	async findById({ id }: TOrderIdSchema) {
 		return this._repository
 			.selectFrom('order')
-			.selectAll()
 			.where('id', '=', id)
 			.executeTakeFirst();
 	}
