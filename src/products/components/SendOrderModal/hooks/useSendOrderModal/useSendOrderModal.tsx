@@ -65,7 +65,7 @@ export const useSendOrderModal = () => {
 	);
 	const base64 = usePdfTable(
 		headers,
-		withRowIndex ?? [],
+		[withRowIndex ?? []],
 		`הזמנה מספר ${nextOrder}`.split('').reverse().join(''),
 	);
 	const onSendOrderSubmit: SubmitHandler<TOrderSendInput> =

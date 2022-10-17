@@ -7,19 +7,21 @@ import { useCallback, useEffect, useState } from 'react';
 
 export const usePdfTable = (
 	headers: Array<{ header: string; accessorKey: string }>,
-	data: Array<Record<PropertyKey, any>>,
+	data: Array<Array<Record<PropertyKey, any>>>,
 	text?: string,
 ) => {
 	const [base64, setBase64] = useState<string | ArrayBuffer | null>(
 		null,
 	);
 	const head = [headers.map(({ header }) => header)];
-	const body = data.map((row) =>
-		headers.map(({ accessorKey }) => {
-			const keys = accessorKey.split('.');
+	const bodies = data?.map((entry) =>
+		entry.map((row) =>
+			headers.map(({ accessorKey }) => {
+				const keys = accessorKey.split('.');
 
-			return keys.reduce((acc, key) => acc[key], row);
-		}),
+				return keys.reduce((acc, key) => acc[key], row);
+			}),
+		),
 	);
 	const constructDoc = useCallback(() => {
 		const margin = 45;
@@ -47,21 +49,25 @@ export const usePdfTable = (
 			25,
 		);
 
-		autoTable(doc, {
-			startY: margin,
-			bodyStyles: {
-				font: 'Heebo-normal',
-			},
-			headStyles: {
-				halign: 'center',
-				font: 'Heebo-bold',
-			},
-			head,
-			body,
+		bodies.forEach((body) => {
+			autoTable(doc, {
+				startY: doc.lastAutoTable.finalY
+					? doc.lastAutoTable.finalY + margin
+					: margin,
+				bodyStyles: {
+					font: 'Heebo-normal',
+				},
+				headStyles: {
+					halign: 'center',
+					font: 'Heebo-bold',
+				},
+				head,
+				body,
+			});
 		});
 
 		return doc;
-	}, [body?.length, head?.length, text]);
+	}, [bodies?.length, head?.length, text]);
 
 	const handleBase64 = useCallback(() => {
 		const doc = constructDoc();
@@ -86,7 +92,7 @@ export const usePdfTable = (
 		return () => {
 			reader.removeEventListener('loadend', onLoadEnd);
 		};
-	}, [handleBase64, body?.length]);
+	}, [handleBase64, bodies?.length]);
 
 	return base64;
 };

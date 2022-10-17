@@ -2,9 +2,10 @@ import { locale } from '../../../common/translations';
 import { usePdfTable } from '../../hooks/usePdfTable/usePdfTable';
 import { useGetAllProducts } from '../../products.api';
 import { FunctionComponent, useMemo } from 'react';
-import { addRowIndex } from '../../../common/utils/add-row-index/add-row-index';
 import { Modal } from '../../../common/components/molecules/Modal/Modal';
 import { useModalsStore } from '../../../common/stores/modals/modals';
+import produce from 'immer';
+import { addRowIndex } from '../../../common/utils/add-row-index/add-row-index';
 
 export const PrintModal: FunctionComponent = () => {
 	const { isOpen, onToggleIsPrinting } = useModalsStore(
@@ -51,11 +52,28 @@ export const PrintModal: FunctionComponent = () => {
 			})),
 		[],
 	);
-	const withRowIndex = useMemo(
-		() => products?.map(addRowIndex),
-		[products],
-	);
-	const base64 = usePdfTable(headers, withRowIndex ?? []);
+	const dividedBySupplier = (data: typeof products) => {
+		const entries = produce<Record<PropertyKey, typeof products>>(
+			{},
+			(draft) => {
+				data?.forEach((product, index) => {
+					if (draft[product.supplier.name]) {
+						draft[product.supplier.name]?.push(product);
+
+						return;
+					}
+
+					draft[product.supplier.name] = [product];
+				});
+			},
+		);
+
+		return Object.keys(entries)
+			?.sort((a, b) => a.localeCompare(b))
+			.map((key) => entries[key]?.flatMap(addRowIndex));
+	};
+	const data = dividedBySupplier(products);
+	const base64 = usePdfTable(headers, data);
 
 	return (
 		<Modal
