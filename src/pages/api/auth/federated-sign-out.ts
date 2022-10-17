@@ -3,7 +3,7 @@ import { NextApiHandler } from 'next';
 
 const federatedSignOut: NextApiHandler = async (req, res) => {
 	return res.redirect(
-		`https://login.microsoftonline.com/${env.AZURE_AD_TENANT_ID}/oauth2/logout?post_logout_redirect_uri=${env.NEXTAUTH_URL}}/auth/sign-out,`,
+		`https://login.microsoftonline.com/${env.AZURE_AD_TENANT_ID}/oauth2/logout?post_logout_redirect_uri=${env.NEXTAUTH_URL}/auth/sign-out,`,
 	);
 };
 
