@@ -8,7 +8,6 @@ import { createProductSchema } from '../../../../validation';
 import { zSupplierNamesEnum } from '../../../../../suppliers/utils/z-supplier-names-enum/z-supplier-names-enum';
 import { Unit } from '../../../../../common/enums';
 import { useCallback } from 'react';
-import { getForm } from '../../../../../common/components/molecules/Form/get-form';
 
 export const useCreateProductModal = () => {
 	const { isOpen, onToggleIsCreatingProduct } = useModalsStore(
@@ -47,15 +46,9 @@ export const useCreateProductModal = () => {
 		],
 	);
 	const handleSubmit = useCallback(
-		() => onCreate(createProductMethods?.reset, handleFocus),
-		[
-			createProductMethods.handleSubmit,
-			createProductMethods.reset,
-			handleFocus,
-			onCreate,
-		],
+		onCreate(createProductMethods?.reset, handleFocus),
+		[createProductMethods.reset, handleFocus, onCreate],
 	);
-	const Form = getForm<ICreateProductFormFields>();
 
 	return {
 		isOpen,
@@ -64,6 +57,5 @@ export const useCreateProductModal = () => {
 		handleSubmit,
 		supplierNames,
 		isLoading,
-		Form,
 	};
 };

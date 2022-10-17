@@ -1,16 +1,13 @@
-import { Dispatch, SetStateAction } from 'react';
 import {
 	useDeleteOrdersByIds,
 	useGetAllOrdersBySupplierName,
 } from '../../../../orders.api';
 import { useSearchParams } from 'react-router-dom';
 import { parseSearchParams } from '../../../../../products/components/ProductsTable/hooks/useProductsTable./useProductsTable';
+import { useModalsStore } from '../../../../../common/stores/modals/modals';
 
 export const useOrdersActions = (
 	rowSelection: Record<PropertyKey, boolean>,
-	setRowSelection: Dispatch<
-		SetStateAction<Record<PropertyKey, boolean>>
-	>,
 ) => {
 	const [searchParams] = useSearchParams();
 	const { filter: supplier = '' } = parseSearchParams(searchParams);
@@ -18,21 +15,20 @@ export const useOrdersActions = (
 	const selectedOrders = orders
 		?.filter((_, index) => rowSelection[index])
 		.map(({ id }) => id);
-	const { onDeleteByIds, isLoading: isLoadingDeleteByIds } =
-		useDeleteOrdersByIds(setRowSelection);
-	const disableDelete =
-		!orders?.length || !Object.keys(rowSelection)?.length;
-	const onDeleteSelectedOrders = async () => {
-		if (!selectedOrders?.length) return;
-
-		await onDeleteByIds({
-			ids: selectedOrders,
-		});
-	};
+	const { isLoading: isLoadingDeleteByIds } =
+		useDeleteOrdersByIds();
+	const disableDelete = !orders?.length || !selectedOrders?.length;
+	const { isOpen, onToggleIsDeletingSelectedOrders } =
+		useModalsStore((state) => ({
+			isOpen: state.isOpen,
+			onToggleIsDeletingSelectedOrders:
+				state.onToggleIsDeletingSelectedOrders,
+		}));
 
 	return {
 		disableDelete,
 		isLoadingDeleteByIds,
-		onDeleteSelectedOrders,
+		isOpen,
+		onToggleIsDeletingSelectedOrders,
 	};
 };

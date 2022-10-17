@@ -49,7 +49,7 @@ export const ViewPDFModal: FunctionComponent = () => {
 			title={locale.he.order}
 		>
 			<iframe
-				className={`w-full h-full max-h-[calc(100%-3em)]`}
+				className={`w-full h-full max-h-[calc(100%-3.5em)]`}
 				src={presignedUrl}
 			/>
 		</Modal>

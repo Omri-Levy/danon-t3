@@ -2,6 +2,9 @@ import { Unit } from './enums';
 
 export const locale = {
 	he: {
+		areYouSureYouWantToDeleteSelectedItems: (items: string) =>
+			`האם את/ה בטוח/ה שברצונך למחוק את ה${items} הנבחרים?`,
+		confirm: 'אישור',
 		row: 'שורה',
 		view: `צפייה`,
 		pdf: `מסמך`,
@@ -124,6 +127,9 @@ export const locale = {
 		},
 	},
 	en: {
+		areYouSureYouWantToDeleteSelectedItems: (items: string) =>
+			`Are you sure you want like to delete the following ${items}?`,
+		confirm: `Confirm`,
 		row: `Row`,
 		view: `View`,
 		pdf: `PDF`,

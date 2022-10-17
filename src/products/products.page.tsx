@@ -16,7 +16,6 @@ export const Products: NextPage = () => {
 		globalFilter,
 		onGlobalFilter,
 		rowSelection,
-		setRowSelection,
 	} = useProducts();
 
 	return (
@@ -25,10 +24,7 @@ export const Products: NextPage = () => {
 			<TopBar
 				resource={locale.he.products}
 				Actions={
-					<ProductsActions
-						rowSelection={rowSelection}
-						setRowSelection={setRowSelection}
-					/>
+					<ProductsActions rowSelection={rowSelection} />
 				}
 				TopBarEnd={<SelectSupplier />}
 				globalFilter={globalFilter}
@@ -37,12 +33,10 @@ export const Products: NextPage = () => {
 					table.getPreFilteredRowModel()?.rows?.length
 				}
 			/>
-			<div
-				className={`overflow-auto flex flex-col justify-between h-[78vh]`}
-			>
+			<div className={`overflow-auto h-[70vh]`}>
 				{!isLoading && <ProductsTable table={table} />}
-				{!!products?.length && <Pagination table={table} />}
 			</div>
+			{!!products?.length && <Pagination table={table} />}
 		</>
 	);
 };
