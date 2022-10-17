@@ -9,11 +9,20 @@ import { useCallback, useEffect } from 'react';
 import { useOrdersTable } from '../../components/OrdersTable/hooks/useOrdersTable/useOrdersTable';
 import { ordersLoader } from '../../orders.loader';
 import { useGetAllOrdersBySupplierName } from '../../orders.api';
-import { useModalsStore } from '../../../common/stores/modals/modals';
+import {
+	EModalType,
+	useModalsStore,
+} from '../../../common/stores/modals/modals';
 import { parseSearchParams } from '../../../products/components/ProductsTable/hooks/useProductsTable./useProductsTable';
 
 export const useOrders = () => {
-	const { isOpen, onToggleIsViewingPDF } = useModalsStore();
+	const { isOpen, onToggleIsViewingPDF, type } = useModalsStore(
+		(state) => ({
+			isOpen: state.isOpen,
+			onToggleIsViewingPDF: state.onToggleIsViewingPDF,
+			type: state.type,
+		}),
+	);
 	const { orderId } = useParams();
 	const { orders: initialOrders } = useLoaderData() as Awaited<
 		ReturnType<ReturnType<typeof ordersLoader>>
@@ -43,10 +52,11 @@ export const useOrders = () => {
 
 	// Reopen the modal on page reload
 	useEffect(() => {
-		if (!orderId || isOpen) return;
+		if (!orderId || isOpen || type !== EModalType.VIEW_PDF)
+			return;
 
 		onToggleIsViewingPDF(true);
-	}, [orderId, isOpen]);
+	}, [orderId, isOpen, type]);
 
 	return {
 		isLoading,

@@ -24,6 +24,8 @@ import { addRowIndex } from '../../utils/add-row-index/add-row-index';
 import { isInstanceOfFunction } from '../../utils/is-instance-of-function/is-instance-of-function';
 import { useSearchParams } from 'react-router-dom';
 import { parseSearchParams } from '../../../products/components/ProductsTable/hooks/useProductsTable./useProductsTable';
+import queryString from 'query-string';
+import { parseQueryString } from '../../utils/parse-query-string/parse-query-string';
 
 export const useTable = <TData extends RowData>({
 	columns,
@@ -49,15 +51,8 @@ export const useTable = <TData extends RowData>({
 		[data],
 	);
 	const [searchParams, setSearchParams] = useSearchParams();
-	const {
-		search,
-		filter,
-		filter_by,
-		sort_by,
-		sort_dir,
-		cursor,
-		limit,
-	} = parseSearchParams(searchParams);
+	const { search, sort_by, sort_dir, cursor, limit, selected } =
+		parseSearchParams(searchParams);
 	const camelCasedSortBy = camelCase(sort_by);
 	const isDesc = sort_dir === 'desc';
 	const [autoResetPageIndex, skipAutoResetPageIndex] = useSkipper();
@@ -66,6 +61,7 @@ export const useTable = <TData extends RowData>({
 		useCallback(
 			(e) => {
 				setGlobalFilter(e.target.value);
+				setRowSelection({});
 			},
 			[setGlobalFilter],
 		);
@@ -99,7 +95,9 @@ export const useTable = <TData extends RowData>({
 		[setSorting],
 	);
 	const [rowSelection, setRowSelection] =
-		useState<RowSelectionState>({});
+		useState<RowSelectionState>(
+			parseQueryString<RowSelectionState>(selected ?? '') ?? {},
+		);
 	const { state, initialState, meta, ...restOptions } = options;
 	const { pagination, ...restInitialState } = initialState ?? {};
 	const { updateData, ...restMeta } = meta ?? {};
@@ -190,19 +188,15 @@ export const useTable = <TData extends RowData>({
 	const pageIndex = table.getState().pagination.pageIndex;
 	const pageSize = table.getState().pagination.pageSize;
 
-	// Protects against updating or deleting a row that is not visible
-	useEffect(() => {
-		setRowSelection({});
-	}, [filter, filter_by, search]);
-
 	useEffect(() => {
 		setSearchParams({
 			...parseSearchParams(searchParams),
 			search: globalFilter,
 			sort_by: snakeCase(sorting?.at(0)?.id),
-			sort_dir: sorting?.at(0)?.desc ? 'asc' : 'desc',
+			sort_dir: sorting?.at(0)?.desc ? 'desc' : 'asc',
 			limit: Math.max(pageSize, 1).toString(),
 			cursor: Math.max(pageIndex + 1, 1).toString(),
+			selected: queryString.stringify(rowSelection),
 		});
 	}, [
 		globalFilter,
@@ -210,7 +204,14 @@ export const useTable = <TData extends RowData>({
 		sorting?.at(0)?.desc,
 		pageIndex,
 		pageSize,
+		rowSelection,
 	]);
+
+	useEffect(() => {
+		if (selected) return;
+
+		setRowSelection({});
+	}, [selected]);
 
 	return {
 		table,

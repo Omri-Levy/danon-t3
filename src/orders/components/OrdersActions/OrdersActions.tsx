@@ -3,29 +3,31 @@ import { locale } from '../../../common/translations';
 import { FunctionComponent } from 'react';
 import { IOrdersActionsProps } from '../interfaces';
 import { useOrdersActions } from './hooks/useOrdersActions/useOrdersActions';
+import { ModalButton } from '../../../common/components/molecules/Modal/ModalButton/ModalButton';
 
 export const OrdersActions: FunctionComponent<
 	IOrdersActionsProps
-> = ({ rowSelection, setRowSelection }) => {
+> = ({ rowSelection }) => {
 	const {
 		disableDelete,
 		isLoadingDeleteByIds,
-		onDeleteSelectedOrders,
-	} = useOrdersActions(rowSelection, setRowSelection);
+		isOpen,
+		onToggleIsDeletingSelectedOrders,
+	} = useOrdersActions(rowSelection);
 
 	return (
 		<div
 			className={disableDelete ? `tooltip` : `inline`}
 			data-tip={`לא ניתן לבצע מחיקת מוצרים עם 0 מוצרים מסומנים`}
 		>
-			<button
+			<ModalButton
 				disabled={disableDelete}
 				className={clsx([
 					`btn gap-2`,
 					{ loading: isLoadingDeleteByIds },
 				])}
-				onClick={onDeleteSelectedOrders}
-				type={`button`}
+				isOpen={isOpen}
+				onOpen={onToggleIsDeletingSelectedOrders}
 			>
 				{locale.he.delete}
 				<svg
@@ -40,7 +42,7 @@ export const OrdersActions: FunctionComponent<
 						clipRule='evenodd'
 					/>
 				</svg>
-			</button>
+			</ModalButton>
 		</div>
 	);
 };

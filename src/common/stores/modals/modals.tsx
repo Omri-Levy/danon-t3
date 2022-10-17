@@ -5,21 +5,32 @@ import { CreateSupplierModal } from '../../../suppliers/components/CreateSupplie
 import { SendOrderModal } from '../../../products/components/SendOrderModal/SendOrderModal';
 import { PrintModal } from '../../../products/components/PrintModal/PrintModal';
 import { ViewPDFModal } from '../../../orders/components/ViewPDFModal/ViewPDFModal';
+import { DeleteSelectedProductsModal } from '../../../products/components/DeleteSelectedProductsModal/DeleteSelectedProductsModal';
+import { DeleteSelectedSuppliersModal } from '../../../suppliers/components/DeleteSelectedSuppliersModal/DeleteSelectedSuppliersModal';
+import { DeleteSelectedOrdersModal } from '../../../orders/components/DeleteSelectedOrdersModal/DeleteSelectedOrdersModal';
 
 export enum EModalType {
 	CREATE_SUPPLIER = 'EDIT_PRODUCT',
+	DELETE_SELECTED_SUPPLIERS = 'DELETE_SELECTED_SUPPLIERS',
 	CREATE_PRODUCT = 'CREATE_PRODUCT',
+	DELETE_SELECTED_PRODUCTS = 'DELETE_SELECTED_PRODUCTS',
 	SEND_ORDER = 'SEND_ORDER',
 	PRINT = 'PRINT',
 	VIEW_PDF = 'VIEW_PDF',
+	DELETE_SELECTED_ORDERS = 'DELETE_SELECTED_ORDERS',
 }
 
 export const modals = {
 	[EModalType.CREATE_SUPPLIER]: CreateSupplierModal,
+	[EModalType.DELETE_SELECTED_SUPPLIERS]:
+		DeleteSelectedSuppliersModal,
 	[EModalType.CREATE_PRODUCT]: CreateProductModal,
+	[EModalType.DELETE_SELECTED_PRODUCTS]:
+		DeleteSelectedProductsModal,
 	[EModalType.SEND_ORDER]: SendOrderModal,
 	[EModalType.PRINT]: PrintModal,
 	[EModalType.VIEW_PDF]: ViewPDFModal,
+	[EModalType.DELETE_SELECTED_ORDERS]: DeleteSelectedOrdersModal,
 };
 
 export interface ModalsState {
@@ -30,10 +41,15 @@ export interface ModalsState {
 	onToggle: (type: EModalType, nextState?: boolean) => void;
 
 	onToggleIsCreatingSupplier: (nextState?: boolean) => void;
+	onToggleIsDeletingSelectedSuppliers: (
+		nextState?: boolean,
+	) => void;
 	onToggleIsCreatingProduct: (nextState?: boolean) => void;
+	onToggleIsDeletingSelectedProducts: (nextState?: boolean) => void;
 	onToggleIsSendingOrder: (nextState?: boolean) => void;
 	onToggleIsPrinting: (nextState?: boolean) => void;
 	onToggleIsViewingPDF: (nextState?: boolean) => void;
+	onToggleIsDeletingSelectedOrders: (nextState?: boolean) => void;
 }
 
 export const useModalsStore = create<ModalsState>((set, get) => ({
@@ -54,12 +70,24 @@ export const useModalsStore = create<ModalsState>((set, get) => ({
 
 	onToggleIsCreatingSupplier: (nextState) =>
 		get().onToggle(EModalType.CREATE_SUPPLIER, nextState),
+	onToggleIsDeletingSelectedSuppliers: (nextState) =>
+		get().onToggle(
+			EModalType.DELETE_SELECTED_SUPPLIERS,
+			nextState,
+		),
 	onToggleIsCreatingProduct: (nextState) =>
 		get().onToggle(EModalType.CREATE_PRODUCT, nextState),
+	onToggleIsDeletingSelectedProducts: (nextState) =>
+		get().onToggle(
+			EModalType.DELETE_SELECTED_PRODUCTS,
+			nextState,
+		),
 	onToggleIsSendingOrder: (nextState) =>
 		get().onToggle(EModalType.SEND_ORDER, nextState),
 	onToggleIsPrinting: (nextState) =>
 		get().onToggle(EModalType.PRINT, nextState),
 	onToggleIsViewingPDF: (nextState) =>
 		get().onToggle(EModalType.VIEW_PDF, nextState),
+	onToggleIsDeletingSelectedOrders: (nextState) =>
+		get().onToggle(EModalType.DELETE_SELECTED_ORDERS, nextState),
 }));

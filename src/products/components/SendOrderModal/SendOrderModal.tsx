@@ -1,106 +1,20 @@
 import { locale } from '../../../common/translations';
-import {
-	FormProvider,
-	SubmitHandler,
-	useForm,
-} from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { TOrderSendInput } from '../../../common/types';
-import {
-	FunctionComponent,
-	useCallback,
-	useEffect,
-	useMemo,
-} from 'react';
+import { FunctionComponent } from 'react';
 import clsx from 'clsx';
-import { usePdfTable } from '../../hooks/usePdfTable/usePdfTable';
-import {
-	useGetAllOrders,
-	useSendOrder,
-} from '../../../orders/orders.api';
-import { useGetAllProductsToOrder } from '../../products.api';
-import { sendOrderSchema } from '../../../orders/validation';
-import { addRowIndex } from '../../../common/utils/add-row-index/add-row-index';
 import { Modal } from '../../../common/components/molecules/Modal/Modal';
-import { useModalsStore } from '../../../common/stores/modals/modals';
+import { useSendOrderModal } from './hooks/useSendOrderModal/useSendOrderModal';
+import { Form } from '../../../common/components/molecules/Form/Form';
 
 export const SendOrderModal: FunctionComponent = () => {
-	const { isOpen, onToggleIsSendingOrder } = useModalsStore(
-		(state) => ({
-			isOpen: state.isOpen,
-			onToggleIsSendingOrder: state.onToggleIsSendingOrder,
-		}),
-	);
-	const { products } = useGetAllProductsToOrder();
-	const { onSend, isSuccess, isLoading } = useSendOrder();
-	const headers = useMemo(
-		() =>
-			[
-				{
-					accessorKey: 'orderAmount',
-					header: locale.he.orderAmount,
-				},
-				{
-					accessorKey: 'packageSize',
-					header: locale.he.packageSize,
-				},
-				{
-					accessorKey: 'unit',
-					header: locale.he.unit,
-				},
-				{
-					accessorKey: 'name',
-					header: locale.he.productName,
-				},
-				{
-					accessorKey: 'sku',
-					header: locale.he.sku,
-				},
-				{
-					accessorKey: 'rowIndex',
-					header: '',
-				},
-			].map(({ header, ...rest }) => ({
-				header: header.split('').reverse().join(''),
-				...rest,
-			})),
-		[],
-	);
-	const { orders } = useGetAllOrders();
-	const nextOrder = ((orders?.at(-1)?.orderNumber ?? 0) + 1)
-		.toString()
-		.padStart(5, '0');
-	const withRowIndex = useMemo(
-		() => products?.map(addRowIndex),
-		[products],
-	);
-	const base64 = usePdfTable(
-		headers,
-		withRowIndex ?? [],
-		`הזמנה מספר ${nextOrder}`.split('').reverse().join(''),
-	);
-	const onSendOrderSubmit: SubmitHandler<TOrderSendInput> =
-		useCallback(async () => {
-			if (!products?.length) return;
-
-			await onSend({
-				pdf: base64,
-			});
-		}, [onSend, products?.length]);
-	const sendOrderMethods = useForm({
-		mode: 'all',
-		criteriaMode: 'all',
-		resolver: zodResolver(sendOrderSchema),
-		defaultValues: {
-			pdf: '',
-		},
-	});
-
-	useEffect(() => {
-		if (!isSuccess) return;
-
-		onToggleIsSendingOrder(false);
-	}, [isSuccess]);
+	const {
+		isOpen,
+		onToggleIsSendingOrder,
+		products,
+		base64,
+		sendOrderMethods,
+		onSendOrderSubmit,
+		isLoading,
+	} = useSendOrderModal();
 
 	return (
 		<Modal
@@ -118,33 +32,29 @@ max-h-960px:p-2 max-h-960px:max-h-[calc(100%-0.5em)]`,
 					className={`w-full h-full max-h-[86%]`}
 				/>
 			)}
-			<FormProvider {...sendOrderMethods}>
-				<form
-					noValidate
-					onSubmit={sendOrderMethods.handleSubmit(
-						onSendOrderSubmit,
-					)}
+			<Form
+				methods={sendOrderMethods}
+				onSubmit={onSendOrderSubmit}
+			>
+				<Form.SubmitButton
+					className={clsx([
+						`btn mt-2 mr-auto gap-2`,
+						{ loading: isLoading },
+					])}
+					disabled={isLoading}
+					type={`submit`}
 				>
-					<button
-						className={clsx([
-							`btn mt-2 mr-auto gap-2`,
-							{ loading: isLoading },
-						])}
-						disabled={isLoading}
-						type={`submit`}
+					{locale.he.send}
+					<svg
+						xmlns='http://www.w3.org/2000/svg'
+						viewBox='0 0 20 20'
+						fill='currentColor'
+						className='w-5 h-5'
 					>
-						{locale.he.send}
-						<svg
-							xmlns='http://www.w3.org/2000/svg'
-							viewBox='0 0 20 20'
-							fill='currentColor'
-							className='w-5 h-5'
-						>
-							<path d='M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.896 28.896 0 0015.293-7.154.75.75 0 000-1.115A28.897 28.897 0 003.105 2.289z' />
-						</svg>
-					</button>
-				</form>
-			</FormProvider>
+						<path d='M3.105 2.289a.75.75 0 00-.826.95l1.414 4.925A1.5 1.5 0 005.135 9.25h6.115a.75.75 0 010 1.5H5.135a1.5 1.5 0 00-1.442 1.086l-1.414 4.926a.75.75 0 00.826.95 28.896 28.896 0 0015.293-7.154.75.75 0 000-1.115A28.897 28.897 0 003.105 2.289z' />
+					</svg>
+				</Form.SubmitButton>
+			</Form>
 		</Modal>
 	);
 };

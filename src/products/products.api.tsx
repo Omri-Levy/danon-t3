@@ -1,12 +1,18 @@
-import { SubmitHandler } from 'react-hook-form';
 import {
-	TProductCreateInput,
+	DefaultValues,
+	FieldValues,
+	KeepStateOptions,
+	SubmitHandler,
+} from 'react-hook-form';
+import {
 	TProductDeleteByIdsInput,
 	TProductGetAllOutput,
 	TProductUpdateByIdInput,
 } from '../common/types';
-import { Dispatch, SetStateAction } from 'react';
 import { trpc } from 'src/common/utils/trpc/trpc-clients';
+import { ICreateProductFormFields } from './components/CreateProductModal/interfaces';
+import { useSearchParams } from 'react-router-dom';
+import { parseSearchParams } from './components/ProductsTable/hooks/useProductsTable./useProductsTable';
 
 export const useCreateProduct = () => {
 	const ctx = trpc.useContext();
@@ -36,13 +42,23 @@ export const useCreateProduct = () => {
 				ctx.products.getAll.invalidate();
 			},
 		});
-	const onCreate: SubmitHandler<TProductCreateInput> = async (
-		data,
-	) => {
-		try {
-			return await mutateAsync(data);
-		} catch {}
-	};
+	const onCreate: (
+		reset: (
+			values?: DefaultValues<FieldValues> | FieldValues,
+			keepStateOptions?: KeepStateOptions,
+		) => void,
+		focus: () => void,
+	) => SubmitHandler<ICreateProductFormFields> =
+		(reset, focus) => async (data) => {
+			try {
+				return await mutateAsync(data, {
+					onSuccess: () => {
+						focus();
+						reset();
+					},
+				});
+			} catch {}
+		};
 
 	return {
 		onCreate,
@@ -99,26 +115,30 @@ export const useUpdateProductById = () => {
 };
 
 export const useDeleteProductsByIds = (
-	setSelectedIds: Dispatch<
-		SetStateAction<Record<PropertyKey, boolean>>
-	>,
+	onToggleIsDeletingSelectedProducts?: (
+		nextState?: boolean,
+	) => void,
 ) => {
 	const ctx = trpc.useContext();
+	const [searchParams, setSearchParams] = useSearchParams();
+	const { selected } = parseSearchParams(searchParams);
 	const { mutateAsync, ...mutation } =
 		trpc.products.deleteByIds.useMutation({
 			onMutate: async ({ ids }) => {
 				ctx.products.getAll.cancel();
 				const previousData = ctx.products.getAll.getData();
+				const previousSelected = selected;
 				ctx.products.getAll.setData((prevData) =>
 					prevData?.filter(
 						(data) => !ids.includes(data.id),
 					),
 				);
-
-				setSelectedIds({});
+				searchParams.set('selected', '');
+				setSearchParams(searchParams);
 
 				return {
 					previousData,
+					previousSelected,
 					resource: 'product',
 					action: 'delete',
 				};
@@ -127,6 +147,14 @@ export const useDeleteProductsByIds = (
 				if (!context?.previousData) return;
 
 				ctx.products.getAll.setData(context.previousData);
+				searchParams.set(
+					'selected',
+					context.previousSelected ?? '',
+				);
+				setSearchParams(searchParams);
+			},
+			onSuccess: () => {
+				onToggleIsDeletingSelectedProducts?.(false);
 			},
 			onSettled: () => {
 				ctx.products.getAll.invalidate();
@@ -230,11 +258,7 @@ export const useIsValidToOrder = () => {
 	};
 };
 
-export const useResetProductsOrderAmountByIds = (
-	setSelectedIds: Dispatch<
-		SetStateAction<Record<PropertyKey, boolean>>
-	>,
-) => {
+export const useResetProductsOrderAmountByIds = () => {
 	const ctx = trpc.useContext();
 	const { mutateAsync, ...mutation } =
 		trpc.products.resetOrderAmountByIds.useMutation({
@@ -252,7 +276,6 @@ export const useResetProductsOrderAmountByIds = (
 							: data,
 					),
 				);
-				setSelectedIds({});
 
 				return {
 					previousData,
@@ -264,7 +287,6 @@ export const useResetProductsOrderAmountByIds = (
 				if (!context?.previousData) return;
 
 				ctx.products.getAll.setData(context.previousData);
-				setSelectedIds?.(variables.ids as any);
 			},
 			onSettled: () => {
 				ctx.products.getAll.invalidate();

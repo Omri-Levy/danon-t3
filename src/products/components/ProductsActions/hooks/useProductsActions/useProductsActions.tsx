@@ -4,28 +4,28 @@ import {
 	useIsValidToOrder,
 	useResetProductsOrderAmountByIds,
 } from '../../../../products.api';
-import { Dispatch, SetStateAction, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useModalsStore } from '../../../../../common/stores/modals/modals';
 import { useSearchParams } from 'react-router-dom';
 import { parseSearchParams } from '../../../ProductsTable/hooks/useProductsTable./useProductsTable';
 
 export const useProductsActions = (
 	rowSelection: Record<PropertyKey, boolean>,
-	setRowSelection: Dispatch<
-		SetStateAction<Record<PropertyKey, boolean>>
-	>,
 ) => {
 	// Modal toggles
 	const {
 		onToggleIsCreatingProduct,
 		onToggleIsSendingOrder,
 		onToggleIsPrinting,
+		onToggleIsDeletingSelectedProducts,
 		isOpen,
 	} = useModalsStore((state) => ({
 		isOpen: state.isOpen,
 		onToggleIsCreatingProduct: state.onToggleIsCreatingProduct,
 		onToggleIsSendingOrder: state.onToggleIsSendingOrder,
 		onToggleIsPrinting: state.onToggleIsPrinting,
+		onToggleIsDeletingSelectedProducts:
+			state.onToggleIsDeletingSelectedProducts,
 	}));
 
 	const [searchParams] = useSearchParams();
@@ -34,17 +34,16 @@ export const useProductsActions = (
 	const { products } = useGetAllProductsBySupplierName(supplier);
 
 	// Mutations
-	const { onResetOrderAmount } =
-		useResetProductsOrderAmountByIds(setRowSelection);
-	const { onDeleteByIds } = useDeleteProductsByIds(setRowSelection);
+	const {
+		onResetOrderAmount,
+		isLoading: isLoadingResetOrderAmount,
+	} = useResetProductsOrderAmountByIds();
 	const selectedProducts = products?.filter(
 		(_, index) => rowSelection[index],
 	);
 	const selectedProductsIds = selectedProducts?.map(({ id }) => id);
 	const { isLoading: isLoadingDeleteByIds } =
-		useDeleteProductsByIds(setRowSelection);
-	const { isLoading: isLoadingResetOrderAmount } =
-		useResetProductsOrderAmountByIds(setRowSelection);
+		useDeleteProductsByIds(onToggleIsDeletingSelectedProducts);
 
 	// Disables
 	const { isValidToOrder, moreThanOneSupplier } =
@@ -62,16 +61,9 @@ export const useProductsActions = (
 	].some(Boolean);
 
 	// Callbacks
-	const onDeleteSelectedProducts = useCallback(async () => {
-		if (!selectedProductsIds?.length) return;
-
-		await onDeleteByIds({
-			ids: selectedProductsIds,
-		});
-	}, [onDeleteByIds, selectedProductsIds?.length]);
 	const resetOrderAmount = useCallback(() => {
 		if (!selectedProductsIds?.length) return;
-		//
+
 		return onResetOrderAmount({
 			ids: selectedProductsIds,
 		});
@@ -87,9 +79,9 @@ export const useProductsActions = (
 		resetOrderAmount,
 		disableDelete,
 		isLoadingDeleteByIds,
-		onDeleteSelectedProducts,
 		onToggleIsPrinting,
 		onToggleIsCreatingProduct,
+		onToggleIsDeletingSelectedProducts,
 		isOpen,
 	};
 };

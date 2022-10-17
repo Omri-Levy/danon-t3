@@ -4,31 +4,34 @@ import {
 	TOrderGetAllOutput,
 	TOrderSendInput,
 } from '../common/types';
-import { Dispatch, SetStateAction } from 'react';
 import { trpc } from '../common/utils/trpc/trpc-clients';
 import { IUseGetOrderPresignedUrlByIdProps } from './interfaces';
+import { useSearchParams } from 'react-router-dom';
+import { parseSearchParams } from '../products/components/ProductsTable/hooks/useProductsTable./useProductsTable';
 
 export const useDeleteOrdersByIds = (
-	setSelectedIds: Dispatch<
-		SetStateAction<Record<PropertyKey, boolean>>
-	>,
+	onToggleIsDeletingOrders?: (nextState?: boolean) => void,
 ) => {
 	const ctx = trpc.useContext();
+	const [searchParams, setSearchParams] = useSearchParams();
+	const { selected } = parseSearchParams(searchParams);
 	const { mutateAsync, ...mutation } =
 		trpc.orders.deleteByIds.useMutation({
 			onMutate: async ({ ids }) => {
 				ctx.orders.getAll.cancel();
 				const previousData = ctx.orders.getAll.getData();
+				const previousSelected = selected;
 				ctx.orders.getAll.setData((prevData) =>
 					prevData?.filter(
 						(data) => !ids.includes(data.id),
 					),
 				);
-
-				setSelectedIds({});
+				searchParams.set('selected', '');
+				setSearchParams(searchParams);
 
 				return {
 					previousData,
+					previousSelected,
 					resource: 'order',
 					action: 'delete',
 				};
@@ -37,6 +40,14 @@ export const useDeleteOrdersByIds = (
 				if (!context?.previousData) return;
 
 				ctx.orders.getAll.setData(context.previousData);
+				searchParams.set(
+					'selected',
+					context.previousSelected ?? '',
+				);
+				setSearchParams(searchParams);
+			},
+			onSuccess: () => {
+				onToggleIsDeletingOrders?.(false);
 			},
 			onSettled: () => {
 				ctx.orders.getAll.invalidate();
