@@ -1,12 +1,17 @@
 import { useCreateSupplier } from '../../../../suppliers.api';
-import { useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createSupplierSchema } from '../../../../validation';
-import { FormEventHandler, useCallback } from 'react';
+import { useCallback } from 'react';
+
+export interface ICreateSupplierFormFields {
+	email: string;
+	name: string;
+}
 
 export const useCreateSupplierModal = () => {
 	const { onCreate, isLoading } = useCreateSupplier();
-	const createSupplierMethods = useForm({
+	const createSupplierMethods = useForm<ICreateSupplierFormFields>({
 		mode: 'all',
 		criteriaMode: 'all',
 		resolver: zodResolver(createSupplierSchema),
@@ -19,7 +24,7 @@ export const useCreateSupplierModal = () => {
 		() => createSupplierMethods?.setFocus('name'),
 		[createSupplierMethods?.setFocus],
 	);
-	const handleSubmit: FormEventHandler<HTMLFormElement> =
+	const handleSubmit: SubmitHandler<ICreateSupplierFormFields> =
 		useCallback(
 			(e) => {
 				createSupplierMethods.handleSubmit(

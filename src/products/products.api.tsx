@@ -5,13 +5,13 @@ import {
 	SubmitHandler,
 } from 'react-hook-form';
 import {
-	TProductCreateInput,
 	TProductDeleteByIdsInput,
 	TProductGetAllOutput,
 	TProductUpdateByIdInput,
 } from '../common/types';
 import { Dispatch, SetStateAction } from 'react';
 import { trpc } from 'src/common/utils/trpc/trpc-clients';
+import { ICreateProductFormFields } from './components/CreateProductModal/interfaces';
 
 export const useCreateProduct = () => {
 	const ctx = trpc.useContext();
@@ -47,7 +47,7 @@ export const useCreateProduct = () => {
 			keepStateOptions?: KeepStateOptions,
 		) => void,
 		focus: () => void,
-	) => SubmitHandler<TProductCreateInput> =
+	) => SubmitHandler<ICreateProductFormFields> =
 		(reset, focus) => async (data) => {
 			try {
 				return await mutateAsync(data, {
