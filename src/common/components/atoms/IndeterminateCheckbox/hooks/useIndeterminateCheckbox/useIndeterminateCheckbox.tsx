@@ -12,7 +12,7 @@ export const useIndeterminateCheckbox = (
 		}
 
 		ref.current.indeterminate = !checked && indeterminate;
-	}, [ref, indeterminate]);
+	}, [checked, indeterminate]);
 
 	return {
 		ref,

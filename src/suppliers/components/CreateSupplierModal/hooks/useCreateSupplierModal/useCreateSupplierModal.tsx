@@ -1,12 +1,17 @@
 import { useCreateSupplier } from '../../../../suppliers.api';
-import { useForm } from 'react-hook-form';
+import { SubmitHandler, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createSupplierSchema } from '../../../../validation';
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
+
+export interface ICreateSupplierFormFields {
+	email: string;
+	name: string;
+}
 
 export const useCreateSupplierModal = () => {
-	const { onCreate, isLoading, isSuccess } = useCreateSupplier();
-	const createSupplierMethods = useForm({
+	const { onCreate, isLoading } = useCreateSupplier();
+	const createSupplierMethods = useForm<ICreateSupplierFormFields>({
 		mode: 'all',
 		criteriaMode: 'all',
 		resolver: zodResolver(createSupplierSchema),
@@ -15,33 +20,31 @@ export const useCreateSupplierModal = () => {
 			name: '',
 		},
 	});
-	const handleReset = useCallback(() => {
-		if (!isSuccess) return;
-
-		createSupplierMethods?.reset();
-	}, [isSuccess, createSupplierMethods?.reset]);
-	const handleFocus = useCallback(() => {
-		if (!isSuccess || createSupplierMethods?.formState?.isDirty)
-			return;
-
-		createSupplierMethods?.setFocus('name');
-	}, [
-		isSuccess,
-		createSupplierMethods?.setFocus,
-		createSupplierMethods?.formState?.isDirty,
-	]);
-
-	useEffect(() => {
-		handleReset();
-	}, [handleReset]);
-
-	useEffect(() => {
-		handleFocus();
-	}, [handleFocus]);
+	const handleFocus = useCallback(
+		() => createSupplierMethods?.setFocus('name'),
+		[createSupplierMethods?.setFocus],
+	);
+	const handleSubmit: SubmitHandler<ICreateSupplierFormFields> =
+		useCallback(
+			(e) => {
+				createSupplierMethods.handleSubmit(
+					onCreate(
+						createSupplierMethods?.reset,
+						handleFocus,
+					),
+				)(e);
+			},
+			[
+				createSupplierMethods.handleSubmit,
+				createSupplierMethods?.reset,
+				handleFocus,
+				onCreate,
+			],
+		);
 
 	return {
 		createSupplierMethods,
-		onCreate,
+		handleSubmit,
 		isLoading,
 	};
 };
