@@ -260,11 +260,14 @@ export const useIsValidToOrder = () => {
 
 export const useResetProductsOrderAmountByIds = () => {
 	const ctx = trpc.useContext();
+	const [searchParams, setSearchParams] = useSearchParams();
+	const { selected } = parseSearchParams(searchParams);
 	const { mutateAsync, ...mutation } =
 		trpc.products.resetOrderAmountByIds.useMutation({
 			onMutate: async ({ ids }) => {
 				ctx.products.getAll.cancel();
 				const previousData = ctx.products.getAll.getData();
+				const previousSelected = selected;
 
 				ctx.products.getAll.setData(
 					previousData?.map((data: any) =>
@@ -276,9 +279,12 @@ export const useResetProductsOrderAmountByIds = () => {
 							: data,
 					),
 				);
+				searchParams.set('selected', '');
+				setSearchParams(searchParams);
 
 				return {
 					previousData,
+					previousSelected,
 					resource: 'product',
 					action: 'resetOrderAmount',
 				};
@@ -287,6 +293,11 @@ export const useResetProductsOrderAmountByIds = () => {
 				if (!context?.previousData) return;
 
 				ctx.products.getAll.setData(context.previousData);
+				searchParams.set(
+					'selected',
+					context?.previousSelected ?? '',
+				);
+				setSearchParams(searchParams);
 			},
 			onSettled: () => {
 				ctx.products.getAll.invalidate();
