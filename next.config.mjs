@@ -1,5 +1,7 @@
 // @ts-check
-import "./src/common/env/server.mjs";
+if (!process.env.CI) {
+	import ("./src/common/env/server.mjs");
+}
 
 /**
  * Don't be scared of the generics here.

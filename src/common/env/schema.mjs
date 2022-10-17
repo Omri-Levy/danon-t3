@@ -17,7 +17,7 @@ export const serverSchema = z.object({
 	PASS: z.string(),
 
 	// App
-	NODE_ENV: z.enum([`development`, `test`, `production`]),
+	NODE_ENV: z.enum([`development`, `test`, `production`, `ci`]),
 	DATABASE_URL: z.string().url(),
 	S3_BUCKET: z.string(),
 	S3_REGION: z.string(),
