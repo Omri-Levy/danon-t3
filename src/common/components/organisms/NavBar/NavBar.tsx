@@ -21,7 +21,7 @@ export const NavBar: FunctionComponent = () => {
 				>
 					<NavLink
 						to={`/orders`}
-						className={`flex items-center gap-2`}
+						className={`w-full flex items-center justify-center gap-2`}
 					>
 						{locale.he.orders}
 						<svg
@@ -48,7 +48,7 @@ export const NavBar: FunctionComponent = () => {
 				>
 					<NavLink
 						to={`/`}
-						className={`flex items-center gap-2`}
+						className={`w-full flex items-center justify-center gap-2`}
 					>
 						{locale.he.products}
 						<svg
@@ -76,7 +76,7 @@ export const NavBar: FunctionComponent = () => {
 				>
 					<NavLink
 						to={`/suppliers`}
-						className={`flex items-center gap-2`}
+						className={`w-full flex items-center justify-center gap-2`}
 					>
 						{locale.he.suppliers}
 						<svg

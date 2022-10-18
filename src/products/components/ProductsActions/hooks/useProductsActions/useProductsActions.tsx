@@ -1,10 +1,11 @@
 import {
 	useDeleteProductsByIds,
 	useGetAllProductsBySupplierName,
+	useImportCSV,
 	useIsValidToOrder,
 	useResetProductsOrderAmountByIds,
 } from '../../../../products.api';
-import { useCallback } from 'react';
+import { ChangeEventHandler, useCallback, useRef } from 'react';
 import { useModalsStore } from '../../../../../common/stores/modals/modals';
 import { useSearchParams } from 'react-router-dom';
 import { parseSearchParams } from '../../../ProductsTable/hooks/useProductsTable./useProductsTable';
@@ -68,6 +69,29 @@ export const useProductsActions = (
 			ids: selectedProductsIds,
 		});
 	}, [selectedProductsIds?.length, onResetOrderAmount]);
+	const { onImportCSV } = useImportCSV();
+	const fileInputRef = useRef<HTMLInputElement>(null);
+	const onUploadFile: ChangeEventHandler<HTMLInputElement> =
+		useCallback(
+			(e) => {
+				const [file] = e.target?.files ?? [];
+
+				if (!file) return;
+
+				const reader = new FileReader();
+
+				reader.addEventListener(`load`, async (e) => {
+					const data = e.target?.result;
+
+					return onImportCSV({
+						file: data,
+					});
+				});
+				reader.readAsBinaryString(file);
+				e.target.value = '';
+			},
+			[onImportCSV],
+		);
 
 	return {
 		disableOrder,
@@ -83,5 +107,7 @@ export const useProductsActions = (
 		onToggleIsCreatingProduct,
 		onToggleIsDeletingSelectedProducts,
 		isOpen,
+		onUploadFile,
+		fileInputRef,
 	};
 };

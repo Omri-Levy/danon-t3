@@ -94,3 +94,9 @@ export const orderSchema = z.object({
 	createdAt: z.date(),
 	updatedAt: z.date(),
 });
+export const idSchema = z.object({
+	id: z.string(),
+});
+export const idsSchema = z.object({
+	ids: z.array(idSchema.shape.id),
+});
