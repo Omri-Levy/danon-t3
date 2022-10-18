@@ -9,6 +9,8 @@ import { ChangeEventHandler, useCallback, useRef } from 'react';
 import { useModalsStore } from '../../../../../common/stores/modals/modals';
 import { useSearchParams } from 'react-router-dom';
 import { parseSearchParams } from '../../../ProductsTable/hooks/useProductsTable./useProductsTable';
+import * as XLSX from 'xlsx';
+import { getLocaleDateString } from '../../../../../common/utils/get-locale-date-string/get-locale-date-string';
 
 export const useProductsActions = (
 	rowSelection: Record<PropertyKey, boolean>,
@@ -92,6 +94,38 @@ export const useProductsActions = (
 			},
 			[onImportCSV],
 		);
+	const onExportCSV = useCallback(() => {
+		if (!products?.length) return;
+
+		const cleanedProducts = products.map(
+			({
+				supplier,
+				sku,
+				name,
+				unit,
+				packageSize,
+				orderAmount,
+				stock,
+			}) => ({
+				מלאי: stock,
+				'כמות הזמנה': orderAmount,
+				'גודל אריזה': packageSize,
+				יחידה: unit,
+				'שם מוצר': name,
+				'מק"ט': sku,
+				ספק: supplier.name,
+			}),
+		);
+		const workbook = XLSX.utils.book_new();
+		const worksheet = XLSX.utils.json_to_sheet(cleanedProducts);
+
+		XLSX.utils.book_append_sheet(workbook, worksheet, `מוצרים`);
+
+		XLSX.writeFile(
+			workbook,
+			`danon_${getLocaleDateString()}.xlsx`,
+		);
+	}, []);
 
 	return {
 		disableOrder,
@@ -109,5 +143,6 @@ export const useProductsActions = (
 		isOpen,
 		onUploadFile,
 		fileInputRef,
+		onExportCSV,
 	};
 };

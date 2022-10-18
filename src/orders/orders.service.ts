@@ -105,7 +105,7 @@ class OrdersService {
 		const paddedOrderNumber = order.orderNumber
 			.toString()
 			.padStart(5, '0');
-		const filename = `${getLocaleDateString()}-order-#${paddedOrderNumber}.pdf`;
+		const filename = `${getLocaleDateString()}_order_#${paddedOrderNumber}.pdf`;
 		const date = new Date();
 		const year = date.getFullYear();
 		const month = date.toLocaleString(undefined, {

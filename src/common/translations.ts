@@ -2,7 +2,8 @@ import { Unit } from './enums';
 
 export const locale = {
 	he: {
-		importProducts: 'ייבוא מוצרים',
+		importProducts: `ייבוא מוצרים`,
+		exportProducts: `יצוא מוצרים`,
 		areYouSureYouWantToDeleteSelectedItems: (items: string) =>
 			`האם את/ה בטוח/ה שברצונך למחוק את ה${items} הנבחרים?`,
 		confirm: 'אישור',
@@ -130,6 +131,7 @@ export const locale = {
 	},
 	en: {
 		importProducts: `Import products`,
+		exportProducts: `Export products`,
 		areYouSureYouWantToDeleteSelectedItems: (items: string) =>
 			`Are you sure you want like to delete the following ${items}?`,
 		confirm: `Confirm`,
