@@ -25,6 +25,7 @@ export const ProductsActions: FunctionComponent<
 		onUploadFile,
 		fileInputRef,
 		onExportCSV,
+		onOpenFileExplorer,
 	} = useProductsActions(rowSelection);
 
 	return (
@@ -158,7 +159,7 @@ export const ProductsActions: FunctionComponent<
 			<button
 				className={`btn gap-2`}
 				type={'button'}
-				onClick={() => fileInputRef.current?.click()}
+				onClick={onOpenFileExplorer}
 			>
 				{locale.he.importProducts}
 

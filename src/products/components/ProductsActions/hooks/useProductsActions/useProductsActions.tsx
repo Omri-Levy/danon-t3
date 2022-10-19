@@ -11,6 +11,8 @@ import { useSearchParams } from 'react-router-dom';
 import { parseSearchParams } from '../../../ProductsTable/hooks/useProductsTable./useProductsTable';
 import * as XLSX from 'xlsx';
 import { getLocaleDateString } from '../../../../../common/utils/get-locale-date-string/get-locale-date-string';
+import { toTitleCase } from '../../../../../common/utils/to-title-case/to-title-case';
+import { locale } from '../../../../../common/translations';
 
 export const useProductsActions = (
 	rowSelection: Record<PropertyKey, boolean>,
@@ -99,33 +101,43 @@ export const useProductsActions = (
 
 		const cleanedProducts = products.map(
 			({
+				id,
+				orderId,
 				supplier,
-				sku,
+				supplierId,
 				name,
-				unit,
-				packageSize,
-				orderAmount,
-				stock,
-			}) => ({
-				מלאי: stock,
-				'כמות הזמנה': orderAmount,
-				'גודל אריזה': packageSize,
-				יחידה: unit,
-				'שם מוצר': name,
-				'מק"ט': sku,
-				ספק: supplier.name,
-			}),
+				...product
+			}) =>
+				// Take only values required for the exported table
+				// and convert the key to Title Case
+				Object.entries({
+					...product,
+					productName: name,
+					supplier: supplier.name,
+				}).reduce((acc, [key, value]) => {
+					acc[toTitleCase(key)] = value;
+
+					return acc;
+				}, {}),
 		);
 		const workbook = XLSX.utils.book_new();
 		const worksheet = XLSX.utils.json_to_sheet(cleanedProducts);
 
-		XLSX.utils.book_append_sheet(workbook, worksheet, `מוצרים`);
+		XLSX.utils.book_append_sheet(
+			workbook,
+			worksheet,
+			locale.en.products,
+		);
 
 		XLSX.writeFile(
 			workbook,
 			`danon_${getLocaleDateString()}.xlsx`,
 		);
 	}, []);
+	const onOpenFileExplorer = useCallback(
+		() => fileInputRef.current?.click(),
+		[fileInputRef.current?.click],
+	);
 
 	return {
 		disableOrder,
@@ -144,5 +156,6 @@ export const useProductsActions = (
 		onUploadFile,
 		fileInputRef,
 		onExportCSV,
+		onOpenFileExplorer,
 	};
 };

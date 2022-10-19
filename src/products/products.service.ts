@@ -13,8 +13,8 @@ import { locale } from '../common/translations';
 import { isDuplicateEntryError } from '../common/utils/is-duplicate-entry-error/is-duplicate-entry-error';
 import { zSupplierNamesEnum } from '../suppliers/utils/z-supplier-names-enum/z-supplier-names-enum';
 import { db } from '../db/client';
-import { Unit } from '../common/enums';
 import { sql } from 'kysely';
+import { camelCase } from 'lodash';
 
 class ProductsService {
 	private _repository = productsRepository;
@@ -120,22 +120,44 @@ class ProductsService {
 		}
 
 		const json = XLSX.utils.sheet_to_json(worksheet);
-		const supplierId = await suppliersRepository.findIdByName({
-			name: 'Amza',
-		});
-		const formattedJson = json.map((item) => ({
-			supplierId,
-			sku: item['מק"ט'],
-			name: item['שם מוצר'],
-			unit: Unit[item['יחידה']],
-			packageSize: item['גודל אריזה'],
-			orderAmount: item['כמות הזמנה'],
-			stock: item['מלאי'],
-		}));
+		// Transform Title Case keys to camelCase.
+		// The database expects name instead of productName.
+		const formattedJson = json.map((item) =>
+			Object.entries(item).reduce((acc, [key, value]) => {
+				const newKey = (() => {
+					const camelCaseKey = camelCase(key);
 
+					if (camelCaseKey === 'productName') {
+						return 'name';
+					}
+
+					return camelCaseKey;
+				})();
+
+				acc[newKey] = value;
+
+				return acc;
+			}, {}),
+		);
+		// Get the supplier id of each product using the supplier's name and replace the supplier key with supplierId.
+		const withSupplierId = await Promise.all(
+			formattedJson.map(async ({ supplier: name, ...item }) => {
+				const supplierId =
+					await suppliersRepository.findIdByName({
+						name,
+					});
+
+				return {
+					...item,
+					supplierId,
+				};
+			}),
+		);
+
+		// If a product exists, update it. Otherwise, create it.
 		await db
 			.insertInto('product')
-			.values(formattedJson)
+			.values(withSupplierId)
 			.onDuplicateKeyUpdate({
 				supplierId: sql`VALUES(supplierId)`,
 				sku: sql`VALUES(sku)`,
