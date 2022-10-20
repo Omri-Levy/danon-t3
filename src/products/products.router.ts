@@ -1,6 +1,7 @@
 import { productsService } from './products.service';
 import {
 	createProductSchema,
+	importCSVSchema,
 	productIdSchema,
 	productIdsSchema,
 	updateProductSchema,
@@ -36,5 +37,10 @@ export const productsRouter = trpcServer.router({
 		.input(productIdsSchema)
 		.mutation(({ input }) => {
 			return productsService.resetOrderAmountByIds(input);
+		}),
+	importCSV: authedProcedure
+		.input(importCSVSchema)
+		.mutation(({ input }) => {
+			return productsService.importCSV(input);
 		}),
 });

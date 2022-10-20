@@ -1,6 +1,8 @@
 import type { TAppRouter } from '../trpc/app-router';
 import type { GetInferenceHelpers } from '@trpc/server';
 import type { FunctionComponent, PropsWithChildren } from 'react';
+import { z } from 'zod';
+import { idSchema, idsSchema } from './validation';
 
 /**
  * tRPC
@@ -83,3 +85,5 @@ export type TComponentWithChildren<P = Record<any, any>> =
 	FunctionComponent<PropsWithChildren<P>>;
 
 export type TAnyArray = Array<any>;
+export type TIdSchema = z.infer<typeof idSchema>;
+export type TIdsSchema = z.infer<typeof idsSchema>;

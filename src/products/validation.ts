@@ -75,3 +75,7 @@ export const updateProductSchema = productSchema
 	.setKey('supplier', supplierSchema.shape.name)
 	.partial()
 	.setKey('id', productIdSchema.shape.id);
+
+export const importCSVSchema = z.object({
+	file: z.any(),
+});
