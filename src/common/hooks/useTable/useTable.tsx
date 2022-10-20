@@ -26,6 +26,7 @@ import { useSearchParams } from 'react-router-dom';
 import { parseSearchParams } from '../../../products/components/ProductsTable/hooks/useProductsTable./useProductsTable';
 import queryString from 'query-string';
 import { parseQueryString } from '../../utils/parse-query-string/parse-query-string';
+import { useDebounce } from 'react-use';
 
 export const useTable = <TData extends RowData>({
 	columns,
@@ -187,31 +188,45 @@ export const useTable = <TData extends RowData>({
 	});
 	const pageIndex = table.getState().pagination.pageIndex;
 	const pageSize = table.getState().pagination.pageSize;
+	const [, debouncedOnSearchParamsChange] = useDebounce(
+		() => {
+			setSearchParams({
+				...parseSearchParams(searchParams),
+				search: globalFilter,
+				sort_by: snakeCase(sorting?.at(0)?.id),
+				sort_dir: sorting?.at(0)?.desc ? 'desc' : 'asc',
+				limit: Math.max(pageSize, 1).toString(),
+				cursor: Math.max(pageIndex + 1, 1).toString(),
+				selected: queryString.stringify(rowSelection),
+			});
+		},
+		240,
+		[
+			globalFilter,
+			sorting?.at(0)?.id,
+			sorting?.at(0)?.desc,
+			pageIndex,
+			pageSize,
+			rowSelection,
+		],
+	);
+	const [, debouncedOnSelectedChange] = useDebounce(
+		() => {
+			if (selected) return;
+
+			setRowSelection({});
+		},
+		240,
+		[selected],
+	);
 
 	useEffect(() => {
-		setSearchParams({
-			...parseSearchParams(searchParams),
-			search: globalFilter,
-			sort_by: snakeCase(sorting?.at(0)?.id),
-			sort_dir: sorting?.at(0)?.desc ? 'desc' : 'asc',
-			limit: Math.max(pageSize, 1).toString(),
-			cursor: Math.max(pageIndex + 1, 1).toString(),
-			selected: queryString.stringify(rowSelection),
-		});
-	}, [
-		globalFilter,
-		sorting?.at(0)?.id,
-		sorting?.at(0)?.desc,
-		pageIndex,
-		pageSize,
-		rowSelection,
-	]);
+		debouncedOnSearchParamsChange();
+	}, [debouncedOnSearchParamsChange]);
 
 	useEffect(() => {
-		if (selected) return;
-
-		setRowSelection({});
-	}, [selected]);
+		debouncedOnSelectedChange();
+	}, [debouncedOnSelectedChange]);
 
 	return {
 		table,
