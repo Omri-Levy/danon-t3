@@ -36,14 +36,15 @@ export const useSelectSupplier = () => {
 			},
 			[setSupplier, setSearchParams],
 		);
-	const [, debouncedOnSearchParamsChange] = useDebounce(
-		() => {
-			searchParams.set('filter_by', 'supplier');
-			searchParams.set('filter', supplier);
+	const onSearchParamsChange = () => {
+		searchParams.set('filter_by', 'supplier');
+		searchParams.set('filter', supplier);
 
-			setSearchParams(searchParams);
-		},
-		240,
+		setSearchParams(searchParams);
+	};
+	const [, debouncedOnSearchParamsChange] = useDebounce(
+		onSearchParamsChange,
+		350,
 		// Without all of these all search params but filter_by and filter work.
 		[
 			search,
@@ -55,6 +56,11 @@ export const useSelectSupplier = () => {
 			selected,
 		],
 	);
+
+	// Initialization does not work with the debounced function.
+	useEffect(() => {
+		onSearchParamsChange();
+	}, []);
 
 	useEffect(() => {
 		debouncedOnSearchParamsChange();

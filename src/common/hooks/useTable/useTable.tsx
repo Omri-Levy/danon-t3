@@ -188,19 +188,20 @@ export const useTable = <TData extends RowData>({
 	});
 	const pageIndex = table.getState().pagination.pageIndex;
 	const pageSize = table.getState().pagination.pageSize;
+	const onSearchParamsChange = () => {
+		setSearchParams({
+			...parseSearchParams(searchParams),
+			search: globalFilter,
+			sort_by: snakeCase(sorting?.at(0)?.id),
+			sort_dir: sorting?.at(0)?.desc ? 'desc' : 'asc',
+			limit: Math.max(pageSize, 1).toString(),
+			cursor: Math.max(pageIndex + 1, 1).toString(),
+			selected: queryString.stringify(rowSelection),
+		});
+	};
 	const [, debouncedOnSearchParamsChange] = useDebounce(
-		() => {
-			setSearchParams({
-				...parseSearchParams(searchParams),
-				search: globalFilter,
-				sort_by: snakeCase(sorting?.at(0)?.id),
-				sort_dir: sorting?.at(0)?.desc ? 'desc' : 'asc',
-				limit: Math.max(pageSize, 1).toString(),
-				cursor: Math.max(pageIndex + 1, 1).toString(),
-				selected: queryString.stringify(rowSelection),
-			});
-		},
-		240,
+		onSearchParamsChange,
+		350,
 		[
 			globalFilter,
 			sorting?.at(0)?.id,
@@ -216,13 +217,18 @@ export const useTable = <TData extends RowData>({
 
 			setRowSelection({});
 		},
-		240,
+		350,
 		[selected],
 	);
 
 	useEffect(() => {
 		debouncedOnSearchParamsChange();
 	}, [debouncedOnSearchParamsChange]);
+
+	// Initialization does not work with the debounced function
+	useEffect(() => {
+		onSearchParamsChange();
+	}, []);
 
 	useEffect(() => {
 		debouncedOnSelectedChange();
