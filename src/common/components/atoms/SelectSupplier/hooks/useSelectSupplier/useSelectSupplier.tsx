@@ -7,6 +7,7 @@ import {
 import { useGetAllSupplierNames } from '../../../../../../suppliers/suppliers.api';
 import { useSearchParams } from 'react-router-dom';
 import { parseSearchParams } from '../../../../../../products/components/ProductsTable/hooks/useProductsTable./useProductsTable';
+import { useDebounce } from 'react-use';
 
 export const useSelectSupplier = () => {
 	const { supplierNames } = useGetAllSupplierNames();
@@ -35,23 +36,29 @@ export const useSelectSupplier = () => {
 			},
 			[setSupplier, setSearchParams],
 		);
+	const [, debouncedOnSearchParamsChange] = useDebounce(
+		() => {
+			searchParams.set('filter_by', 'supplier');
+			searchParams.set('filter', supplier);
+
+			setSearchParams(searchParams);
+		},
+		240,
+		// Without all of these all search params but filter_by and filter work.
+		[
+			search,
+			sort_by,
+			sort_dir,
+			cursor,
+			limit,
+			supplier,
+			selected,
+		],
+	);
 
 	useEffect(() => {
-		searchParams.set('filter_by', 'supplier');
-		searchParams.set('filter', supplier);
-
-		setSearchParams(searchParams);
-
-		// Without all of these all search params but filter_by and filter work.
-	}, [
-		search,
-		sort_by,
-		sort_dir,
-		cursor,
-		limit,
-		supplier,
-		selected,
-	]);
+		debouncedOnSearchParamsChange();
+	}, [debouncedOnSearchParamsChange]);
 
 	return {
 		supplierNames,

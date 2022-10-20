@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import {
 	createProductSchema,
+	importCSVSchema,
 	productIdSchema,
 	productIdsSchema,
 	updateProductSchema,
@@ -14,3 +15,4 @@ export type TCreateProductSchema = z.infer<
 export type TUpdateProductSchema = z.infer<
 	typeof updateProductSchema
 >;
+export type TImportCSVSchema = z.infer<typeof importCSVSchema>;

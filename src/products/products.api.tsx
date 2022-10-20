@@ -5,6 +5,7 @@ import {
 	SubmitHandler,
 } from 'react-hook-form';
 import {
+	TIdsSchema,
 	TProductDeleteByIdsInput,
 	TProductGetAllOutput,
 	TProductUpdateByIdInput,
@@ -13,6 +14,7 @@ import { trpc } from 'src/common/utils/trpc/trpc-clients';
 import { ICreateProductFormFields } from './components/CreateProductModal/interfaces';
 import { useSearchParams } from 'react-router-dom';
 import { parseSearchParams } from './components/ProductsTable/hooks/useProductsTable./useProductsTable';
+import { TImportCSVSchema } from './types';
 
 export const useCreateProduct = () => {
 	const ctx = trpc.useContext();
@@ -303,7 +305,7 @@ export const useResetProductsOrderAmountByIds = () => {
 				ctx.products.getAll.invalidate();
 			},
 		});
-	const onResetOrderAmount = async (data: { ids: string[] }) => {
+	const onResetOrderAmount = async (data: TIdsSchema) => {
 		try {
 			return await mutateAsync(data);
 		} catch {}
@@ -312,5 +314,33 @@ export const useResetProductsOrderAmountByIds = () => {
 	return {
 		onResetOrderAmount,
 		...mutation,
+	};
+};
+
+export const useImportCSV = () => {
+	const ctx = trpc.useContext();
+	const { mutateAsync, ...mutation } =
+		trpc.products.importCSV.useMutation({
+			onMutate: async () => {
+				ctx.products.getAll.cancel();
+
+				return {
+					resource: 'product',
+					action: 'importCSV',
+				};
+			},
+			onSettled: () => {
+				ctx.products.getAll.invalidate();
+			},
+		});
+	const onImportCSV = async (data: TImportCSVSchema) => {
+		try {
+			return await mutateAsync(data);
+		} catch {}
+	};
+
+	return {
+		...mutation,
+		onImportCSV,
 	};
 };
