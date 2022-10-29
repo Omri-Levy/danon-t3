@@ -44,7 +44,7 @@ export const usePdfTable = (
 			footer,
 			'JPG',
 			doc.internal.pageSize.width / 2 - 142,
-			doc.internal.pageSize.height - 30,
+			doc.internal.pageSize.height - 33,
 			doc.internal.pageSize.width / 2 + 50,
 			25,
 		);
