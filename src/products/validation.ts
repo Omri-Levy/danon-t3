@@ -49,11 +49,12 @@ export const productIdSchema = z.object({
 			return v;
 		}
 
-		const [supplierId, sku] = v.split('-');
+		// Spread and join for the sku are needed to handle skus with dashes in them
+		const [supplierId, ...sku] = v.split('-');
 
 		return {
 			supplierId,
-			sku,
+			sku: sku.join('-'),
 		};
 	}, productSchema.pick({ supplierId: true, sku: true })),
 });
