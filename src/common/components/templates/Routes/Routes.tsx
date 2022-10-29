@@ -18,6 +18,7 @@ import { NavBar } from '../../organisms/NavBar/NavBar';
 import clsx from 'clsx';
 import { locale } from '../../../translations';
 import NProgress from 'nprogress';
+import { useDebounce } from 'react-use';
 
 NProgress.configure({ showSpinner: false });
 
@@ -28,16 +29,24 @@ export const Root = () => {
 	const Modal = getModal();
 	const isProducts = useMatch('/')?.pathname;
 	const { state } = useNavigation();
+	const [, debouncedOnLoading] = useDebounce(
+		() => {
+			if (state !== 'idle') {
+				NProgress.start();
+
+				return;
+			}
+
+			NProgress.done();
+		},
+		500,
+		// Without all of these all search params but filter_by and filter work.
+		[state],
+	);
 
 	useEffect(() => {
-		if (state !== 'idle') {
-			NProgress.start();
-
-			return;
-		}
-
-		NProgress.done();
-	}, [state]);
+		debouncedOnLoading();
+	}, [debouncedOnLoading]);
 
 	return (
 		<Suspense>

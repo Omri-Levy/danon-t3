@@ -60,7 +60,7 @@ export const useTable = <TData extends RowData>({
 	const [globalFilter, setGlobalFilter] = useState(search ?? '');
 	const onGlobalFilter: ChangeEventHandler<HTMLInputElement> =
 		useCallback(
-			(e) => {
+			async (e) => {
 				setGlobalFilter(e.target.value);
 				setRowSelection({});
 			},
@@ -188,7 +188,8 @@ export const useTable = <TData extends RowData>({
 	});
 	const pageIndex = table.getState().pagination.pageIndex;
 	const pageSize = table.getState().pagination.pageSize;
-	const onSearchParamsChange = () => {
+	const currentSorting = sorting?.at(0);
+	const onSearchParamsChange = useCallback(() => {
 		setSearchParams({
 			...parseSearchParams(searchParams),
 			search: globalFilter,
@@ -198,18 +199,18 @@ export const useTable = <TData extends RowData>({
 			cursor: Math.max(pageIndex + 1, 1).toString(),
 			selected: queryString.stringify(rowSelection),
 		});
-	};
+	}, [
+		globalFilter,
+		currentSorting?.id,
+		currentSorting?.desc,
+		pageIndex,
+		pageSize,
+		rowSelection,
+	]);
 	const [, debouncedOnSearchParamsChange] = useDebounce(
 		onSearchParamsChange,
 		350,
-		[
-			globalFilter,
-			sorting?.at(0)?.id,
-			sorting?.at(0)?.desc,
-			pageIndex,
-			pageSize,
-			rowSelection,
-		],
+		[onSearchParamsChange],
 	);
 	const [, debouncedOnSelectedChange] = useDebounce(
 		() => {
