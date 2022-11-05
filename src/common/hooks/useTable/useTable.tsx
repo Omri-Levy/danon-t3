@@ -13,14 +13,12 @@ import {
 	ChangeEventHandler,
 	useCallback,
 	useEffect,
-	useMemo,
 	useState,
 } from 'react';
 import { useSkipper } from '../useSkipper/useSkipper';
 import { camelCase, snakeCase } from 'lodash';
 import { IndeterminateCheckbox } from '../../components/atoms/IndeterminateCheckbox/IndeterminateCheckbox';
 import { locale } from '../../translations';
-import { addRowIndex } from '../../utils/add-row-index/add-row-index';
 import { isInstanceOfFunction } from '../../utils/is-instance-of-function/is-instance-of-function';
 import { useSearchParams } from 'react-router-dom';
 import { parseSearchParams } from '../../../products/components/ProductsTable/hooks/useProductsTable./useProductsTable';
@@ -47,10 +45,6 @@ export const useTable = <TData extends RowData>({
 > & {
 	initialSorting?: SortingState;
 }) => {
-	const withRowIndex = useMemo(
-		() => data?.map(addRowIndex),
-		[data],
-	);
 	const [searchParams, setSearchParams] = useSearchParams();
 	const { search, sort_by, sort_dir, cursor, limit, selected } =
 		parseSearchParams(searchParams);
@@ -137,14 +131,11 @@ export const useTable = <TData extends RowData>({
 			},
 			...columns,
 			{
-				accessorKey: 'rowIndex',
+				id: 'index',
 				header: locale.he.row,
-				cell: ({ cell }) => (
-					<strong>{cell.getValue() as number}</strong>
-				),
 			},
 		],
-		data: withRowIndex,
+		data,
 		getCoreRowModel: getCoreRowModel(),
 		onSortingChange: (updaterOrValue) => {
 			setSorting(updaterOrValue);
