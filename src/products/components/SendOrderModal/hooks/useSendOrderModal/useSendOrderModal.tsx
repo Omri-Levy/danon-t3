@@ -46,7 +46,7 @@ export const useSendOrderModal = () => {
 					header: locale.he.sku,
 				},
 				{
-					id: 'rowIndex',
+					accessorKey: 'rowIndex',
 					header: '',
 				},
 			].map(({ header, ...rest }) => ({
