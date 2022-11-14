@@ -3,7 +3,8 @@ import autoTable from 'jspdf-autotable';
 // Required for Hebrew, in addition to using reverse on Hebrew strings.
 import './Heebo-normal';
 import './Heebo-bold';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useDeepCompareEffect } from 'react-use';
 
 export const usePdfTable = (
 	headers: Array<{ header: string; accessorKey: string }>,
@@ -67,8 +68,7 @@ export const usePdfTable = (
 		});
 
 		return doc;
-	}, [bodies?.length, head?.length, text]);
-
+	}, [bodies, head, text]);
 	const handleBase64 = useCallback(() => {
 		const doc = constructDoc();
 		const blob = doc.output('blob');
@@ -86,13 +86,13 @@ export const usePdfTable = (
 		};
 	}, [constructDoc]);
 
-	useEffect(() => {
+	useDeepCompareEffect(() => {
 		const { onLoadEnd, reader } = handleBase64();
 
 		return () => {
 			reader.removeEventListener('loadend', onLoadEnd);
 		};
-	}, [handleBase64, bodies?.length]);
+	}, [bodies, head, text]);
 
 	return base64;
 };
