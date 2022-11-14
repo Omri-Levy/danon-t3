@@ -19,6 +19,7 @@ import clsx from 'clsx';
 import { locale } from '../../../translations';
 import NProgress from 'nprogress';
 import { useDebounce } from 'react-use';
+import { stock } from '../../../../stock';
 
 NProgress.configure({ showSpinner: false });
 
@@ -122,7 +123,7 @@ const router = createBrowserRouter([
 	{
 		path: '/',
 		element: <Root />,
-		children: [products, suppliers, orders],
+		children: [products, suppliers, orders, stock],
 	},
 ]);
 

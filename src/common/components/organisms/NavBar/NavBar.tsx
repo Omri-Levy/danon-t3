@@ -21,7 +21,7 @@ export const NavBar: FunctionComponent = () => {
 					])}
 				>
 					<NavLink
-						to={`/orders`}
+						to={`/stock`}
 						className={`w-full flex items-center justify-center gap-2`}
 					>
 						{locale.he.stock}
