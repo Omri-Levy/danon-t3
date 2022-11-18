@@ -5,7 +5,7 @@ import { NoSuppliersDialog } from './components/NoSuppliersDialog/NoSuppliersDia
 import { TopBar } from '../common/components/molecules/TopBar/TopBar';
 import { locale } from '../common/translations';
 import { Pagination } from '../common/components/organisms/Pagination/Pagination';
-import { useProducts } from './hooks/useProducts/useProducts';
+import { useStock } from './hooks/useStock/useStock';
 import { SelectSupplier } from '../common/components/atoms/SelectSupplier/SelectSupplier';
 
 export const Stock: NextPage = () => {
@@ -16,7 +16,7 @@ export const Stock: NextPage = () => {
 		globalFilter,
 		onGlobalFilter,
 		rowSelection,
-	} = useProducts();
+	} = useStock();
 
 	return (
 		<>

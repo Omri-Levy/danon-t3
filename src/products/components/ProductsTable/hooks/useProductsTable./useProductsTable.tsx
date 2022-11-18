@@ -43,12 +43,14 @@ declare module '@tanstack/react-table' {
 					step: number;
 					className: 'text-left';
 					dir: 'rtl';
+					isCurrency?: boolean;
 			  }
 			| {
 					type: 'number';
 					min: number;
 					className: 'text-left';
 					dir: 'rtl';
+					isCurrency?: boolean;
 			  }
 			| {
 					type: 'text';
@@ -66,10 +68,6 @@ export const useProductsTable = (
 	const { onUpdateById } = useUpdateProductById();
 	const columns: Array<ColumnDef<TProductGetByIdOutput>> = useMemo(
 		() => [
-			{
-				accessorKey: 'stock',
-				header: locale.he.stock,
-			},
 			{
 				accessorKey: 'orderAmount',
 				header: locale.he.orderAmount,
@@ -135,11 +133,9 @@ export const useProductsTable = (
 					columnId === 'supplier_name'
 						? 'supplier'
 						: columnId;
-				const isNumeric = [
-					'stock',
-					'orderAmount',
-					'packageSize',
-				].some((col) => col === columnId);
+				const isNumeric = ['orderAmount', 'packageSize'].some(
+					(col) => col === columnId,
+				);
 				const result = runtimeSchema.safeParse({
 					id: prevProduct.id,
 					[column]: isNumeric ? parseFloat(value) : value,
@@ -195,7 +191,7 @@ export const useProductsTable = (
 			columnId: string,
 			table: Table<TProductGetByIdOutput>,
 		) =>
-			['orderAmount', 'packageSize', 'stock'].some(
+			['orderAmount', 'packageSize'].some(
 				(value) => value === columnId,
 			)
 				? {
@@ -208,9 +204,11 @@ export const useProductsTable = (
 								: undefined,
 						min: 0,
 						dir: 'rtl',
+						isEditable: true,
 				  }
 				: {
 						type: 'text',
+						isEditable: true,
 				  },
 		[],
 	);

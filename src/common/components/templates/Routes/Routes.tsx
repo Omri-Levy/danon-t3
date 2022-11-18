@@ -59,7 +59,7 @@ export const Root = () => {
 					}}
 					toastOptions={{
 						// In milliseconds - 1000 * 5 -> 5 seconds
-						duration: 1000 * 10,
+						duration: 1000 * 5,
 					}}
 				/>
 				<header

@@ -6,12 +6,13 @@ import { Modal } from '../../../common/components/molecules/Modal/Modal';
 import { useModalsStore } from '../../../common/stores/modals/modals';
 import produce from 'immer';
 import { addRowIndex } from '../../../common/utils/add-row-index/add-row-index';
+import { toShekels } from '../../../common/utils/to-shekels/to-shekels';
 
 export const PrintStockModal: FunctionComponent = () => {
-	const { isOpen, onToggleIsPrinting } = useModalsStore(
+	const { isOpen, onToggleIsPrintingStock } = useModalsStore(
 		(state) => ({
 			isOpen: state.isOpen,
-			onToggleIsPrinting: state.onToggleIsPrintingProducts,
+			onToggleIsPrintingStock: state.onToggleIsPrintingStock,
 		}),
 	);
 	const { products } = useGetAllProducts();
@@ -52,7 +53,14 @@ export const PrintStockModal: FunctionComponent = () => {
 			})),
 		[],
 	);
-	const dividedBySupplier = (data: typeof products) => {
+	const toDivide = products?.map(
+		({ cost, pricePerUnit, ...rest }) => ({
+			cost: toShekels(cost),
+			pricePerUnit: toShekels(pricePerUnit),
+			...rest,
+		}),
+	);
+	const dividedBySupplier = (data: typeof toDivide) => {
 		const entries = produce<Record<PropertyKey, typeof products>>(
 			{},
 			(draft) => {
@@ -72,13 +80,13 @@ export const PrintStockModal: FunctionComponent = () => {
 			?.sort((a, b) => a.localeCompare(b))
 			.map((key) => entries[key]?.flatMap(addRowIndex));
 	};
-	const data = dividedBySupplier(products);
+	const data = dividedBySupplier(toDivide);
 	const base64 = usePdfTable(headers, data);
 
 	return (
 		<Modal
 			isOpen={isOpen}
-			onOpen={onToggleIsPrinting}
+			onOpen={onToggleIsPrintingStock}
 			title={locale.he.print}
 			contentProps={{
 				className:

@@ -8,10 +8,11 @@ import produce from 'immer';
 import { addRowIndex } from '../../../common/utils/add-row-index/add-row-index';
 
 export const PrintProductsModal: FunctionComponent = () => {
-	const { isOpen, onToggleIsPrinting } = useModalsStore(
+	const { isOpen, onToggleIsPrintingProducts } = useModalsStore(
 		(state) => ({
 			isOpen: state.isOpen,
-			onToggleIsPrinting: state.onToggleIsPrintingProducts,
+			onToggleIsPrintingProducts:
+				state.onToggleIsPrintingProducts,
 		}),
 	);
 	const { products } = useGetAllProducts();
@@ -78,7 +79,7 @@ export const PrintProductsModal: FunctionComponent = () => {
 	return (
 		<Modal
 			isOpen={isOpen}
-			onOpen={onToggleIsPrinting}
+			onOpen={onToggleIsPrintingProducts}
 			title={locale.he.print}
 			contentProps={{
 				className:

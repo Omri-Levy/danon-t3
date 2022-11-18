@@ -69,6 +69,16 @@ export const productSchema = z.object({
 			message:
 				imports.locale.he.validation.product.orderAmount.max,
 		}),
+	pricePerUnit: z
+		.number()
+		.min(0, {
+			message:
+				imports.locale.he.validation.product.pricePerUnit.min,
+		})
+		.max(1000, {
+			message:
+				imports.locale.he.validation.product.pricePerUnit.max,
+		}),
 	stock: z
 		.number()
 		.min(0, {

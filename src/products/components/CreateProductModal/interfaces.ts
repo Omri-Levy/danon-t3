@@ -5,7 +5,8 @@ export interface ICreateProductFormFields {
 	sku: string;
 	name: string;
 	packageSize: number;
-	unit: Unit;
+	unit: keyof typeof Unit;
 	orderAmount: number;
+	pricePerUnit: number;
 	stock: number;
 }

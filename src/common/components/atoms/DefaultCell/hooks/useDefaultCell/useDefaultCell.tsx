@@ -31,13 +31,19 @@ export const useDefaultCell = <TValue, TRowData extends RowData>(
 		},
 		[id, index, table.options.meta?.updateData],
 	);
-	const { className = '', ...props } =
-		table.options.meta?.format?.(index, id, table) ?? {};
+	const {
+		className = '',
+		isCurrency,
+		isEditable,
+		...props
+	} = table.options.meta?.format?.(index, id, table) ?? {};
 
 	return {
 		updateValue,
 		initialValue,
 		className,
+		isEditable,
+		isCurrency,
 		props,
 	};
 };

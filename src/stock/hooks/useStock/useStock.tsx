@@ -7,7 +7,7 @@ import { stockLoader } from '../../stock.loader';
 import { useGetAllSupplierNames } from '../../../suppliers/suppliers.api';
 import { useGetAllProductsBySupplierName } from '../../stock.api';
 
-export const useProducts = () => {
+export const useStock = () => {
 	// For router loader initial data
 	const { products: initialProducts, suppliers: initialSuppliers } =
 		useLoaderData() as Awaited<

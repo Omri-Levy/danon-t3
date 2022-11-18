@@ -12,6 +12,7 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { TOrderSendInput } from '../../../../../common/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { sendOrderSchema } from '../../../../../orders/validation';
+import { getLocaleDateString } from '../../../../../common/utils/get-locale-date-string/get-locale-date-string';
 
 export const useSendOrderModal = () => {
 	const { isOpen, onToggleIsSendingOrder } = useModalsStore(
@@ -66,7 +67,10 @@ export const useSendOrderModal = () => {
 	const base64 = usePdfTable(
 		headers,
 		[withRowIndex ?? []],
-		`הזמנה מספר ${nextOrder}`.split('').reverse().join(''),
+		`הזמנה מספר ${nextOrder} - ${getLocaleDateString()}`
+			.split('')
+			.reverse()
+			.join(''),
 	);
 	const onSendOrderSubmit: SubmitHandler<TOrderSendInput> =
 		useCallback(async () => {

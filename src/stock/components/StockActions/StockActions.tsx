@@ -7,13 +7,13 @@ import { ModalButton } from '../../../common/components/molecules/Modal/ModalBut
 export const StockActions: FunctionComponent<
 	IProductsActionsProps
 > = ({ rowSelection }) => {
-	const { isOpen, onToggleIsPrinting } =
+	const { isOpen, onToggleIsPrintingStock } =
 		useStockActions(rowSelection);
 
 	return (
 		<>
 			<ModalButton
-				onOpen={onToggleIsPrinting}
+				onOpen={onToggleIsPrintingStock}
 				isOpen={isOpen}
 				className={`btn gap-2`}
 			>

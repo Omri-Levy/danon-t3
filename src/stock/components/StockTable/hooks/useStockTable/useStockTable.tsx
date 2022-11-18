@@ -42,16 +42,21 @@ declare module '@tanstack/react-table' {
 					step: number;
 					className: 'text-left';
 					dir: 'rtl';
+					isCurrency?: boolean;
+					isEditable?: boolean;
 			  }
 			| {
 					type: 'number';
 					min: number;
 					className: 'text-left';
 					dir: 'rtl';
+					isCurrency?: boolean;
+					isEditable?: boolean;
 			  }
 			| {
 					type: 'text';
 					className?: string;
+					isEditable?: boolean;
 			  };
 	}
 }
@@ -124,11 +129,9 @@ export const useStockTable = (
 					columnId === 'supplier_name'
 						? 'supplier'
 						: columnId;
-				const isNumeric = [
-					'stock',
-					'orderAmount',
-					'packageSize',
-				].some((col) => col === columnId);
+				const isNumeric = ['stock', 'pricePerUnit'].some(
+					(col) => col === columnId,
+				);
 				const result = runtimeSchema.safeParse({
 					id: prevProduct.id,
 					[column]: isNumeric ? parseFloat(value) : value,
@@ -183,24 +186,35 @@ export const useStockTable = (
 			rowIndex: number,
 			columnId: string,
 			table: Table<TProductGetByIdOutput>,
-		) =>
-			['orderAmount', 'packageSize', 'stock'].some(
-				(value) => value === columnId,
-			)
-				? {
-						type: 'number',
-						className: 'text-left',
-						step:
-							columnId === 'orderAmount'
-								? table.getRow(rowIndex.toString())
-										.original?.packageSize
-								: undefined,
-						min: 0,
-						dir: 'rtl',
-				  }
-				: {
-						type: 'text',
-				  },
+		) => {
+			const compare = (value: string) => value === columnId;
+			const isNumeric = ['stock', 'cost', 'pricePerUnit'].some(
+				compare,
+			);
+			const isCurrency = ['cost', 'pricePerUnit'].some(compare);
+			const isUnEditable = ['cost'].some(compare);
+
+			if (isNumeric) {
+				return {
+					type: 'number',
+					className: 'text-left',
+					step:
+						columnId === 'orderAmount'
+							? table.getRow(rowIndex.toString())
+									.original?.packageSize
+							: undefined,
+					min: 0,
+					dir: 'rtl',
+					isEditable: !isUnEditable,
+					isCurrency,
+				};
+			}
+
+			return {
+				type: 'text',
+				isEditable: !isUnEditable,
+			};
+		},
 		[],
 	);
 	const [searchParams] = useSearchParams();

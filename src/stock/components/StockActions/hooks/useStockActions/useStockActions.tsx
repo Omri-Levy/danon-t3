@@ -10,14 +10,14 @@ export const useStockActions = (
 	const {
 		onToggleIsCreatingProduct,
 		onToggleIsSendingOrder,
-		onToggleIsPrinting,
+		onToggleIsPrintingStock,
 		onToggleIsDeletingSelectedProducts,
 		isOpen,
 	} = useModalsStore((state) => ({
 		isOpen: state.isOpen,
 		onToggleIsCreatingProduct: state.onToggleIsCreatingProduct,
 		onToggleIsSendingOrder: state.onToggleIsSendingOrder,
-		onToggleIsPrinting: state.onToggleIsPrintingProducts,
+		onToggleIsPrintingStock: state.onToggleIsPrintingStock,
 		onToggleIsDeletingSelectedProducts:
 			state.onToggleIsDeletingSelectedProducts,
 	}));
@@ -48,7 +48,7 @@ export const useStockActions = (
 		selectedProductsIds,
 		disableResetOrderAmount,
 		disableDelete,
-		onToggleIsPrinting,
+		onToggleIsPrintingStock,
 		onToggleIsCreatingProduct,
 		onToggleIsDeletingSelectedProducts,
 		isOpen,

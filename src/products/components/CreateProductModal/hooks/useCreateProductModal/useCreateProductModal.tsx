@@ -35,6 +35,7 @@ export const useCreateProductModal = () => {
 			packageSize: 1,
 			unit: Unit.KG,
 			orderAmount: 0,
+			pricePerUnit: 0,
 			stock: 0,
 		},
 	});

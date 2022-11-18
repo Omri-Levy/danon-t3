@@ -30,7 +30,7 @@ import {fetch} from 'undici';
 			provider: new FileMigrationProvider({
 				fs,
 				path,
-				migrationFolder: path.resolve('src/server/db/migrations'),
+				migrationFolder: path.resolve('src/db/migrations'),
 			}),
 		});
 		const {error, results} = await migrator.migrateToLatest();

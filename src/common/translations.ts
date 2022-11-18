@@ -69,6 +69,11 @@ export const locale = {
 					max: `כמות להזמנה חייבת להיות קטנה יותר או שווה ל1000`,
 					min: `כמות להזמנה חייבת להיות גדולה יותר מ0`,
 				},
+				pricePerUnit: {
+					invalid: `מחיר ליחידה חייב להיות מספר חיובי`,
+					max: `מחיר ליחידה חייב להיות קטן יותר או שווה ל1000`,
+					min: `מחיר ליחידה חייב להיות גדול יותר מ0`,
+				},
 				stock: {
 					invalid: `מלאי חייב להיות מספר חיובי`,
 					max: `מלאי חייב להיות קטן יותר או שווה ל1000`,
@@ -193,6 +198,10 @@ export const locale = {
 				orderAmount: {
 					invalid: `Order amount must be a positive number`,
 					max: `Order amount must be less than or equal to 1000`,
+				},
+				pricePerUnit: {
+					invalid: `Price per unit must be a positive number`,
+					max: `Price per unit must be less than or equal to 1000`,
 				},
 				stock: {
 					invalid: `Stock must be a positive number`,
