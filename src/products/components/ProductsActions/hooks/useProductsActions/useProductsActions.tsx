@@ -28,7 +28,7 @@ export const useProductsActions = (
 		isOpen: state.isOpen,
 		onToggleIsCreatingProduct: state.onToggleIsCreatingProduct,
 		onToggleIsSendingOrder: state.onToggleIsSendingOrder,
-		onToggleIsPrinting: state.onToggleIsPrinting,
+		onToggleIsPrinting: state.onToggleIsPrintingProducts,
 		onToggleIsDeletingSelectedProducts:
 			state.onToggleIsDeletingSelectedProducts,
 	}));

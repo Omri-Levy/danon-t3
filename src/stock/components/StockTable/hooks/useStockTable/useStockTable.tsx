@@ -66,8 +66,16 @@ export const useStockTable = (
 	const columns: Array<ColumnDef<TProductGetByIdOutput>> = useMemo(
 		() => [
 			{
+				accessorKey: 'cost',
+				header: locale.he.cost,
+			},
+			{
 				accessorKey: 'stock',
 				header: locale.he.stock,
+			},
+			{
+				accessorKey: 'pricePerUnit',
+				header: locale.he.pricePerUnit,
 			},
 			{
 				accessorKey: 'name',
@@ -130,10 +138,7 @@ export const useStockTable = (
 					const error = result.error.errors
 						.map(({ message }) => message)
 						.join('\n');
-			{
-				accessorKey: 'packageSize',
-				header: locale.he.packageSize,
-			},
+
 					toast.error(
 						`${locale.he.actions.error} ${error}`,
 					);

@@ -1,17 +1,17 @@
 import { locale } from '../../../common/translations';
 import { usePdfTable } from '../../hooks/usePdfTable/usePdfTable';
-import { useGetAllProducts } from '../../stock.api';
+import { useGetAllProducts } from '../../products.api';
 import { FunctionComponent, useMemo } from 'react';
 import { Modal } from '../../../common/components/molecules/Modal/Modal';
 import { useModalsStore } from '../../../common/stores/modals/modals';
 import produce from 'immer';
 import { addRowIndex } from '../../../common/utils/add-row-index/add-row-index';
 
-export const PrintModal: FunctionComponent = () => {
+export const PrintProductsModal: FunctionComponent = () => {
 	const { isOpen, onToggleIsPrinting } = useModalsStore(
 		(state) => ({
 			isOpen: state.isOpen,
-			onToggleIsPrinting: state.onToggleIsPrinting,
+			onToggleIsPrinting: state.onToggleIsPrintingProducts,
 		}),
 	);
 	const { products } = useGetAllProducts();
