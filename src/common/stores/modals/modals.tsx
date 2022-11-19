@@ -3,7 +3,6 @@ import produce from 'immer';
 import { CreateProductModal } from '../../../products/components/CreateProductModal/CreateProductModal';
 import { CreateSupplierModal } from '../../../suppliers/components/CreateSupplierModal/CreateSupplierModal';
 import { SendOrderModal } from '../../../products/components/SendOrderModal/SendOrderModal';
-import { PrintProductsModal } from '../../../products/components/PrintProductsModal/PrintProductsModal';
 import { ViewPDFModal } from '../../../orders/components/ViewPDFModal/ViewPDFModal';
 import { DeleteSelectedProductsModal } from '../../../products/components/DeleteSelectedProductsModal/DeleteSelectedProductsModal';
 import { DeleteSelectedSuppliersModal } from '../../../suppliers/components/DeleteSelectedSuppliersModal/DeleteSelectedSuppliersModal';
@@ -16,7 +15,6 @@ export enum EModalType {
 	CREATE_PRODUCT = 'CREATE_PRODUCT',
 	DELETE_SELECTED_PRODUCTS = 'DELETE_SELECTED_PRODUCTS',
 	SEND_ORDER = 'SEND_ORDER',
-	PRINT_PRODUCTS = 'PRINT_PRODUCTS',
 	PRINT_STOCK = 'PRINT_STOCK',
 	VIEW_PDF = 'VIEW_PDF',
 	DELETE_SELECTED_ORDERS = 'DELETE_SELECTED_ORDERS',
@@ -30,7 +28,6 @@ export const modals = {
 	[EModalType.DELETE_SELECTED_PRODUCTS]:
 		DeleteSelectedProductsModal,
 	[EModalType.SEND_ORDER]: SendOrderModal,
-	[EModalType.PRINT_PRODUCTS]: PrintProductsModal,
 	[EModalType.PRINT_STOCK]: PrintStockModal,
 	[EModalType.VIEW_PDF]: ViewPDFModal,
 	[EModalType.DELETE_SELECTED_ORDERS]: DeleteSelectedOrdersModal,
@@ -50,7 +47,6 @@ export interface ModalsState {
 	onToggleIsCreatingProduct: (nextState?: boolean) => void;
 	onToggleIsDeletingSelectedProducts: (nextState?: boolean) => void;
 	onToggleIsSendingOrder: (nextState?: boolean) => void;
-	onToggleIsPrintingProducts: (nextState?: boolean) => void;
 	onToggleIsPrintingStock: (nextState?: boolean) => void;
 	onToggleIsViewingPDF: (nextState?: boolean) => void;
 	onToggleIsDeletingSelectedOrders: (nextState?: boolean) => void;
@@ -88,8 +84,6 @@ export const useModalsStore = create<ModalsState>((set, get) => ({
 		),
 	onToggleIsSendingOrder: (nextState) =>
 		get().onToggle(EModalType.SEND_ORDER, nextState),
-	onToggleIsPrintingProducts: (nextState) =>
-		get().onToggle(EModalType.PRINT_PRODUCTS, nextState),
 	onToggleIsPrintingStock: (nextState) =>
 		get().onToggle(EModalType.PRINT_STOCK, nextState),
 	onToggleIsViewingPDF: (nextState) =>

@@ -21,14 +21,12 @@ export const useProductsActions = (
 	const {
 		onToggleIsCreatingProduct,
 		onToggleIsSendingOrder,
-		onToggleIsPrintingProducts,
 		onToggleIsDeletingSelectedProducts,
 		isOpen,
 	} = useModalsStore((state) => ({
 		isOpen: state.isOpen,
 		onToggleIsCreatingProduct: state.onToggleIsCreatingProduct,
 		onToggleIsSendingOrder: state.onToggleIsSendingOrder,
-		onToggleIsPrintingProducts: state.onToggleIsPrintingProducts,
 		onToggleIsDeletingSelectedProducts:
 			state.onToggleIsDeletingSelectedProducts,
 	}));
@@ -149,7 +147,6 @@ export const useProductsActions = (
 		resetOrderAmount,
 		disableDelete,
 		isLoadingDeleteByIds,
-		onToggleIsPrintingProducts,
 		onToggleIsCreatingProduct,
 		onToggleIsDeletingSelectedProducts,
 		isOpen,
