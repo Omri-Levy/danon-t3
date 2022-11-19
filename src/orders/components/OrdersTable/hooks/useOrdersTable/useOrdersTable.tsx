@@ -11,6 +11,7 @@ import { fallbackWhen } from '../../../../../common/utils/fallback-when/fallback
 import { useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { parseSearchParams } from '../../../../../products/components/ProductsTable/hooks/useProductsTable./useProductsTable';
+import { Order } from '../../../../../db/db';
 
 export const useOrdersTable = (
 	orders: TOrderGetAllOutput,
@@ -44,8 +45,8 @@ export const useOrdersTable = (
 			{
 				accessorKey: 'createdAt',
 				header: locale.he.createdAt,
-				cell: ({ getValue }) => {
-					const value = getValue();
+				accessorFn: (row: Order) => {
+					const value = row?.createdAt;
 
 					if (!isInstanceOfDate(value)) {
 						return value;
