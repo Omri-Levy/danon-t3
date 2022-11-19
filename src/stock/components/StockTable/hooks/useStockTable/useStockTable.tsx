@@ -83,6 +83,10 @@ export const useStockTable = (
 				header: locale.he.pricePerUnit,
 			},
 			{
+				accessorKey: 'unit',
+				header: locale.he.unit,
+			},
+			{
 				accessorKey: 'name',
 				header: locale.he.productName,
 			},
