@@ -59,8 +59,14 @@ export const SuppliersTable: FunctionComponent<
 				)}
 			</th>
 		)}
-		renderCell={(cell, render) => (
-			<td className={`p-0 pt-px`}>{render}</td>
+		renderCell={(cell, render, index) => (
+			<td className={`p-0 pt-px`}>
+				{cell.column.id === `index` ? (
+					<strong>{index + 1}</strong>
+				) : (
+					render
+				)}
+			</td>
 		)}
 		className={`table table-compact w-full`}
 	/>

@@ -51,6 +51,7 @@ class ProductsRepository {
 				'product.unit',
 				'product.packageSize',
 				'product.orderAmount',
+				'product.pricePerUnit',
 				'product.stock',
 				'product.orderId',
 				'supplier.name as supplierName',

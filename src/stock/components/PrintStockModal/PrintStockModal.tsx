@@ -1,17 +1,18 @@
 import { locale } from '../../../common/translations';
 import { usePdfTable } from '../../hooks/usePdfTable/usePdfTable';
-import { useGetAllProducts } from '../../products.api';
+import { useGetAllProducts } from '../../stock.api';
 import { FunctionComponent, useMemo } from 'react';
 import { Modal } from '../../../common/components/molecules/Modal/Modal';
 import { useModalsStore } from '../../../common/stores/modals/modals';
 import produce from 'immer';
 import { addRowIndex } from '../../../common/utils/add-row-index/add-row-index';
+import { toShekels } from '../../../common/utils/to-shekels/to-shekels';
 
-export const PrintModal: FunctionComponent = () => {
-	const { isOpen, onToggleIsPrinting } = useModalsStore(
+export const PrintStockModal: FunctionComponent = () => {
+	const { isOpen, onToggleIsPrintingStock } = useModalsStore(
 		(state) => ({
 			isOpen: state.isOpen,
-			onToggleIsPrinting: state.onToggleIsPrinting,
+			onToggleIsPrintingStock: state.onToggleIsPrintingStock,
 		}),
 	);
 	const { products } = useGetAllProducts();
@@ -19,16 +20,16 @@ export const PrintModal: FunctionComponent = () => {
 		() =>
 			[
 				{
+					accessorKey: 'cost',
+					header: locale.he.cost,
+				},
+				{
 					accessorKey: 'stock',
 					header: locale.he.stock,
 				},
 				{
-					accessorKey: 'packageSize',
-					header: locale.he.packageSize,
-				},
-				{
-					accessorKey: 'unit',
-					header: locale.he.unit,
+					accessorKey: 'pricePerUnit',
+					header: locale.he.pricePerUnit,
 				},
 				{
 					accessorKey: 'name',
@@ -52,7 +53,14 @@ export const PrintModal: FunctionComponent = () => {
 			})),
 		[],
 	);
-	const dividedBySupplier = (data: typeof products) => {
+	const toDivide = products?.map(
+		({ cost, pricePerUnit, ...rest }) => ({
+			cost: toShekels(cost),
+			pricePerUnit: toShekels(pricePerUnit),
+			...rest,
+		}),
+	);
+	const dividedBySupplier = (data: typeof toDivide) => {
 		const entries = produce<Record<PropertyKey, typeof products>>(
 			{},
 			(draft) => {
@@ -72,13 +80,13 @@ export const PrintModal: FunctionComponent = () => {
 			?.sort((a, b) => a.localeCompare(b))
 			.map((key) => entries[key]?.flatMap(addRowIndex));
 	};
-	const data = dividedBySupplier(products);
+	const data = dividedBySupplier(toDivide);
 	const base64 = usePdfTable(headers, data);
 
 	return (
 		<Modal
 			isOpen={isOpen}
-			onOpen={onToggleIsPrinting}
+			onOpen={onToggleIsPrintingStock}
 			title={locale.he.print}
 			contentProps={{
 				className:

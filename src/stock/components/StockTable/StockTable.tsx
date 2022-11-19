@@ -1,8 +1,8 @@
 import { FunctionComponent } from 'react';
 import { ReactTable } from '../../../common/components/molecules/ReactTable/ReactTable';
-import { IOrdersTableProps } from './interfaces';
+import { IProductsTableProps } from './interfaces';
 
-export const OrdersTable: FunctionComponent<IOrdersTableProps> = ({
+export const StockTable: FunctionComponent<IProductsTableProps> = ({
 	table,
 }) => (
 	<ReactTable

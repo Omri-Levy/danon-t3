@@ -20,7 +20,7 @@ export const ProductsActions: FunctionComponent<
 		isLoadingDeleteByIds,
 		onToggleIsDeletingSelectedProducts,
 		isOpen,
-		onToggleIsPrinting,
+		onToggleIsPrintingProducts,
 		onToggleIsCreatingProduct,
 		onUploadFile,
 		fileInputRef,
@@ -138,7 +138,7 @@ export const ProductsActions: FunctionComponent<
 				</svg>
 			</ModalButton>
 			<ModalButton
-				onOpen={onToggleIsPrinting}
+				onOpen={onToggleIsPrintingProducts}
 				isOpen={isOpen}
 				className={`btn gap-2`}
 			>

@@ -7,10 +7,9 @@ import {
 	Table,
 } from '@tanstack/table-core';
 import { useGetAllSupplierNames } from '../../../../../suppliers/suppliers.api';
-import { useUpdateProductById } from '../../../../products.api';
+import { useUpdateProductById } from '../../../../stock.api';
 import { locale } from '../../../../../common/translations';
 import { SelectColumn } from '../../../../../common/components/atoms/SelectColumn/SelectColumn';
-import { Unit } from '../../../../../common/enums';
 import { DefaultCell } from '../../../../../common/components/atoms/DefaultCell/DefaultCell';
 import {
 	productIdSchema,
@@ -44,6 +43,7 @@ declare module '@tanstack/react-table' {
 					className: 'text-left';
 					dir: 'rtl';
 					isCurrency?: boolean;
+					isEditable?: boolean;
 			  }
 			| {
 					type: 'number';
@@ -51,17 +51,19 @@ declare module '@tanstack/react-table' {
 					className: 'text-left';
 					dir: 'rtl';
 					isCurrency?: boolean;
+					isEditable?: boolean;
 			  }
 			| {
 					type: 'text';
 					className?: string;
+					isEditable?: boolean;
 			  };
 	}
 }
 
 export const columnHelper =
 	createColumnHelper<TProductGetByIdOutput>();
-export const useProductsTable = (
+export const useStockTable = (
 	products: Array<TProductGetByIdOutput>,
 ) => {
 	const { supplierNames } = useGetAllSupplierNames();
@@ -69,22 +71,16 @@ export const useProductsTable = (
 	const columns: Array<ColumnDef<TProductGetByIdOutput>> = useMemo(
 		() => [
 			{
-				accessorKey: 'orderAmount',
-				header: locale.he.orderAmount,
+				accessorKey: 'cost',
+				header: locale.he.cost,
 			},
 			{
-				accessorKey: 'packageSize',
-				header: locale.he.packageSize,
+				accessorKey: 'stock',
+				header: locale.he.stock,
 			},
 			{
-				accessorKey: 'unit',
-				header: locale.he.unit,
-				cell: (props) => (
-					<SelectColumn
-						options={Object.values(Unit)}
-						{...props}
-					/>
-				),
+				accessorKey: 'pricePerUnit',
+				header: locale.he.pricePerUnit,
 			},
 			{
 				accessorKey: 'name',
@@ -133,7 +129,7 @@ export const useProductsTable = (
 					columnId === 'supplier_name'
 						? 'supplier'
 						: columnId;
-				const isNumeric = ['orderAmount', 'packageSize'].some(
+				const isNumeric = ['stock', 'pricePerUnit'].some(
 					(col) => col === columnId,
 				);
 				const result = runtimeSchema.safeParse({
@@ -190,26 +186,35 @@ export const useProductsTable = (
 			rowIndex: number,
 			columnId: string,
 			table: Table<TProductGetByIdOutput>,
-		) =>
-			['orderAmount', 'packageSize'].some(
-				(value) => value === columnId,
-			)
-				? {
-						type: 'number',
-						className: 'text-left',
-						step:
-							columnId === 'orderAmount'
-								? table.getRow(rowIndex.toString())
-										.original?.packageSize
-								: undefined,
-						min: 0,
-						dir: 'rtl',
-						isEditable: true,
-				  }
-				: {
-						type: 'text',
-						isEditable: true,
-				  },
+		) => {
+			const compare = (value: string) => value === columnId;
+			const isNumeric = ['stock', 'cost', 'pricePerUnit'].some(
+				compare,
+			);
+			const isCurrency = ['cost', 'pricePerUnit'].some(compare);
+			const isUnEditable = ['cost'].some(compare);
+
+			if (isNumeric) {
+				return {
+					type: 'number',
+					className: 'text-left',
+					step:
+						columnId === 'orderAmount'
+							? table.getRow(rowIndex.toString())
+									.original?.packageSize
+							: undefined,
+					min: 0,
+					dir: 'rtl',
+					isEditable: !isUnEditable,
+					isCurrency,
+				};
+			}
+
+			return {
+				type: 'text',
+				isEditable: !isUnEditable,
+			};
+		},
 		[],
 	);
 	const [searchParams] = useSearchParams();

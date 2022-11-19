@@ -19,6 +19,7 @@ import clsx from 'clsx';
 import { locale } from '../../../translations';
 import NProgress from 'nprogress';
 import { useDebounce } from 'react-use';
+import { stock } from '../../../../stock';
 
 NProgress.configure({ showSpinner: false });
 
@@ -58,7 +59,7 @@ export const Root = () => {
 					}}
 					toastOptions={{
 						// In milliseconds - 1000 * 5 -> 5 seconds
-						duration: 1000 * 10,
+						duration: 1000 * 4,
 					}}
 				/>
 				<header
@@ -122,7 +123,7 @@ const router = createBrowserRouter([
 	{
 		path: '/',
 		element: <Root />,
-		children: [products, suppliers, orders],
+		children: [products, suppliers, orders, stock],
 	},
 ]);
 

@@ -69,6 +69,11 @@ export const locale = {
 					max: `כמות להזמנה חייבת להיות קטנה יותר או שווה ל1000`,
 					min: `כמות להזמנה חייבת להיות גדולה יותר מ0`,
 				},
+				pricePerUnit: {
+					invalid: `מחיר ליחידה חייב להיות מספר חיובי`,
+					max: `מחיר ליחידה חייב להיות קטן יותר או שווה ל1000`,
+					min: `מחיר ליחידה חייב להיות גדול יותר מ0`,
+				},
 				stock: {
 					invalid: `מלאי חייב להיות מספר חיובי`,
 					max: `מלאי חייב להיות קטן יותר או שווה ל1000`,
@@ -88,6 +93,8 @@ export const locale = {
 		productName: `שם מוצר`,
 		unit: `יחידה`,
 		packageSize: `גודל אריזה`,
+		pricePerUnit: `מחיר ליחידה`,
+		cost: `עלות`,
 		orderAmount: `כמות הזמנה`,
 		stock: `מלאי`,
 		name: `שם`,
@@ -192,6 +199,10 @@ export const locale = {
 					invalid: `Order amount must be a positive number`,
 					max: `Order amount must be less than or equal to 1000`,
 				},
+				pricePerUnit: {
+					invalid: `Price per unit must be a positive number`,
+					max: `Price per unit must be less than or equal to 1000`,
+				},
 				stock: {
 					invalid: `Stock must be a positive number`,
 					max: `Stock must be less than or equal to 1000`,
@@ -210,6 +221,8 @@ export const locale = {
 		productName: `Product Name`,
 		unit: `Unit`,
 		packageSize: `Package Size`,
+		pricePerUnit: `Price Per Unit`,
+		cost: `Cost`,
 		orderAmount: `Order Amount`,
 		stock: `Stock`,
 		name: `Name`,

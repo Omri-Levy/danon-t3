@@ -4,20 +4,26 @@ import { useEditableInput } from './hooks/useEditableInput/useEditableInput';
 
 export const EditableInput: FunctionComponent<
 	IEditableInputProps
-> = ({ initialValue, onEdit, ...props }) => {
+> = ({ initialValue, onEdit, isCurrency, isEditable, ...props }) => {
 	const { value, onChange, onKeyDown, resetValue, ref } =
 		useEditableInput(initialValue, onEdit);
 
 	return (
-		<input
-			dir={`auto`}
-			className={`bg-transparent pl-1`}
-			value={value}
-			onChange={onChange}
-			onKeyDown={onKeyDown}
-			onBlur={resetValue}
-			ref={ref}
-			{...props}
-		/>
+		<div className='form-control'>
+			<label className='input-group input-group-md'>
+				{isCurrency && <span>₪</span>}
+				<input
+					disabled={!isEditable}
+					dir={`auto`}
+					className={`bg-transparent pl-1 uneditable`}
+					value={value}
+					onChange={onChange}
+					onKeyDown={onKeyDown}
+					onBlur={resetValue}
+					ref={ref}
+					{...props}
+				/>
+			</label>
+		</div>
 	);
 };

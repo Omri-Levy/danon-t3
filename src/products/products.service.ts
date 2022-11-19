@@ -25,6 +25,9 @@ class ProductsService {
 		return result.map((product) => ({
 			...product,
 			id: `${product.supplierId}-${product.sku}`,
+			cost:
+				parseFloat(product.pricePerUnit) *
+				parseFloat(product.stock),
 		}));
 	}
 
@@ -165,6 +168,7 @@ class ProductsService {
 				unit: sql`VALUES(unit)`,
 				packageSize: sql`VALUES(packageSize)`,
 				orderAmount: sql`VALUES(orderAmount)`,
+				pricePerUnit: sql`VALUES(pricePerUnit)`,
 				stock: sql`VALUES(stock)`,
 			})
 			.execute();

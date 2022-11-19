@@ -39,6 +39,7 @@ export interface Product {
   orderAmount: Decimal;
   orderId: string | null;
   packageSize: Decimal;
+  pricePerUnit: Decimal;
   sku: string;
   stock: Decimal;
   supplierId: string;
