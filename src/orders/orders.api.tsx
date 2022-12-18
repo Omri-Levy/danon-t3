@@ -123,7 +123,7 @@ export const useSendOrder = () => {
 
 				return {
 					resource: 'order',
-					action: 'delete',
+					action: 'send',
 				};
 			},
 			onSettled: () => {

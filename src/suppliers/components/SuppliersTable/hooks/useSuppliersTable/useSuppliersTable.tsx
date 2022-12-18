@@ -1,4 +1,5 @@
 import {
+	TProductGetByIdOutput,
 	TSupplierGetAllOutput,
 	TSupplierGetByIdOutput,
 } from '../../../../../common/types';
@@ -108,6 +109,19 @@ export const useSuppliersTable = (
 	const [searchParams] = useSearchParams();
 	const { limit = '', cursor = '' } =
 		parseSearchParams(searchParams);
+	const format = useCallback(
+		(
+			rowIndex: number,
+			columnId: string,
+			table: Table<TProductGetByIdOutput>,
+		) => {
+			return {
+				type: 'text',
+				isEditable: true,
+			};
+		},
+		[],
+	);
 	const table = useTable({
 		columns,
 		data: suppliers,
@@ -129,6 +143,7 @@ export const useSuppliersTable = (
 		initialSorting: [{ id: 'name', desc: false }],
 		meta: {
 			updateData,
+			format,
 		},
 	});
 
