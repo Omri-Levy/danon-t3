@@ -37,7 +37,7 @@ export const useOrders = () => {
 	const navigate = useNavigate();
 	const onIdChange = useCallback(
 		(id: string) => {
-			navigate(`/orders/${id}${location.search}`);
+			navigate(`/orders-history/${id}${location.search}`);
 		},
 		[navigate, isOpen, location.search],
 	);

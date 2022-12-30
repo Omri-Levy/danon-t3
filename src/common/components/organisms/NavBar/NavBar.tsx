@@ -6,7 +6,7 @@ import { FunctionComponent } from 'react';
 export const NavBar: FunctionComponent = () => {
 	const suppliers = useMatch('/suppliers')?.pathname;
 	const products = useMatch('/')?.pathname;
-	const orders = useMatch('/orders')?.pathname;
+	const orders = useMatch('/orders-history')?.pathname;
 	const stock = useMatch('/stock')?.pathname;
 
 	return (
@@ -47,7 +47,7 @@ export const NavBar: FunctionComponent = () => {
 				</li>
 				<li className={'w-full text-lg p-0'}>
 					<Link
-						to={`/orders`}
+						to={`/orders-history`}
 						className={clsx([
 							`w-full flex items-center gap-2`,
 							{
@@ -67,7 +67,7 @@ export const NavBar: FunctionComponent = () => {
 								clipRule='evenodd'
 							/>
 						</svg>
-						{locale.he.orders}
+						{locale.he.ordersHistory}
 					</Link>
 				</li>
 				<li className={'w-full text-lg p-0'}>
