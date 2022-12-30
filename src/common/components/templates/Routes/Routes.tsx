@@ -2,10 +2,14 @@ import {
 	createBrowserRouter,
 	Outlet,
 	RouterProvider,
-	useMatch,
 	useNavigation,
 } from 'react-router-dom';
-import { FunctionComponent, Suspense, useEffect } from 'react';
+import {
+	FunctionComponent,
+	Suspense,
+	useCallback,
+	useEffect,
+} from 'react';
 import { products } from '../../../../products';
 import { suppliers } from '../../../../suppliers';
 import { orders } from '../../../../orders';
@@ -17,7 +21,7 @@ import { useModalsStore } from '../../../stores/modals/modals';
 import { NavBar } from '../../organisms/NavBar/NavBar';
 import { locale } from '../../../translations';
 import NProgress from 'nprogress';
-import { useDebounce } from 'react-use';
+import { useDebounce, useToggle } from 'react-use';
 import { stock } from '../../../../stock';
 
 NProgress.configure({ showSpinner: false });
@@ -27,7 +31,6 @@ export const Root = () => {
 		getModal: state.getModal,
 	}));
 	const Modal = getModal();
-	const isProducts = useMatch('/')?.pathname;
 	const { state } = useNavigation();
 	const [, debouncedOnLoading] = useDebounce(
 		() => {
@@ -42,6 +45,11 @@ export const Root = () => {
 		500,
 		// Without all of these all search params but filter_by and filter work.
 		[state],
+	);
+	const [isChecked, toggleIsChecked] = useToggle(false);
+	const onToggleIsChecked = useCallback(
+		() => toggleIsChecked(),
+		[toggleIsChecked],
 	);
 
 	useEffect(() => {
@@ -66,14 +74,27 @@ export const Root = () => {
 						id='dashboard-drawer'
 						type='checkbox'
 						className='drawer-toggle'
+						checked={isChecked}
+						onChange={onToggleIsChecked}
 					/>
 					<div className={`drawer-content`}>
 						<main className='w-full flex flex-col items-center p-1 min-h-full relative'>
 							<label
 								htmlFor='dashboard-drawer'
-								className='btn btn-primary drawer-button lg:hidden'
+								className='btn btn-circle drawer-button lg:hidden fixed top-2 right-6 z-50'
 							>
-								Open drawer
+								<svg
+									xmlns='http://www.w3.org/2000/svg'
+									viewBox='0 0 20 20'
+									fill='currentColor'
+									className='w-5 h-5'
+								>
+									<path
+										fillRule='evenodd'
+										d='M2 3.75A.75.75 0 012.75 3h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 3.75zm0 4.167a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75zm0 4.166a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75zm0 4.167a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z'
+										clipRule='evenodd'
+									/>
+								</svg>
 							</label>
 							<Spinner />
 							<Modal />
@@ -84,13 +105,13 @@ export const Root = () => {
 							</section>
 						</main>
 					</div>
-					<div className={`drawer-side`}>
+					<div className={`drawer-side overflow-x-hidden`}>
 						<label
 							htmlFor='dashboard-drawer'
 							className='drawer-overlay'
 						></label>
 						<header
-							className={`w-46 flex flex-col p-2 border-l border-l-base-content`}
+							className={`w-46 flex flex-col p-2 border-l border-l-base-content bg-base-100`}
 						>
 							<NavBar />
 							<a
