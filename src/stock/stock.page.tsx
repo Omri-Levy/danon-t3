@@ -31,7 +31,7 @@ export const Stock: NextPage = () => {
 					table.getPreFilteredRowModel()?.rows?.length
 				}
 			/>
-			<div className={`overflow-auto h-[calc(100vh-11.5rem)]`}>
+			<div className={`overflow-auto h-[calc(100vh-13rem)]`}>
 				{!isLoading && <StockTable table={table} />}
 			</div>
 			{!!products?.length && <Pagination table={table} />}

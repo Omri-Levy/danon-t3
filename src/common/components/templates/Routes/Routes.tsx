@@ -23,6 +23,7 @@ import { locale } from '../../../translations';
 import NProgress from 'nprogress';
 import { useDebounce, useToggle } from 'react-use';
 import { stock } from '../../../../stock';
+import clsx from 'clsx';
 
 NProgress.configure({ showSpinner: false });
 
@@ -107,11 +108,18 @@ export const Root = () => {
 						</svg>
 					</label>
 					<div className={`drawer-content`}>
-						<main className='w-full flex flex-col items-center p-1 min-h-full relative'>
+						<main
+							className={clsx(
+								'w-full flex p-1 flex-col items-center min-h-full relative',
+								{
+									'pl-3': isChecked,
+								},
+							)}
+						>
 							<Spinner />
 							<Modal />
 							<section
-								className={`overflow-x-auto flex flex-col w-full`}
+								className={`flex flex-col w-full`}
 							>
 								<Outlet />
 							</section>
