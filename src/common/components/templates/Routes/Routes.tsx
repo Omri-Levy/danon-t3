@@ -79,7 +79,7 @@ export const Root = () => {
 					/>
 					<label
 						htmlFor='dashboard-drawer'
-						className='swap swap-rotate btn btn-circle drawer-button lg:hidden fixed bottom-2 left-6 z-50'
+						className='swap swap-rotate btn btn-circle drawer-button lg:hidden fixed bottom-2 left-6 z-10'
 					>
 						<input
 							type={`checkbox`}
@@ -123,11 +123,11 @@ export const Root = () => {
 							className='drawer-overlay'
 						></label>
 						<header
-							className={`w-46 flex flex-col p-2 border-l border-l-base-content bg-base-100`}
+							className={`w-46 flex flex-col p-2 shadow border-l bg-base-100`}
 						>
 							<NavBar />
 							<a
-								className={`btn w-full gap-2 hover:bg-accent-focus`}
+								className={`btn hover:bg-accent-focus w-full gap-2`}
 								href={`/api/auth/federated-sign-out`}
 							>
 								{locale.he.signOut}

@@ -102,7 +102,7 @@ export const useTable = <TData extends RowData>({
 				id: 'select',
 				header: ({ table }) => (
 					<div
-						className={`bg-base-100 rounded p-px inline-flex`}
+						className={`bg-base-100 rounded-lg inline-flex`}
 					>
 						<IndeterminateCheckbox
 							{...{
@@ -116,7 +116,7 @@ export const useTable = <TData extends RowData>({
 					</div>
 				),
 				cell: ({ row }) => (
-					<div className={`pl-2`}>
+					<div className={`pl-2 flex p-1`}>
 						<IndeterminateCheckbox
 							{...{
 								checked: row.getIsSelected(),

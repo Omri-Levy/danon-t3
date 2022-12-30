@@ -11,7 +11,10 @@ export const NavBar: FunctionComponent = () => {
 
 	return (
 		<nav className={`navbar h-full p-0`}>
-			<ul className={`menu h-full min-w-[12rem]`} dir={`rtl`}>
+			<ul
+				className={`space-y-2 menu h-full min-w-[12rem]`}
+				dir={`rtl`}
+			>
 				<li className={'w-full text-lg p-0'}>
 					<Link
 						to={`/stock`}
