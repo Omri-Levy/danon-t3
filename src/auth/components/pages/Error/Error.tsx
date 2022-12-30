@@ -10,7 +10,7 @@ export const Error: NextPage = () => {
 				<div className='hero-content flex-col lg:flex-row'>
 					<img
 						src='https://placeimg.com/260/400/arch'
-						className='max-w-sm rounded-lg shadow-2xl'
+						className='max-w-sm rounded-box shadow-2xl'
 					/>
 					<div>
 						<h1 className='text-5xl font-bold'>
@@ -46,7 +46,7 @@ export const Error: NextPage = () => {
 				<div className='hero-content flex-col lg:flex-row'>
 					<img
 						src='https://placeimg.com/260/400/arch'
-						className='max-w-sm rounded-lg shadow-2xl'
+						className='max-w-sm rounded-box shadow-2xl'
 					/>
 					<div>
 						<h1 className='text-5xl font-bold'>
@@ -89,7 +89,7 @@ export const Error: NextPage = () => {
 				<div className='hero-content flex-col lg:flex-row'>
 					<img
 						src='https://placeimg.com/260/400/arch'
-						className='max-w-sm rounded-lg shadow-2xl'
+						className='max-w-sm rounded-box shadow-2xl'
 					/>
 					<div>
 						<h1 className='text-5xl font-bold'>
@@ -116,7 +116,7 @@ export const Error: NextPage = () => {
 			<div className='hero-content flex-col lg:flex-row'>
 				<img
 					src='https://placeimg.com/260/400/arch'
-					className='max-w-sm rounded-lg shadow-2xl'
+					className='max-w-sm rounded-box shadow-2xl'
 				/>
 				<div>
 					<h1 className='text-5xl font-bold'>Default</h1>

@@ -1,4 +1,4 @@
-import { NavLink, useMatch } from 'react-router-dom';
+import { Link, useMatch } from 'react-router-dom';
 import { locale } from '../../../translations';
 import clsx from 'clsx';
 import { FunctionComponent } from 'react';
@@ -6,25 +6,25 @@ import { FunctionComponent } from 'react';
 export const NavBar: FunctionComponent = () => {
 	const suppliers = useMatch('/suppliers')?.pathname;
 	const products = useMatch('/')?.pathname;
-	const orders = useMatch('/orders')?.pathname;
+	const orders = useMatch('/orders-history')?.pathname;
 	const stock = useMatch('/stock')?.pathname;
 
 	return (
-		<nav className={`navbar mx-auto`}>
-			<ul className={`tabs tabs-boxed tabs-large mx-auto`}>
-				<li
-					className={clsx([
-						'tab min-w-[12rem] text-lg p-0',
-						{
-							'tab-active': stock,
-						},
-					])}
-				>
-					<NavLink
+		<nav className={`navbar h-full p-0`}>
+			<ul
+				className={`space-y-2 menu h-full min-w-[12rem]`}
+				dir={`rtl`}
+			>
+				<li className={'w-full text-lg p-0'}>
+					<Link
 						to={`/stock`}
-						className={`w-full flex items-center justify-center gap-2`}
+						className={clsx([
+							`w-full flex items-center gap-2`,
+							{
+								active: stock,
+							},
+						])}
 					>
-						{locale.he.stock}
 						<svg
 							xmlns='http://www.w3.org/2000/svg'
 							viewBox='0 0 24 24'
@@ -42,21 +42,19 @@ export const NavBar: FunctionComponent = () => {
 								clipRule='evenodd'
 							/>
 						</svg>
-					</NavLink>
+						{locale.he.stock}
+					</Link>
 				</li>
-				<li
-					className={clsx([
-						'tab min-w-[12rem] text-lg p-0',
-						{
-							'tab-active': orders,
-						},
-					])}
-				>
-					<NavLink
-						to={`/orders`}
-						className={`w-full flex items-center justify-center gap-2`}
+				<li className={'w-full text-lg p-0'}>
+					<Link
+						to={`/orders-history`}
+						className={clsx([
+							`w-full flex items-center gap-2`,
+							{
+								active: orders,
+							},
+						])}
 					>
-						{locale.he.orders}
 						<svg
 							xmlns='http://www.w3.org/2000/svg'
 							viewBox='0 0 20 20'
@@ -69,21 +67,19 @@ export const NavBar: FunctionComponent = () => {
 								clipRule='evenodd'
 							/>
 						</svg>
-					</NavLink>
+						{locale.he.ordersHistory}
+					</Link>
 				</li>
-				<li
-					className={clsx([
-						'tab min-w-[12rem] text-lg p-0',
-						{
-							'tab-active': products,
-						},
-					])}
-				>
-					<NavLink
+				<li className={'w-full text-lg p-0'}>
+					<Link
 						to={`/`}
-						className={`w-full flex items-center justify-center gap-2`}
+						className={clsx([
+							`w-full flex items-center gap-2`,
+							{
+								active: products,
+							},
+						])}
 					>
-						{locale.he.products}
 						<svg
 							xmlns='http://www.w3.org/2000/svg'
 							viewBox='0 0 20 20'
@@ -97,21 +93,19 @@ export const NavBar: FunctionComponent = () => {
 								clipRule='evenodd'
 							/>
 						</svg>
-					</NavLink>
+						{locale.he.products}
+					</Link>
 				</li>
-				<li
-					className={clsx([
-						'tab min-w-[12rem] text-lg p-0',
-						{
-							'tab-active': suppliers,
-						},
-					])}
-				>
-					<NavLink
+				<li className={'w-full text-lg p-0'}>
+					<Link
 						to={`/suppliers`}
-						className={`w-full flex items-center justify-center gap-2`}
+						className={clsx([
+							`w-full flex items-center gap-2`,
+							{
+								active: suppliers,
+							},
+						])}
 					>
-						{locale.he.suppliers}
 						<svg
 							xmlns='http://www.w3.org/2000/svg'
 							viewBox='0 0 20 20'
@@ -120,7 +114,8 @@ export const NavBar: FunctionComponent = () => {
 						>
 							<path d='M2.879 7.121A3 3 0 007.5 6.66a2.997 2.997 0 002.5 1.34 2.997 2.997 0 002.5-1.34 3 3 0 104.622-3.78l-.293-.293A2 2 0 0015.415 2H4.585a2 2 0 00-1.414.586l-.292.292a3 3 0 000 4.243zM3 9.032a4.507 4.507 0 004.5-.29A4.48 4.48 0 0010 9.5a4.48 4.48 0 002.5-.758 4.507 4.507 0 004.5.29V16.5h.25a.75.75 0 010 1.5h-4.5a.75.75 0 01-.75-.75v-3.5a.75.75 0 00-.75-.75h-2.5a.75.75 0 00-.75.75v3.5a.75.75 0 01-.75.75h-4.5a.75.75 0 010-1.5H3V9.032z' />
 						</svg>
-					</NavLink>
+						{locale.he.suppliers}
+					</Link>
 				</li>
 			</ul>
 		</nav>

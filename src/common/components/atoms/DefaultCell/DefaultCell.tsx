@@ -24,7 +24,7 @@ export const DefaultCell = <TValue, TQuery>({
 			onEdit={updateValue}
 			initialValue={initialValue}
 			className={clsx(
-				`px-0 bg-transparent w-full input input-xs text-[1rem] rounded`,
+				`px-0 bg-transparent w-full input input-xs text-[1rem] rounded-box`,
 				className,
 			)}
 			isCurrency={isCurrency}

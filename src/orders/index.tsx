@@ -9,12 +9,12 @@ const LazyOrders = lazy(async () => {
 	return { default: Orders };
 });
 export const orders = {
-	path: '/orders',
+	path: '/orders-history',
 	element: <LazyOrders />,
 	loader: ordersLoader(queryClient),
 	children: [
 		{
-			path: '/orders/:orderId',
+			path: '/orders-history/:orderId',
 			element: <Outlet />,
 		},
 	],

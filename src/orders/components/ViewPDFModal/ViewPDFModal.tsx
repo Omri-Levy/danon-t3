@@ -34,7 +34,7 @@ export const ViewPDFModal: FunctionComponent = () => {
 
 			if (nextState) return;
 
-			navigate(`/orders${location.search}`);
+			navigate(`/orders-history${location.search}`);
 		},
 		[onToggleIsViewingPDF, navigate, location.search],
 	);

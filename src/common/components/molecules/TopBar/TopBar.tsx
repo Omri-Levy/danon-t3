@@ -17,7 +17,9 @@ export const TopBar: FunctionComponent<{
 	resource,
 }) => {
 	return (
-		<div className={`flex justify-between mb-1 gap-1 flex-wrap`}>
+		<div
+			className={`min-h-[5.5rem] min-w-[900px] flex justify-between mb-1 gap-1 flex-wrap`}
+		>
 			<div className={`space-x-2 flex items-end`}>
 				{Actions}
 			</div>
@@ -33,11 +35,11 @@ export const TopBar: FunctionComponent<{
 									resourceCount?.toString(),
 								)
 								.replace('$2', resource)}
-							className='input input-bordered !rounded-md'
+							className='input input-bordered !rounded-box'
 							value={globalFilter ?? ''}
 							onChange={onGlobalFilter}
 						/>
-						<div className='btn !rounded cursor-auto hover:bg-neutral'>
+						<div className='btn !rounded-box cursor-auto hover:bg-neutral'>
 							<svg
 								xmlns='http://www.w3.org/2000/svg'
 								viewBox='0 0 20 20'

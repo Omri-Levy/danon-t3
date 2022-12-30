@@ -29,7 +29,7 @@ export const Suppliers: NextPage = () => {
 				resourceCount={suppliersCount}
 			/>
 			<div
-				className={`overflow-auto h-[70vh] flex flex-col justify-between`}
+				className={`overflow-auto h-[calc(100vh-13rem)] flex flex-col justify-between`}
 			>
 				{!isLoading && <SuppliersTable table={table} />}
 			</div>

@@ -19,7 +19,7 @@ export const ProductsTable: FunctionComponent<
 			<th
 				align={header.id === 'select' ? undefined : 'center'}
 				colSpan={header.colSpan}
-				className={`sticky top-0 bg-neutral text-white`}
+				className={`z-10 sticky top-0 bg-neutral text-white`}
 			>
 				{header.isPlaceholder ? null : (
 					<div
@@ -68,6 +68,6 @@ export const ProductsTable: FunctionComponent<
 				)}
 			</td>
 		)}
-		className={`table table-compact w-full`}
+		className={`table table-zebra table-compact w-full`}
 	/>
 );

@@ -26,3 +26,7 @@
 	background-color: transparent;
 	border: none;
 }
+
+html, body, #__next {
+	height: 100%;
+}
