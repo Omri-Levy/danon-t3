@@ -30,7 +30,7 @@ export const Orders: NextPage = () => {
 				onGlobalFilter={onGlobalFilter}
 				resourceCount={ordersCount}
 			/>
-			<div className={`overflow-auto h-[70vh]`}>
+			<div className={`overflow-auto h-[calc(100vh-11.5rem)]`}>
 				{!isLoading && <OrdersTable table={table} />}
 			</div>
 			{!!orders?.length && <Pagination table={table} />}

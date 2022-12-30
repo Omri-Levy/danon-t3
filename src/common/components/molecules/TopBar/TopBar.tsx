@@ -17,7 +17,9 @@ export const TopBar: FunctionComponent<{
 	resource,
 }) => {
 	return (
-		<div className={`flex justify-between mb-1 gap-1 flex-wrap`}>
+		<div
+			className={`min-w-[900px] flex justify-between mb-1 gap-1 flex-wrap`}
+		>
 			<div className={`space-x-2 flex items-end`}>
 				{Actions}
 			</div>
