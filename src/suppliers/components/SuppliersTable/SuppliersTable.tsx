@@ -19,7 +19,7 @@ export const SuppliersTable: FunctionComponent<
 			<th
 				align={header.id === 'select' ? undefined : 'center'}
 				colSpan={header.colSpan}
-				className={`sticky top-0 bg-neutral text-white`}
+				className={`sticky z-50 top-0 bg-neutral text-white`}
 			>
 				{header.isPlaceholder ? null : (
 					<div

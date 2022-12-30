@@ -77,25 +77,37 @@ export const Root = () => {
 						checked={isChecked}
 						onChange={onToggleIsChecked}
 					/>
+					<label
+						htmlFor='dashboard-drawer'
+						className='swap swap-rotate btn btn-circle drawer-button lg:hidden fixed bottom-2 left-6 z-50'
+					>
+						<input
+							type={`checkbox`}
+							checked={isChecked}
+						/>
+						<svg
+							xmlns='http://www.w3.org/2000/svg'
+							viewBox='0 0 20 20'
+							fill='currentColor'
+							className='swap-off w-5 h-5'
+						>
+							<path
+								fillRule='evenodd'
+								d='M2 3.75A.75.75 0 012.75 3h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 3.75zm0 4.167a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75zm0 4.166a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75zm0 4.167a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z'
+								clipRule='evenodd'
+							/>
+						</svg>
+						<svg
+							xmlns='http://www.w3.org/2000/svg'
+							viewBox='0 0 20 20'
+							fill='currentColor'
+							className='w-5 h-5 swap-on'
+						>
+							<path d='M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z' />
+						</svg>
+					</label>
 					<div className={`drawer-content`}>
 						<main className='w-full flex flex-col items-center p-1 min-h-full relative'>
-							<label
-								htmlFor='dashboard-drawer'
-								className='btn btn-circle drawer-button lg:hidden fixed top-2 right-6 z-50'
-							>
-								<svg
-									xmlns='http://www.w3.org/2000/svg'
-									viewBox='0 0 20 20'
-									fill='currentColor'
-									className='w-5 h-5'
-								>
-									<path
-										fillRule='evenodd'
-										d='M2 3.75A.75.75 0 012.75 3h14.5a.75.75 0 010 1.5H2.75A.75.75 0 012 3.75zm0 4.167a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75zm0 4.166a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75zm0 4.167a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H2.75a.75.75 0 01-.75-.75z'
-										clipRule='evenodd'
-									/>
-								</svg>
-							</label>
 							<Spinner />
 							<Modal />
 							<section

@@ -19,7 +19,7 @@ export const StockTable: FunctionComponent<IProductsTableProps> = ({
 			<th
 				align={header.id === 'select' ? undefined : 'center'}
 				colSpan={header.colSpan}
-				className={`sticky top-0 bg-neutral text-white`}
+				className={`sticky top-0 bg-neutral text-white z-50`}
 			>
 				{header.isPlaceholder ? null : (
 					<div
