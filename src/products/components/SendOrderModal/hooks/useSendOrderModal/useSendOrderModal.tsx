@@ -9,10 +9,14 @@ import { locale } from '../../../../../common/translations';
 import { addRowIndex } from '../../../../../common/utils/add-row-index/add-row-index';
 import { usePdfTable } from '../../../../hooks/usePdfTable/usePdfTable';
 import { SubmitHandler, useForm } from 'react-hook-form';
-import { TOrderSendInput } from '../../../../../common/types';
+import {
+	TOrderSendInput,
+	TProductGetByIdOutput,
+} from '../../../../../common/types';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { sendOrderSchema } from '../../../../../orders/validation';
 import { getLocaleDateString } from '../../../../../common/utils/get-locale-date-string/get-locale-date-string';
+import { reverseIfHebrew } from '../../../../../common/utils/reverse-if-hebrew/reverse-if-hebrew';
 
 export const useSendOrderModal = () => {
 	const { isOpen, onToggleIsSendingOrder } = useModalsStore(
@@ -51,7 +55,7 @@ export const useSendOrderModal = () => {
 					header: '',
 				},
 			].map(({ header, ...rest }) => ({
-				header: header.split('').reverse().join(''),
+				header: reverseIfHebrew(header),
 				...rest,
 			})),
 		[],
@@ -64,13 +68,29 @@ export const useSendOrderModal = () => {
 		() => products?.map(addRowIndex),
 		[products],
 	);
+	const productKeys = Object.keys(withRowIndex?.[0] ?? {}) as Array<
+		keyof TProductGetByIdOutput
+	>;
+	const withRtl = useMemo(
+		() =>
+			withRowIndex?.flatMap((product) =>
+				productKeys.reduce<Record<PropertyKey, any>>(
+					(acc, key) => {
+						acc[key] = reverseIfHebrew(product[key]);
+
+						return acc;
+					},
+					{},
+				),
+			),
+		[productKeys, withRowIndex],
+	);
 	const base64 = usePdfTable(
 		headers,
-		[withRowIndex ?? []],
-		`הזמנה מספר ${nextOrder} - ${getLocaleDateString()}`
-			.split('')
-			.reverse()
-			.join(''),
+		[withRtl ?? []],
+		reverseIfHebrew(
+			`הזמנה מספר ${nextOrder} - ${getLocaleDateString()}`,
+		),
 	);
 	const onSendOrderSubmit: SubmitHandler<TOrderSendInput> =
 		useCallback(async () => {

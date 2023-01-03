@@ -7,6 +7,8 @@ import { useModalsStore } from '../../../common/stores/modals/modals';
 import produce from 'immer';
 import { addRowIndex } from '../../../common/utils/add-row-index/add-row-index';
 import { toShekels } from '../../../common/utils/to-shekels/to-shekels';
+import { reverseIfHebrew } from '../../../common/utils/reverse-if-hebrew/reverse-if-hebrew';
+import { TProductGetByIdOutput } from '../../../common/types';
 
 export const PrintStockModal: FunctionComponent = () => {
 	const { isOpen, onToggleIsPrintingStock } = useModalsStore(
@@ -52,12 +54,29 @@ export const PrintStockModal: FunctionComponent = () => {
 					header: '',
 				},
 			].map(({ header, ...rest }) => ({
-				header: header.split('').reverse().join(''),
+				header: reverseIfHebrew(header),
 				...rest,
 			})),
 		[],
 	);
-	const toDivide = products?.map(
+	const productKeys = Object.keys(products?.[0] ?? {}) as Array<
+		keyof TProductGetByIdOutput
+	>;
+	const withRtl = useMemo(
+		() =>
+			products?.flatMap((product) =>
+				productKeys.reduce<Record<PropertyKey, any>>(
+					(acc, key) => {
+						acc[key] = reverseIfHebrew(product[key]);
+
+						return acc;
+					},
+					{},
+				),
+			),
+		[productKeys, products],
+	);
+	const toDivide = withRtl?.map(
 		({ cost, pricePerUnit, ...rest }) => ({
 			cost: toShekels(cost),
 			pricePerUnit: toShekels(pricePerUnit),
